@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 200" width="680" height="200" font-family="'Segoe UI', system-ui, sans-serif">
+  <defs>
+    <style>
+      :root {
+        --bg: #f8fafc; --border: #e2e8f0; --card-bg: #ffffff; --card-border: #e2e8f0;
+        --value-text: #1e293b; --text-sub: #64748b; --arrow: #94a3b8; --shadow: rgba(0,0,0,0.07);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #0f172a; --border: #1e293b; --card-bg: #1e293b; --card-border: #334155;
+          --value-text: #f1f5f9; --text-sub: #94a3b8; --arrow: #64748b; --shadow: rgba(0,0,0,0.4);
+        }
+      }
+    </style>
+    <filter id="se-shadow"><feDropShadow dx="0" dy="2" stdDeviation="5" flood-color="var(--shadow)"/></filter>
+    <marker id="se-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="var(--arrow)"/>
+    </marker>
+  </defs>
+
+  <rect width="680" height="200" rx="14" fill="var(--bg)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="340" y="26" text-anchor="middle" fill="var(--text-sub)" font-size="11" font-weight="600" letter-spacing="0.5">ALUR: APLIKASI &#8594; SQL &#8594; ENGINE &#8594; DATA</text>
+
+  <!-- App -->
+  <g filter="url(#se-shadow)">
+    <rect x="24" y="70" width="130" height="76" rx="12" fill="var(--card-bg)" stroke="var(--card-border)" stroke-width="1.5"/>
+  </g>
+  <text x="89" y="102" text-anchor="middle" fill="#3b82f6" font-size="13" font-weight="700">Aplikasi</text>
+  <text x="89" y="122" text-anchor="middle" fill="var(--text-sub)" font-size="10">(browser/app)</text>
+
+  <line x1="154" y1="108" x2="200" y2="108" stroke="var(--arrow)" stroke-width="2" marker-end="url(#se-arrow)"/>
+
+  <!-- SQL query -->
+  <g filter="url(#se-shadow)">
+    <rect x="204" y="70" width="150" height="76" rx="12" fill="var(--card-bg)" stroke="var(--card-border)" stroke-width="1.5"/>
+  </g>
+  <text x="279" y="98" text-anchor="middle" fill="#7c3aed" font-size="13" font-weight="700">Query SQL</text>
+  <text x="279" y="120" text-anchor="middle" fill="var(--value-text)" font-size="11" font-family="'JetBrains Mono', monospace">SELECT * FROM buku;</text>
+
+  <line x1="354" y1="108" x2="400" y2="108" stroke="var(--arrow)" stroke-width="2" marker-end="url(#se-arrow)"/>
+
+  <!-- Engine -->
+  <g filter="url(#se-shadow)">
+    <rect x="404" y="70" width="130" height="76" rx="12" fill="var(--card-bg)" stroke="var(--card-border)" stroke-width="1.5"/>
+  </g>
+  <text x="469" y="102" text-anchor="middle" fill="#059669" font-size="13" font-weight="700">SQLite Engine</text>
+  <text x="469" y="122" text-anchor="middle" fill="var(--text-sub)" font-size="10">(sql.js / WASM)</text>
+
+  <line x1="534" y1="108" x2="580" y2="108" stroke="var(--arrow)" stroke-width="2" marker-end="url(#se-arrow)"/>
+
+  <!-- Data -->
+  <g filter="url(#se-shadow)">
+    <ellipse cx="620" cy="90" rx="34" ry="10" fill="none" stroke="#f59e0b" stroke-width="2"/>
+    <path d="M586 90 V126 C586 132 602 137 620 137 C638 137 654 132 654 126 V90" fill="none" stroke="#f59e0b" stroke-width="2"/>
+  </g>
+  <text x="620" y="160" text-anchor="middle" fill="#d97706" font-size="12" font-weight="700">Data</text>
+</svg>

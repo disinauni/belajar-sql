@@ -1,0 +1,128 @@
+---
+title: "Mini Project: Bookstore Queries"
+unit: 1
+lesson: 7
+description: "Combining SELECT, WHERE, ORDER BY, LIMIT, AS, and DISTINCT into more realistic queries"
+objectives:
+  - "Compose multi-clause queries in the correct order"
+  - "Answer real business questions using a combination of SELECT/WHERE/ORDER BY/LIMIT"
+  - "Review every Basic SELECT concept from Unit 1"
+estimatedTime: 35
+prerequisites: ["unit-1/06-distinct"]
+difficulty: "beginner"
+tags: ["project", "review", "capstone"]
+database: "toko_buku"
+translationStatus: "complete"
+---
+
+# Mini Project: Bookstore Queries
+
+Congratulations on reaching the end of Unit 1! Time to combine everything you've learned — `SELECT`, `WHERE`, `ORDER BY`, `LIMIT`, `AS`, and `DISTINCT` — to answer realistic questions like the ones an online bookstore admin deals with every day.
+
+## Full Clause Order
+
+So far, the correct SELECT clause writing order is:
+
+```sql
+SELECT column1, column2 AS alias
+FROM table
+WHERE condition
+ORDER BY column ASC/DESC
+LIMIT n;
+```
+
+<img src="/images/query-execution-order.svg" alt="SQL query clause evaluation order" width="100%" />
+
+Interestingly, this **writing** order differs from SQLite's actual **evaluation** order under the hood: SQLite actually processes `FROM` and `WHERE` first (determining which rows are relevant), then `SELECT` (choosing columns), then `ORDER BY`, and finally `LIMIT`. For now, just remember the **writing** order.
+
+## Case Study: A Bookstore Admin's Questions
+
+**Question 1: "Which fiction books are priced under 80000, sorted cheapest first?"**
+
+```sql
+SELECT judul, harga
+FROM buku
+WHERE kategori = 'Fiksi' AND harga < 80000
+ORDER BY harga ASC;
+```
+
+:::note
+`AND` combines two WHERE conditions at once — a row must satisfy **both**. We'll dig deeper into this logical operator in Unit 2, but you can already start using it now.
+:::
+
+**Question 2: "The 3 books with the lowest stock, for a restock report?"**
+
+```sql
+SELECT judul AS "Judul Buku", stok AS "Stok Tersisa"
+FROM buku
+ORDER BY stok ASC
+LIMIT 3;
+```
+
+**Question 3: "What book categories does the store carry?"**
+
+```sql
+SELECT DISTINCT kategori FROM buku;
+```
+
+## Project Exercises
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u1l7-ex1"
+  title="Most Expensive Non-Fiction Book Report"
+  description="Display the title and price for books in the 'Non-Fiksi' category, sorted by most expensive, taking only the top 1."
+  type="code-output"
+  strictOrder
+  starterCode="SELECT judul, harga FROM buku WHERE kategori = 'Fiksi' ORDER BY harga DESC LIMIT 1;"
+  expectedQuery="SELECT judul, harga FROM buku WHERE kategori = 'Non-Fiksi' ORDER BY harga DESC LIMIT 1;"
+  hints={["Change the category value to 'Non-Fiksi'", "Query structure: WHERE, then ORDER BY, then LIMIT"]}
+  explanation="Combining WHERE (filter category) + ORDER BY DESC (most expensive first) + LIMIT 1 (take the top one) answers 'the most expensive book in a given category'."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u1l7-ex2"
+  title="Restock Report"
+  description="Display the title (aliased 'Judul') and stock (aliased 'Sisa Stok') for books with stock under 10, sorted from the lowest."
+  type="code-output"
+  strictOrder
+  starterCode="SELECT judul, stok FROM buku;"
+  expectedQuery='SELECT judul AS Judul, stok AS "Sisa Stok" FROM buku WHERE stok < 10 ORDER BY stok ASC;'
+  hints={["Use WHERE stok < 10", "Alias both columns with AS", "Sort ASC so the most critical appears first"]}
+  explanation="WHERE stok < 10 filters books needing a restock, ORDER BY stok ASC shows the most critical first, and AS gives clearer column names for a report."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u1l7-ex3"
+  title="Category of the Most Expensive Books"
+  description="Which query correctly displays the top 5 most expensive books along with their category?"
+  type="multiple-choice"
+  options={[
+    "SELECT judul, kategori, harga FROM buku LIMIT 5 ORDER BY harga DESC;",
+    "SELECT judul, kategori, harga FROM buku ORDER BY harga DESC LIMIT 5;",
+    "SELECT judul, kategori, harga FROM buku WHERE harga DESC LIMIT 5;",
+    "ORDER BY harga DESC SELECT judul, kategori, harga FROM buku LIMIT 5;"
+  ]}
+  correctIndex={1}
+  hints={["Remember the clause order: SELECT...FROM...WHERE...ORDER BY...LIMIT..."]}
+  explanation="The correct clause order is SELECT, FROM, (WHERE), ORDER BY, then LIMIT last."
+  lang="en"
+/>
+
+## Reflection: What You've Mastered
+
+| Clause/Concept | Function |
+|-----------------|----------|
+| `SELECT` | Choose which columns to display |
+| `FROM` | Specify the source table |
+| `WHERE` | Filter rows by a condition |
+| Comparison operators | `=`, `<>`, `>`, `<`, `>=`, `<=` |
+| `ORDER BY` | Sort results (ASC/DESC) |
+| `LIMIT` / `OFFSET` | Limit & skip a number of rows |
+| `AS` | Alias a column/table |
+| `DISTINCT` | Remove duplicate rows |
+
+You've just mastered the foundations of basic SELECT — the core skill behind almost all SQL work! In **Unit 2 (Filtering & Operators)**, we'll go deeper into WHERE with logical operators (`AND`/`OR`/`NOT`), `LIKE`, `IN`, `BETWEEN`, and how to handle `NULL` values.

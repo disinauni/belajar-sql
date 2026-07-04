@@ -1,0 +1,346 @@
+---
+import { getCollection, render as renderEntry } from 'astro:content'
+import LessonLayout from '@/layouts/LessonLayout.astro'
+import CodeBlock from '@/components/learn/CodeBlock.astro'
+import InfoBox from '@/components/learn/InfoBox.astro'
+import LessonNav from '@/components/learn/LessonNav.astro'
+import TableOfContents from '@/components/common/TableOfContents.astro'
+import { CURRICULUM_ID } from '@/lib/curriculum'
+import { t, interpolate } from '@/lib/i18n'
+import type { Language } from '@/types/lesson'
+
+export async function getStaticPaths() {
+  const lessonsId = await getCollection('lessons-id')
+  const lessonsEn = await getCollection('lessons-en')
+
+  const paths: {
+    params: { lang: string; unit: string; lesson: string }
+    props: { entry: any; collectionName: string }
+  }[] = []
+
+  for (const entry of lessonsId) {
+    const id = entry.id ?? (entry as any).slug
+    const parts = id.split('/')
+    if (parts.length !== 2) continue
+    paths.push({
+      params: { lang: 'id', unit: parts[0], lesson: parts[1] },
+      props: { entry, collectionName: 'lessons-id' },
+    })
+  }
+
+  for (const entry of lessonsEn) {
+    const id = entry.id ?? (entry as any).slug
+    const parts = id.split('/')
+    if (parts.length !== 2) continue
+    paths.push({
+      params: { lang: 'en', unit: parts[0], lesson: parts[1] },
+      props: { entry, collectionName: 'lessons-en' },
+    })
+  }
+
+  return paths
+}
+
+const { lang, unit: unitSlug, lesson: lessonSlug } = Astro.params as {
+  lang: Language
+  unit: string
+  lesson: string
+}
+const { entry } = Astro.props
+
+const fullSlug = `${unitSlug}/${lessonSlug}`
+const { Content, headings } = await renderEntry(entry)
+
+// Find unit metadata
+const unit = CURRICULUM_ID.find(u => u.slug === unitSlug)
+const lessonMeta = unit?.lessons.find(l => l.slug === fullSlug)
+
+// Difficulty badge color
+const difficultyColor = entry.data.difficulty === 'intermediate'
+  ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300'
+  : 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300'
+---
+<LessonLayout
+  title={entry.data.title}
+  description={entry.data.description}
+  lang={lang}
+  currentLessonSlug={fullSlug}
+  unitSlug={unitSlug}
+>
+  <!-- Lesson Header -->
+  <div class="mb-8">
+    <!-- Breadcrumb -->
+    <nav class="mb-4 text-sm text-slate-500 dark:text-slate-400">
+      <a href={`/${lang}/curriculum`} class="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+        {t(lang, 'nav.curriculum')}
+      </a>
+      <span class="mx-1.5">/</span>
+      <a href={`/${lang}/learn/${unitSlug}`} class="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+        {unit?.title[lang] || unitSlug}
+      </a>
+      <span class="mx-1.5">/</span>
+      <span class="text-slate-700 dark:text-slate-300">{entry.data.title}</span>
+    </nav>
+
+    <h1 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white mb-3">
+      {entry.data.title}
+    </h1>
+
+    <!-- Meta row -->
+    <div class="flex flex-wrap items-center gap-3 text-sm mb-4">
+      <span class="flex items-center gap-1 text-slate-500 dark:text-slate-400">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 6 12 12 16 14"/>
+        </svg>
+        {interpolate(t(lang, 'lesson.estimatedTime'), { time: String(entry.data.estimatedTime) })}
+      </span>
+      <span class={`text-xs px-2 py-0.5 rounded font-medium ${difficultyColor}`}>
+        {entry.data.difficulty === 'intermediate'
+          ? (lang === 'id' ? 'Menengah' : 'Intermediate')
+          : (lang === 'id' ? 'Pemula' : 'Beginner')}
+      </span>
+      {lessonMeta?.isProject && (
+        <span class="text-xs px-2 py-0.5 rounded bg-accent-100 dark:bg-accent-900/40 text-accent-700 dark:text-accent-300 font-medium">
+          Project
+        </span>
+      )}
+      <!-- Read time tracker -->
+      <span id="read-time-wrap" class="hidden items-center gap-1 text-xs text-slate-400 dark:text-slate-500">
+        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>
+        </svg>
+        <span id="read-time">0m</span>
+      </span>
+    </div>
+
+    <!-- Objectives -->
+    {entry.data.objectives && entry.data.objectives.length > 0 && (
+      <div class="p-4 rounded-lg bg-primary-50 dark:bg-primary-950/30 border border-primary-200 dark:border-primary-800">
+        <h2 class="text-sm font-semibold text-primary-900 dark:text-primary-100 mb-2">
+          {t(lang, 'lesson.objectives')}
+        </h2>
+        <ul class="space-y-1">
+          {entry.data.objectives.map((obj: string) => (
+            <li class="flex items-start gap-2 text-sm text-primary-800 dark:text-primary-200">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0 mt-0.5">
+                <polyline points="9 11 12 14 22 4"/>
+                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+              </svg>
+              {obj}
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
+  </div>
+
+  <!-- Table of Contents (inline on mobile/tablet, hidden on xl where sidebar shows) -->
+  <div class="xl:hidden mb-6">
+    <TableOfContents headings={headings} lang={lang} />
+  </div>
+
+  <!-- Lesson Content (MDX rendered) -->
+  <article class="prose prose-slate dark:prose-invert max-w-none
+    prose-headings:scroll-mt-20
+    prose-h2:text-xl prose-h2:font-bold prose-h2:mt-10 prose-h2:mb-4
+    prose-h3:text-lg prose-h3:font-semibold prose-h3:mt-8 prose-h3:mb-3
+    prose-p:leading-relaxed prose-p:text-slate-700 prose-p:dark:text-slate-300
+    prose-li:text-slate-700 prose-li:dark:text-slate-300
+    prose-strong:text-slate-900 prose-strong:dark:text-white
+    prose-pre:p-0 prose-pre:bg-transparent prose-pre:border-0
+    prose-a:text-primary-600 prose-a:dark:text-primary-400 prose-a:underline-offset-2
+    prose-blockquote:border-primary-300 prose-blockquote:dark:border-primary-700
+  ">
+    <Content />
+  </article>
+
+  <!-- Mark complete button -->
+  <div class="mt-10 flex justify-center">
+    <button
+      id="mark-complete-btn"
+      class="inline-flex items-center gap-2 px-6 py-3 rounded-lg border-2 border-emerald-500 text-emerald-600 dark:text-emerald-400 font-medium hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-colors"
+      data-lesson-slug={fullSlug}
+      data-lang={lang}
+      data-label-complete={t(lang, 'lesson.markComplete')}
+      data-label-done={lang === 'id' ? 'Selesai' : 'Done'}
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+      <span>{t(lang, 'lesson.markComplete')}</span>
+    </button>
+  </div>
+
+  <!-- Resume position toast -->
+  <div
+    id="resume-toast"
+    class="fixed bottom-24 left-4 md:bottom-8 md:left-6 z-50 hidden max-w-[240px] bg-slate-900 border border-slate-700 rounded-xl shadow-2xl p-4 transition-all duration-300 -translate-x-3 opacity-0"
+  >
+    <p class="text-sm font-semibold text-white mb-0.5">
+      {lang === 'id' ? 'Lanjutkan membaca?' : 'Continue reading?'}
+    </p>
+    <p class="text-xs text-slate-400 mb-3 leading-snug">
+      {lang === 'id' ? 'Kamu sudah membaca sebagian lesson ini.' : "You've partially read this lesson."}
+    </p>
+    <div class="flex gap-2">
+      <button id="resume-yes" class="text-xs px-3 py-1.5 rounded-lg bg-primary-600 text-white hover:bg-primary-700 transition-colors font-medium">
+        {lang === 'id' ? 'Lanjutkan' : 'Resume'}
+      </button>
+      <button id="resume-no" class="text-xs px-3 py-1.5 rounded-lg bg-slate-700 text-slate-300 hover:bg-slate-600 transition-colors">
+        {lang === 'id' ? 'Dari Awal' : 'Start Over'}
+      </button>
+    </div>
+  </div>
+
+  <!-- Badge toast notification -->
+  <div
+    id="badge-toast"
+    class="fixed bottom-24 right-4 md:bottom-6 md:right-6 z-50 hidden max-w-xs bg-slate-900 border border-slate-700 rounded-xl shadow-2xl p-4 transition-all duration-300 translate-y-2 opacity-0"
+  >
+    <div class="flex items-start gap-3">
+      <div class="text-2xl leading-none mt-0.5" id="badge-toast-icon">🏅</div>
+      <div>
+        <p class="text-sm font-semibold text-white" id="badge-toast-title">
+          {lang === 'id' ? 'Lencana Baru!' : 'New Badge!'}
+        </p>
+        <p class="text-xs text-slate-400 mt-0.5" id="badge-toast-name"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lesson Navigation -->
+  <LessonNav currentSlug={fullSlug} lang={lang} />
+
+  <!-- TOC for sticky sidebar at xl breakpoint -->
+  <Fragment slot="toc">
+    <TableOfContents headings={headings} lang={lang} />
+  </Fragment>
+</LessonLayout>
+
+<script>
+  import { markLessonComplete, isLessonComplete, loadProgress } from '@/lib/progress'
+
+  const btn = document.getElementById('mark-complete-btn') as HTMLButtonElement | null
+  const toast = document.getElementById('badge-toast') as HTMLElement | null
+  const toastName = document.getElementById('badge-toast-name') as HTMLElement | null
+
+  if (btn) {
+    const slug      = btn.dataset.lessonSlug || ''
+    const labelDone = btn.dataset.labelDone || '✓ Done'
+
+    function markDone() {
+      btn!.classList.remove('border-emerald-500', 'text-emerald-600', 'dark:text-emerald-400', 'hover:bg-emerald-50', 'dark:hover:bg-emerald-950/30')
+      btn!.classList.add('bg-emerald-500', 'text-white', 'border-emerald-500', 'cursor-default')
+      btn!.querySelector('span')!.textContent = labelDone
+      btn!.disabled = true
+    }
+
+    // Restore state if already complete
+    if (isLessonComplete(slug)) markDone()
+
+    btn.addEventListener('click', () => {
+      if (btn.disabled) return
+      const badgesBefore = loadProgress().unlockedBadges.slice()
+      markLessonComplete(slug)
+      const badgesAfter = loadProgress().unlockedBadges
+      const newBadge = badgesAfter.find(b => !badgesBefore.includes(b)) ?? null
+      markDone()
+      showBadgeToast(newBadge)
+      // Clear saved scroll — lesson is done
+      localStorage.removeItem(`belajar-sql:scroll:${slug}`)
+    })
+  }
+
+  const BADGE_LABELS: Record<string, [string, string]> = {
+    'first-lesson':      ['🌟', 'First Step!'],
+    'unit-0-complete':   ['🗄️', 'Unit 0 Clear!'],
+    'unit-1-complete':   ['🥉', 'Unit 1 Clear!'],
+    'unit-2-complete':   ['🥈', 'Unit 2 Clear!'],
+    'unit-3-complete':   ['🥇', 'Unit 3 Clear!'],
+    'unit-4-complete':   ['🏆', 'Unit 4 Clear!'],
+    'unit-5-complete':   ['💎', 'Unit 5 Clear!'],
+    'unit-6-complete':   ['👑', 'Unit 6 Clear!'],
+    'all-units-complete':['🎓', 'Master!'],
+    'first-playground':  ['🚀', 'First Project!'],
+    'streak-3':          ['🔥', '3-Day Streak!'],
+    'streak-7':          ['⚡', '7-Day Streak!'],
+  }
+
+  // ── Scroll position save/restore ──────────────────────────────────────────
+  const lessonSlug = window.location.pathname.split('/').slice(-2).join('/')
+  const SCROLL_KEY = `belajar-sql:scroll:${lessonSlug}`
+  const MIN_SCROLL = 250
+
+  // Save position (debounced 600ms)
+  let scrollTimer: ReturnType<typeof setTimeout>
+  window.addEventListener('scroll', () => {
+    clearTimeout(scrollTimer)
+    scrollTimer = setTimeout(() => {
+      if (window.scrollY > MIN_SCROLL) localStorage.setItem(SCROLL_KEY, String(Math.round(window.scrollY)))
+    }, 600)
+  }, { passive: true })
+
+  // Show resume toast if saved position exists
+  const savedPos = parseInt(localStorage.getItem(SCROLL_KEY) ?? '0')
+  const resumeToast = document.getElementById('resume-toast') as HTMLElement | null
+  if (savedPos > MIN_SCROLL && resumeToast) {
+    const showToast = () => {
+      resumeToast.classList.remove('hidden')
+      requestAnimationFrame(() => {
+        resumeToast.classList.remove('-translate-x-3', 'opacity-0')
+        resumeToast.classList.add('translate-x-0', 'opacity-100')
+      })
+    }
+    const hideToast = () => {
+      resumeToast.classList.add('-translate-x-3', 'opacity-0')
+      resumeToast.classList.remove('translate-x-0', 'opacity-100')
+      setTimeout(() => resumeToast.classList.add('hidden'), 300)
+    }
+    setTimeout(showToast, 900)
+    setTimeout(hideToast, 9000)
+
+    document.getElementById('resume-yes')?.addEventListener('click', () => {
+      window.scrollTo({ top: savedPos, behavior: 'smooth' })
+      hideToast()
+    })
+    document.getElementById('resume-no')?.addEventListener('click', () => {
+      localStorage.removeItem(SCROLL_KEY)
+      hideToast()
+    })
+  }
+
+  // ── Reading time tracker ────────────────────────────────────────────────────
+  const readTimeEl = document.getElementById('read-time') as HTMLElement | null
+  const readTimeWrap = document.getElementById('read-time-wrap') as HTMLElement | null
+  if (readTimeEl && readTimeWrap) {
+    let secs = 0
+    let active = !document.hidden
+    const tick = setInterval(() => {
+      if (!active) return
+      secs++
+      if (secs >= 60) readTimeWrap.classList.replace('hidden', 'inline-flex')
+      readTimeEl.textContent = `${Math.floor(secs / 60)}m`
+    }, 1000)
+    document.addEventListener('visibilitychange', () => { active = !document.hidden })
+  }
+
+  function showBadgeToast(badgeId: string | null) {
+    if (!badgeId || !toast || !toastName) return
+    const [icon, label] = BADGE_LABELS[badgeId] ?? ['🏅', badgeId]
+    const iconEl = document.getElementById('badge-toast-icon')
+    if (iconEl) iconEl.textContent = icon
+    if (toastName) toastName.textContent = label
+
+    toast.classList.remove('hidden')
+    requestAnimationFrame(() => {
+      toast.classList.remove('translate-y-2', 'opacity-0')
+      toast.classList.add('translate-y-0', 'opacity-100')
+    })
+    setTimeout(() => {
+      toast.classList.add('translate-y-2', 'opacity-0')
+      toast.classList.remove('translate-y-0', 'opacity-100')
+      setTimeout(() => toast.classList.add('hidden'), 300)
+    }, 3500)
+  }
+</script>

@@ -1,0 +1,255 @@
+---
+import PageLayout from '@/layouts/PageLayout.astro'
+import { CURRICULUM_ID, getTotalLessons, getLessonUrl } from '@/lib/curriculum'
+import type { Language } from '@/types/lesson'
+
+export function getStaticPaths() {
+  return [{ params: { lang: 'id' } }, { params: { lang: 'en' } }]
+}
+
+const { lang } = Astro.params as { lang: Language }
+const totalLessons = getTotalLessons()
+---
+
+<PageLayout
+  title={lang === 'id' ? 'Progress Belajar' : 'Learning Progress'}
+  description={lang === 'id' ? 'Pantau kemajuan belajar SQL kamu' : 'Track your SQL learning progress'}
+  lang={lang}
+>
+  <div class="max-w-3xl mx-auto" id="progress-page">
+    <h1 class="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-2">
+      {lang === 'id' ? 'Progress Belajar' : 'Learning Progress'}
+    </h1>
+    <p class="text-slate-500 dark:text-slate-400 mb-8">
+      {lang === 'id' ? 'Disimpan di perangkat kamu — tidak perlu login.' : 'Saved on your device — no login needed.'}
+    </p>
+
+    <!-- Overall progress -->
+    <div class="p-6 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 mb-8">
+      <div class="flex items-center justify-between mb-3">
+        <span class="font-semibold text-slate-900 dark:text-white">
+          {lang === 'id' ? 'Keseluruhan' : 'Overall'}
+        </span>
+        <span class="text-sm text-slate-500 dark:text-slate-400">
+          <span id="overall-completed">0</span> / {totalLessons} {lang === 'id' ? 'pelajaran' : 'lessons'}
+        </span>
+      </div>
+      <div class="w-full h-3 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
+        <div id="overall-bar" class="h-full rounded-full bg-primary-500 transition-all duration-500" style="width: 0%"></div>
+      </div>
+      <div class="mt-3 flex gap-6 text-sm text-slate-500 dark:text-slate-400">
+        <span class="flex items-center gap-1.5">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M8.5 14.5A2.5 2.5 0 0011 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 11-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 002.5 2.5z"/>
+          </svg>
+          <span id="streak-days">0</span> {lang === 'id' ? 'hari streak' : 'day streak'}
+        </span>
+        <span class="flex items-center gap-1.5">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="8" r="6"/>
+            <path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/>
+          </svg>
+          <span id="badge-count">0</span> {lang === 'id' ? 'lencana' : 'badges'}
+        </span>
+      </div>
+    </div>
+
+    <!-- Per-unit progress -->
+    <div class="space-y-4 mb-8">
+      {CURRICULUM_ID.map(unit => (
+        <div
+          class:list={[
+            'p-5 rounded-xl border transition-colors',
+            unit.isAvailable
+              ? 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-primary-300 dark:hover:border-primary-700'
+              : 'bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 opacity-60'
+          ]}
+        >
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-3">
+              <span class="text-xs font-mono px-2 py-0.5 rounded bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300">
+                Unit {unit.id}
+              </span>
+              <span class="font-medium text-slate-900 dark:text-white text-sm">
+                {unit.title[lang]}
+              </span>
+              {!unit.isAvailable && (
+                <span class="text-xs text-slate-400 dark:text-slate-500">
+                  {lang === 'id' ? 'Segera' : 'Coming soon'}
+                </span>
+              )}
+            </div>
+            <span
+              class="text-xs text-slate-500 dark:text-slate-400"
+              id={`unit-${unit.id}-count`}
+            >
+              0 / {unit.lessons.length}
+            </span>
+          </div>
+          <div class="w-full h-2 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
+            <div
+              id={`unit-${unit.id}-bar`}
+              class="h-full rounded-full bg-emerald-500 transition-all duration-500"
+              style="width: 0%"
+            ></div>
+          </div>
+          {unit.isAvailable && unit.lessons.length > 0 && (
+            <div class="mt-3">
+              <a
+                id={`unit-${unit.id}-link`}
+                href={getLessonUrl(lang, unit.lessons[0].slug)}
+                class="text-xs text-primary-600 dark:text-primary-400 hover:underline"
+              >
+                {lang === 'id' ? 'Lanjutkan →' : 'Continue →'}
+              </a>
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+
+    <!-- Badges -->
+    <div class="mb-8">
+      <h2 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">
+        {lang === 'id' ? 'Lencana' : 'Badges'}
+      </h2>
+      <div id="badges-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        <!-- filled by JS -->
+      </div>
+    </div>
+
+    <!-- Reset button -->
+    <div class="border-t border-slate-200 dark:border-slate-800 pt-6 flex items-center justify-between">
+      <p class="text-sm text-slate-500 dark:text-slate-400">
+        {lang === 'id'
+          ? 'Progress disimpan di localStorage perangkat kamu.'
+          : 'Progress is stored in your device\'s localStorage.'}
+      </p>
+      <button
+        id="reset-btn"
+        class="text-sm text-red-500 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+        data-confirm="false"
+      >
+        {lang === 'id' ? 'Reset progress' : 'Reset progress'}
+      </button>
+    </div>
+  </div>
+</PageLayout>
+
+<script define:vars={{ totalLessons, units: CURRICULUM_ID, lang }}>
+  const S = 'width="28" height="28" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"'
+  const BADGE_ICONS = {
+    'first-lesson':       `<svg ${S} stroke="#f59e0b"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>`,
+    'unit-0-complete':    `<svg ${S} stroke="#3b82f6"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.66 3.58 3 8 3s8-1.34 8-3V6"/><path d="M4 12v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/></svg>`,
+    'unit-1-complete':    `<svg ${S} stroke="#b45309"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>`,
+    'unit-2-complete':    `<svg ${S} stroke="#64748b"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>`,
+    'unit-3-complete':    `<svg ${S} stroke="#ca8a04"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>`,
+    'unit-4-complete':    `<svg ${S} stroke="#ca8a04"><circle cx="9" cy="12" r="6"/><circle cx="15" cy="12" r="6"/></svg>`,
+    'unit-5-complete':    `<svg ${S} stroke="#0ea5e9"><path d="M6 3h12l4 6-10 13L2 9z"/><path d="M11 3L8 9l4 13 4-13-3-6"/><path d="M2 9h20"/></svg>`,
+    'unit-6-complete':    `<svg ${S} stroke="#a855f7"><polygon points="2,19 4,10 8,15 12,4 16,15 20,10 22,19"/><rect x="2" y="20" width="20" height="2" rx="1" stroke="none" fill="#a855f7"/></svg>`,
+    'all-units-complete': `<svg ${S} stroke="#6366f1"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>`,
+    'first-playground':   `<svg ${S} stroke="#f97316"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="9" y1="10" x2="9" y2="20"/></svg>`,
+    'streak-3':           `<svg ${S} stroke="#f97316"><path d="M8.5 14.5A2.5 2.5 0 0011 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 11-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 002.5 2.5z"/></svg>`,
+    'streak-7':           `<svg ${S} stroke="#eab308"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`,
+  }
+
+  const BADGES = [
+    { id: 'first-lesson',       label: { id: 'Langkah Pertama',    en: 'First Step' },         desc: { id: 'Selesaikan 1 pelajaran',         en: 'Complete 1 lesson' } },
+    { id: 'unit-0-complete',    label: { id: 'Tamat Unit 0',        en: 'Unit 0 Complete' },    desc: { id: 'Selesaikan semua lesson Unit 0', en: 'Finish all Unit 0 lessons' } },
+    { id: 'unit-1-complete',    label: { id: 'Tamat Unit 1',        en: 'Unit 1 Complete' },    desc: { id: 'Selesaikan semua lesson Unit 1', en: 'Finish all Unit 1 lessons' } },
+    { id: 'unit-2-complete',    label: { id: 'Tamat Unit 2',        en: 'Unit 2 Complete' },    desc: { id: 'Selesaikan semua lesson Unit 2', en: 'Finish all Unit 2 lessons' } },
+    { id: 'unit-3-complete',    label: { id: 'Tamat Unit 3',        en: 'Unit 3 Complete' },    desc: { id: 'Selesaikan semua lesson Unit 3', en: 'Finish all Unit 3 lessons' } },
+    { id: 'unit-4-complete',    label: { id: 'Tamat Unit 4',        en: 'Unit 4 Complete' },    desc: { id: 'Selesaikan semua lesson Unit 4', en: 'Finish all Unit 4 lessons' } },
+    { id: 'unit-5-complete',    label: { id: 'Tamat Unit 5',        en: 'Unit 5 Complete' },    desc: { id: 'Selesaikan semua lesson Unit 5', en: 'Finish all Unit 5 lessons' } },
+    { id: 'unit-6-complete',    label: { id: 'Tamat Unit 6',        en: 'Unit 6 Complete' },    desc: { id: 'Selesaikan semua lesson Unit 6', en: 'Finish all Unit 6 lessons' } },
+    { id: 'all-units-complete', label: { id: 'Master SQL',          en: 'SQL Master' },         desc: { id: 'Selesaikan semua unit tersedia', en: 'Complete all available units' } },
+    { id: 'first-playground',   label: { id: 'Proyek Mini Pertama', en: 'First Mini Project' }, desc: { id: 'Selesaikan 1 proyek mini',       en: 'Complete a mini project' } },
+    { id: 'streak-3',           label: { id: 'Streak 3 Hari',       en: '3-Day Streak' },       desc: { id: 'Belajar 3 hari berturut-turut',  en: 'Study 3 days in a row' } },
+    { id: 'streak-7',           label: { id: 'Streak 7 Hari',       en: '7-Day Streak' },       desc: { id: 'Belajar 7 hari berturut-turut',  en: 'Study 7 days in a row' } },
+  ]
+
+  function loadProgress() {
+    try {
+      const raw = localStorage.getItem('belajar-sql-progress')
+      return raw ? JSON.parse(raw) : null
+    } catch { return null }
+  }
+
+  function renderProgress() {
+    const progress = loadProgress()
+    const completed = progress?.completedLessons ?? []
+    const streak    = progress?.streakDays ?? 0
+    const unlocked  = new Set(progress?.unlockedBadges ?? [])
+
+    // Overall
+    const pct = totalLessons > 0 ? Math.round((completed.length / totalLessons) * 100) : 0
+    document.getElementById('overall-completed').textContent = completed.length
+    document.getElementById('overall-bar').style.width = pct + '%'
+    document.getElementById('streak-days').textContent = streak
+    document.getElementById('badge-count').textContent = unlocked.size
+
+    // Per unit + continue link
+    units.forEach(unit => {
+      const done = completed.filter(s => s.startsWith(unit.slug + '/')).length
+      const unitPct = unit.lessons.length > 0 ? Math.round((done / unit.lessons.length) * 100) : 0
+      const countEl = document.getElementById(`unit-${unit.id}-count`)
+      const barEl   = document.getElementById(`unit-${unit.id}-bar`)
+      const linkEl  = document.getElementById(`unit-${unit.id}-link`)
+      if (countEl) countEl.textContent = `${done} / ${unit.lessons.length}`
+      if (barEl)   barEl.style.width = unitPct + '%'
+      // Point "Continue" to first uncompleted lesson
+      if (linkEl && unit.lessons.length > 0) {
+        const nextLesson = unit.lessons.find(l => !completed.includes(l.slug)) ?? unit.lessons[0]
+        linkEl.href = `/${lang}/learn/${nextLesson.slug}`
+      }
+    })
+
+    // Badges grid
+    const grid = document.getElementById('badges-grid')
+    if (!grid) return
+    grid.innerHTML = BADGES.map(b => {
+      const earned = unlocked.has(b.id)
+      return `
+        <div class="flex items-start gap-3 p-3 rounded-xl border transition-colors ${
+          earned
+            ? 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-700/50'
+            : 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 opacity-50 grayscale'
+        }">
+          <span class="flex-shrink-0">${BADGE_ICONS[b.id] ?? ''}</span>
+          <div class="min-w-0">
+            <p class="text-xs font-semibold ${earned ? 'text-amber-900 dark:text-amber-200' : 'text-slate-500 dark:text-slate-400'} truncate">
+              ${b.label[lang] || b.label.en}
+            </p>
+            <p class="text-xs ${earned ? 'text-amber-700 dark:text-amber-400' : 'text-slate-400 dark:text-slate-500'} mt-0.5 leading-snug">
+              ${b.desc[lang] || b.desc.en}
+            </p>
+          </div>
+        </div>`
+    }).join('')
+  }
+
+  // Reset — two-step confirmation without browser dialog
+  const resetBtn = document.getElementById('reset-btn')
+  if (resetBtn) {
+    resetBtn.addEventListener('click', () => {
+      if (resetBtn.dataset.confirm !== 'true') {
+        resetBtn.dataset.confirm = 'true'
+        resetBtn.textContent = lang === 'id' ? 'Yakin? Klik lagi untuk reset' : 'Sure? Click again to reset'
+        resetBtn.classList.add('font-semibold')
+        setTimeout(() => {
+          resetBtn.dataset.confirm = 'false'
+          resetBtn.textContent = lang === 'id' ? 'Reset progress' : 'Reset progress'
+          resetBtn.classList.remove('font-semibold')
+        }, 4000)
+      } else {
+        localStorage.removeItem('belajar-sql-progress')
+        renderProgress()
+        resetBtn.dataset.confirm = 'false'
+        resetBtn.textContent = lang === 'id' ? 'Reset progress' : 'Reset progress'
+        resetBtn.classList.remove('font-semibold')
+      }
+    })
+  }
+
+  renderProgress()
+</script>

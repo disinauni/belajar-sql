@@ -1,0 +1,156 @@
+---
+import LanguageToggle from '@/components/common/LanguageToggle.astro'
+import ThemeToggle from '@/components/common/ThemeToggle.astro'
+import { t } from '@/lib/i18n'
+import type { Language } from '@/types/lesson'
+
+interface Props {
+  lang: Language
+  currentPath: string
+}
+const { lang, currentPath } = Astro.props
+
+const navLinks = [
+  {
+    href: `/${lang}`,
+    label: t(lang, 'nav.home'),
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
+  },
+  {
+    href: `/${lang}/curriculum`,
+    label: t(lang, 'nav.curriculum'),
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>`,
+  },
+  {
+    href: `/${lang}/playground`,
+    label: t(lang, 'nav.playground'),
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="7" ry="2.5"/><path d="M5 6v6c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5V6"/><path d="M5 12v6c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-6"/></svg>`,
+  },
+]
+
+function isActive(href: string): boolean {
+  if (href === `/${lang}`) return currentPath === href || currentPath === `/${lang}/`
+  return currentPath.startsWith(href)
+}
+---
+<header class="sticky top-0 z-30 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
+      <!-- Logo -->
+      <a href={`/${lang}`} class="flex items-center gap-2 font-bold text-lg text-primary-600 dark:text-primary-400 hover:opacity-80 transition-opacity">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+          <ellipse cx="12" cy="6" rx="8" ry="3"/>
+          <path d="M4 6v6c0 1.66 3.58 3 8 3s8-1.34 8-3V6"/>
+          <path d="M4 12v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/>
+        </svg>
+        <span>Belajar SQL</span>
+      </a>
+
+      <!-- Desktop nav -->
+      <nav class="hidden md:flex items-center gap-1">
+        {navLinks.map(link => (
+          <a
+            href={link.href}
+            class:list={[
+              'flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+              isActive(link.href)
+                ? 'bg-primary-50 dark:bg-primary-950 text-primary-600 dark:text-primary-400'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800'
+            ]}
+          >
+            <span set:html={link.icon} aria-hidden="true" />
+            {link.label}
+          </a>
+        ))}
+      </nav>
+
+      <!-- Right side controls -->
+      <div class="flex items-center gap-2">
+        <LanguageToggle lang={lang} currentPath={currentPath} />
+        <ThemeToggle />
+
+        <!-- Mobile hamburger -->
+        <button
+          id="hamburger-btn"
+          class="md:hidden p-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          aria-label={t(lang, 'nav.toggleMenu')}
+          aria-expanded="false"
+        >
+          <!-- Hamburger icon -->
+          <svg id="hamburger-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <line x1="3" y1="12" x2="21" y2="12"/>
+            <line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+          <!-- X icon (shown when nav open) -->
+          <svg id="close-nav-icon" class="hidden" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile nav dropdown (used on non-lesson pages) -->
+  <div
+    id="mobile-nav-dropdown"
+    class="hidden md:hidden border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950"
+  >
+    <nav class="px-4 py-3 space-y-1">
+      {navLinks.map(link => (
+        <a
+          href={link.href}
+          class:list={[
+            'flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
+            isActive(link.href)
+              ? 'bg-primary-50 dark:bg-primary-950 text-primary-600 dark:text-primary-400'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800'
+          ]}
+        >
+          <span set:html={link.icon} />
+          {link.label}
+        </a>
+      ))}
+    </nav>
+  </div>
+</header>
+
+<script is:inline>
+  const hamburgerBtn = document.getElementById('hamburger-btn')
+  const hamburgerIcon = document.getElementById('hamburger-icon')
+  const closeNavIcon = document.getElementById('close-nav-icon')
+  const dropdown = document.getElementById('mobile-nav-dropdown')
+
+  if (hamburgerBtn) {
+    hamburgerBtn.addEventListener('click', () => {
+      // Jika ada lesson sidebar (LessonLayout), biarkan LessonLayout yang handle
+      const lessonSidebar = document.getElementById('mobile-sidebar')
+      if (lessonSidebar) return
+
+      // Kalau tidak ada lesson sidebar, toggle nav dropdown
+      const isOpen = !dropdown.classList.contains('hidden')
+      if (isOpen) {
+        dropdown.classList.add('hidden')
+        hamburgerIcon.classList.remove('hidden')
+        closeNavIcon.classList.add('hidden')
+        hamburgerBtn.setAttribute('aria-expanded', 'false')
+      } else {
+        dropdown.classList.remove('hidden')
+        hamburgerIcon.classList.add('hidden')
+        closeNavIcon.classList.remove('hidden')
+        hamburgerBtn.setAttribute('aria-expanded', 'true')
+      }
+    })
+
+    // Tutup dropdown kalau klik link di dalamnya
+    dropdown?.querySelectorAll('a').forEach(a => {
+      a.addEventListener('click', () => {
+        dropdown.classList.add('hidden')
+        hamburgerIcon.classList.remove('hidden')
+        closeNavIcon.classList.add('hidden')
+        hamburgerBtn.setAttribute('aria-expanded', 'false')
+      })
+    })
+  }
+</script>

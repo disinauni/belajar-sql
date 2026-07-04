@@ -1,0 +1,127 @@
+---
+title: "Proyek Mini: Query Toko Buku"
+unit: 1
+lesson: 7
+description: "Menggabungkan SELECT, WHERE, ORDER BY, LIMIT, AS, dan DISTINCT dalam query yang lebih realistis"
+objectives:
+  - "Menyusun query multi-klausa dalam urutan yang benar"
+  - "Menjawab pertanyaan bisnis nyata menggunakan kombinasi SELECT/WHERE/ORDER BY/LIMIT"
+  - "Mereview seluruh konsep SELECT Dasar dari Unit 1"
+estimatedTime: 35
+prerequisites: ["unit-1/06-distinct"]
+difficulty: "beginner"
+tags: ["project", "review", "capstone"]
+database: "toko_buku"
+---
+
+# Proyek Mini: Query Toko Buku
+
+Selamat sampai di penghujung Unit 1! Saatnya menggabungkan semua yang sudah kamu pelajari — `SELECT`, `WHERE`, `ORDER BY`, `LIMIT`, `AS`, dan `DISTINCT` — untuk menjawab pertanyaan-pertanyaan realistis seperti yang biasa dihadapi seorang admin toko buku online.
+
+## Urutan Klausa Lengkap
+
+Sejauh ini, urutan penulisan klausa SELECT yang benar adalah:
+
+```sql
+SELECT kolom1, kolom2 AS alias
+FROM tabel
+WHERE kondisi
+ORDER BY kolom ASC/DESC
+LIMIT n;
+```
+
+<img src="/images/query-execution-order.svg" alt="Urutan evaluasi klausa query SQL" width="100%" />
+
+Menariknya, urutan **penulisan** ini berbeda dari urutan **evaluasi** SQLite di baliknya: SQLite sebenarnya memproses `FROM` dan `WHERE` terlebih dulu (menentukan baris mana yang relevan), baru kemudian `SELECT` (memilih kolom), lalu `ORDER BY`, dan terakhir `LIMIT`. Tapi untuk sekarang, cukup ingat urutan **penulisan**-nya saja.
+
+## Studi Kasus: Pertanyaan Admin Toko Buku
+
+**Pertanyaan 1: "Buku fiksi apa saja yang harganya di bawah 80000, urutkan termurah dulu?"**
+
+```sql
+SELECT judul, harga
+FROM buku
+WHERE kategori = 'Fiksi' AND harga < 80000
+ORDER BY harga ASC;
+```
+
+:::note
+`AND` menggabungkan dua kondisi WHERE sekaligus — baris harus memenuhi **keduanya**. Kita akan bahas operator logika ini lebih dalam di Unit 2, tapi kamu sudah bisa mulai memakainya sekarang.
+:::
+
+**Pertanyaan 2: "3 buku dengan stok paling sedikit, tampilkan sebagai laporan restock?"**
+
+```sql
+SELECT judul AS "Judul Buku", stok AS "Stok Tersisa"
+FROM buku
+ORDER BY stok ASC
+LIMIT 3;
+```
+
+**Pertanyaan 3: "Apa saja kategori buku yang tersedia di toko?"**
+
+```sql
+SELECT DISTINCT kategori FROM buku;
+```
+
+## Latihan Proyek
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u1l7-ex1"
+  title="Laporan Buku Termahal per Kategori Non-Fiksi"
+  description="Tampilkan judul dan harga untuk buku kategori 'Non-Fiksi', urutkan dari termahal, ambil hanya 1 teratas."
+  type="code-output"
+  strictOrder
+  starterCode="SELECT judul, harga FROM buku WHERE kategori = 'Fiksi' ORDER BY harga DESC LIMIT 1;"
+  expectedQuery="SELECT judul, harga FROM buku WHERE kategori = 'Non-Fiksi' ORDER BY harga DESC LIMIT 1;"
+  hints={["Ganti nilai kategori menjadi 'Non-Fiksi'", "Struktur query: WHERE, lalu ORDER BY, lalu LIMIT"]}
+  explanation="Menggabungkan WHERE (filter kategori) + ORDER BY DESC (termahal dulu) + LIMIT 1 (ambil satu teratas) menjawab pertanyaan 'buku termahal di kategori tertentu'."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u1l7-ex2"
+  title="Laporan Buku Perlu Restock"
+  description="Tampilkan judul (alias 'Judul') dan stok (alias 'Sisa Stok') untuk buku dengan stok kurang dari 10, urutkan dari yang paling sedikit."
+  type="code-output"
+  strictOrder
+  starterCode="SELECT judul, stok FROM buku;"
+  expectedQuery='SELECT judul AS Judul, stok AS "Sisa Stok" FROM buku WHERE stok < 10 ORDER BY stok ASC;'
+  hints={["Gunakan WHERE stok < 10", "Beri alias dengan AS untuk kedua kolom", "Urutkan ASC agar paling sedikit muncul dulu"]}
+  explanation="WHERE stok < 10 menyaring buku yang perlu di-restock, ORDER BY stok ASC menampilkan yang paling kritis dulu, dan AS memberi nama kolom yang lebih jelas untuk laporan."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u1l7-ex3"
+  title="Kategori dengan Buku Termahal"
+  description="Manakah query yang benar untuk menampilkan 5 buku termahal beserta kategorinya?"
+  type="multiple-choice"
+  options={[
+    "SELECT judul, kategori, harga FROM buku LIMIT 5 ORDER BY harga DESC;",
+    "SELECT judul, kategori, harga FROM buku ORDER BY harga DESC LIMIT 5;",
+    "SELECT judul, kategori, harga FROM buku WHERE harga DESC LIMIT 5;",
+    "ORDER BY harga DESC SELECT judul, kategori, harga FROM buku LIMIT 5;"
+  ]}
+  correctIndex={1}
+  hints={["Ingat urutan klausa: SELECT...FROM...WHERE...ORDER BY...LIMIT..."]}
+  explanation="Urutan klausa yang benar adalah SELECT, FROM, (WHERE), ORDER BY, lalu LIMIT paling akhir."
+  lang="id"
+/>
+
+## Refleksi: Apa yang Sudah Kamu Kuasai
+
+| Klausa/Konsep | Fungsi |
+|---------------|--------|
+| `SELECT` | Memilih kolom yang ditampilkan |
+| `FROM` | Menentukan tabel sumber data |
+| `WHERE` | Menyaring baris berdasarkan kondisi |
+| Operator perbandingan | `=`, `<>`, `>`, `<`, `>=`, `<=` |
+| `ORDER BY` | Mengurutkan hasil (ASC/DESC) |
+| `LIMIT` / `OFFSET` | Membatasi & melompati jumlah baris |
+| `AS` | Memberi alias pada kolom/tabel |
+| `DISTINCT` | Menghilangkan baris duplikat |
+
+Kamu baru saja menguasai fondasi SELECT dasar — modal utama untuk hampir semua pekerjaan dengan SQL! Di **Unit 2 (Filtering & Operator)**, kita akan memperdalam WHERE dengan operator logika (`AND`/`OR`/`NOT`), `LIKE`, `IN`, `BETWEEN`, dan cara menangani nilai `NULL`.

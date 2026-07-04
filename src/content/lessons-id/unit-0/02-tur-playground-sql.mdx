@@ -1,0 +1,111 @@
+---
+title: "Tur Playground SQL"
+unit: 0
+lesson: 2
+description: "Mencoba langsung fitur-fitur playground SQL: editor, tombol Run, tabel hasil, dan pesan error"
+objectives:
+  - "Mengidentifikasi bagian-bagian UI playground SQL"
+  - "Menjalankan query SELECT pertama dan membaca hasilnya"
+  - "Menggunakan tombol Reset dan memahami pesan error dasar"
+estimatedTime: 20
+prerequisites: ["unit-0/01-mengenal-sqlite-dan-playground"]
+difficulty: "beginner"
+tags: ["playground", "praktik", "project"]
+---
+
+# Tur Playground SQL
+
+Saatnya mencoba langsung! Setiap lesson interaktif di kursus ini punya sebuah **playground** — kotak editor tempat kamu menulis dan menjalankan query SQL.
+
+## Anatomi Playground
+
+<img src="/images/playground-anatomy.svg" alt="Anatomi playground SQL: editor, tombol run, panel hasil" width="100%" />
+
+Bagian-bagian utamanya:
+
+- **Editor query** — tempat kamu mengetik SQL, dengan syntax highlighting
+- **Tombol Run (▶)** — menjalankan query yang sedang kamu tulis
+- **Tombol Reset** — mengembalikan query dan data ke kondisi awal
+- **Panel hasil** — menampilkan hasil query sebagai tabel, atau pesan error jika ada yang salah
+
+## Coba Jalankan Query Pertamamu
+
+Di bawah ini ada playground sungguhan, sudah terisi database contoh `toko_buku`. Coba ketik query berikut (atau gunakan yang sudah tersedia), lalu klik **Jalankan**:
+
+```sql
+SELECT * FROM buku;
+```
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u0l2-ex1"
+  title="Jalankan Query Pertamamu"
+  description="Klik <strong>Jalankan</strong> untuk melihat seluruh isi tabel <code>buku</code>. Query sudah disediakan — kamu tidak perlu mengubah apapun."
+  type="code-output"
+  starterCode="SELECT * FROM buku;"
+  expectedQuery="SELECT * FROM buku;"
+  hints={["Cukup klik tombol Jalankan di pojok kanan atas playground", "Kamu akan melihat 12 baris data buku"]}
+  explanation="SELECT * FROM buku; berarti 'ambil semua kolom dari tabel buku'. Tanda bintang (*) adalah shortcut untuk 'semua kolom'."
+  lang="id"
+/>
+
+Perhatikan panel hasil di sebelah kanan (atau di bawah editor pada layar kecil) — setiap baris data buku ditampilkan sebagai tabel HTML, lengkap dengan nama kolomnya.
+
+## Mencoba Reset
+
+Sekarang coba ubah query di atas jadi ini, lalu jalankan:
+
+```sql
+DELETE FROM buku WHERE kategori = 'Fiksi';
+```
+
+Kamu akan melihat pesan **"N baris terpengaruh"** — artinya data benar-benar terhapus dari database yang sedang berjalan! Coba jalankan lagi `SELECT * FROM buku;` — buku-buku fiksi sudah hilang.
+
+:::warning
+Jangan panik — ini bukan data sungguhan di server manapun. Klik tombol **Reset** dan semua data akan kembali seperti semula, karena database dibuat ulang dari nol setiap kali di-reset.
+:::
+
+## Membaca Pesan Error
+
+Playground ini menjalankan SQLite asli, jadi pesan error yang muncul juga pesan error SQLite yang sesungguhnya. Coba jalankan query yang salah tulis:
+
+```sql
+SELCT * FROM buku;
+```
+
+Kamu akan melihat pesan seperti `near "SELCT": syntax error` — SQLite memberitahu persis kata mana yang tidak ia kenali.
+
+:::tip
+Kalau menemui error, baca pesannya pelan-pelan. SQLite biasanya menunjuk kata atau tanda baca yang jadi sumber masalah dengan kata "near ...".
+:::
+
+## Latihan
+
+<Exercise client:load
+  id="u0l2-ex2"
+  title="Fungsi Tombol Reset"
+  description="Apa yang terjadi ketika kamu klik tombol Reset di playground?"
+  type="multiple-choice"
+  options={[
+    "Halaman browser akan reload sepenuhnya",
+    "Query dan data database dikembalikan ke kondisi awal, database dibuat ulang dari nol",
+    "Semua progress belajarmu akan terhapus",
+    "Tidak terjadi apa-apa"
+  ]}
+  correctIndex={1}
+  hints={["Ingat: database berjalan in-memory, jadi 'reset' berarti dibuat ulang"]}
+  explanation="Reset membuang database in-memory yang sedang berjalan dan membuatnya ulang dari data awal (seed) — jadi perubahan apapun yang kamu buat (INSERT/UPDATE/DELETE) akan hilang, tapi progress belajarmu tetap aman karena disimpan terpisah di localStorage."
+  lang="id"
+/>
+
+## Ringkasan
+
+| Elemen UI | Fungsi |
+|-----------|--------|
+| Editor query | Menulis SQL dengan syntax highlighting |
+| Tombol Jalankan | Mengeksekusi query yang sedang ditulis |
+| Tombol Reset | Membuat ulang database dari data awal |
+| Panel hasil | Menampilkan tabel hasil atau pesan error |
+
+Selamat! Kamu sudah menyelesaikan Unit 0. Saatnya masuk ke **Unit 1: SELECT Dasar** dan mulai menulis query sungguhan.

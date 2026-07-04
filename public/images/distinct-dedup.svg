@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 220" width="680" height="220" font-family="'Segoe UI', system-ui, sans-serif">
+  <defs>
+    <style>
+      :root {
+        --bg: #f8fafc; --border: #e2e8f0; --card-bg: #ffffff; --card-border: #e2e8f0;
+        --value-text: #1e293b; --text-sub: #64748b; --arrow: #94a3b8; --shadow: rgba(0,0,0,0.07);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #0f172a; --border: #1e293b; --card-bg: #1e293b; --card-border: #334155;
+          --value-text: #f1f5f9; --text-sub: #94a3b8; --arrow: #64748b; --shadow: rgba(0,0,0,0.4);
+        }
+      }
+    </style>
+    <filter id="dd-shadow"><feDropShadow dx="0" dy="2" stdDeviation="5" flood-color="var(--shadow)"/></filter>
+    <marker id="dd-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="var(--arrow)"/>
+    </marker>
+  </defs>
+
+  <rect width="680" height="220" rx="14" fill="var(--bg)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="340" y="24" text-anchor="middle" fill="var(--text-sub)" font-size="11" font-weight="600" letter-spacing="0.5">SELECT DISTINCT kategori FROM buku</text>
+
+  <!-- Before: with duplicates -->
+  <text x="150" y="52" text-anchor="middle" fill="var(--text-sub)" font-size="10" font-weight="700">SEBELUM (12 baris)</text>
+  <g font-family="'JetBrains Mono', monospace" font-size="10">
+    <rect x="70" y="60" width="160" height="22" rx="5" fill="#3b82f6" fill-opacity="0.15"/>
+    <text x="150" y="76" text-anchor="middle" fill="var(--value-text)">Fiksi</text>
+    <rect x="70" y="86" width="160" height="22" rx="5" fill="#3b82f6" fill-opacity="0.15"/>
+    <text x="150" y="102" text-anchor="middle" fill="var(--value-text)">Fiksi</text>
+    <rect x="70" y="112" width="160" height="22" rx="5" fill="#10b981" fill-opacity="0.15"/>
+    <text x="150" y="128" text-anchor="middle" fill="var(--value-text)">Non-Fiksi</text>
+    <rect x="70" y="138" width="160" height="22" rx="5" fill="#3b82f6" fill-opacity="0.15"/>
+    <text x="150" y="154" text-anchor="middle" fill="var(--value-text)">Fiksi</text>
+    <rect x="70" y="164" width="160" height="22" rx="5" fill="#f59e0b" fill-opacity="0.15"/>
+    <text x="150" y="180" text-anchor="middle" fill="var(--value-text)">Teknologi</text>
+  </g>
+  <text x="150" y="200" text-anchor="middle" fill="var(--text-sub)" font-size="9">...dan seterusnya (banyak duplikat)</text>
+
+  <line x1="250" y1="120" x2="330" y2="120" stroke="var(--arrow)" stroke-width="2" marker-end="url(#dd-arrow)"/>
+  <text x="290" y="110" text-anchor="middle" fill="var(--text-sub)" font-size="9">DISTINCT</text>
+
+  <!-- After: unique -->
+  <g filter="url(#dd-shadow)">
+    <rect x="380" y="50" width="230" height="140" rx="12" fill="var(--card-bg)" stroke="#10b981" stroke-width="1.5"/>
+  </g>
+  <text x="495" y="72" text-anchor="middle" fill="#059669" font-size="11" font-weight="700">SESUDAH (unik)</text>
+  <g font-family="'JetBrains Mono', monospace" font-size="10">
+    <rect x="400" y="82" width="190" height="22" rx="5" fill="#3b82f6" fill-opacity="0.18"/>
+    <text x="495" y="98" text-anchor="middle" fill="var(--value-text)">Fiksi</text>
+    <rect x="400" y="108" width="190" height="22" rx="5" fill="#10b981" fill-opacity="0.18"/>
+    <text x="495" y="124" text-anchor="middle" fill="var(--value-text)">Non-Fiksi</text>
+    <rect x="400" y="134" width="190" height="22" rx="5" fill="#f59e0b" fill-opacity="0.18"/>
+    <text x="495" y="150" text-anchor="middle" fill="var(--value-text)">Teknologi</text>
+    <rect x="400" y="160" width="190" height="22" rx="5" fill="#8b5cf6" fill-opacity="0.18"/>
+    <text x="495" y="176" text-anchor="middle" fill="var(--value-text)">Pengembangan Diri</text>
+  </g>
+</svg>

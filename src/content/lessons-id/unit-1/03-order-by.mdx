@@ -1,0 +1,144 @@
+---
+title: "Mengurutkan dengan ORDER BY"
+unit: 1
+lesson: 3
+description: "Mengurutkan hasil query secara menaik (ASC) atau menurun (DESC) dengan ORDER BY"
+objectives:
+  - "Mengurutkan hasil query dengan ORDER BY ASC dan DESC"
+  - "Mengurutkan berdasarkan lebih dari satu kolom"
+  - "Memahami bahwa urutan baris tanpa ORDER BY tidak terjamin"
+estimatedTime: 20
+prerequisites: ["unit-1/02-operator-perbandingan"]
+difficulty: "beginner"
+tags: ["order-by", "sorting"]
+database: "toko_buku"
+---
+
+# Mengurutkan dengan ORDER BY
+
+Tanpa `ORDER BY`, urutan baris hasil query **tidak dijamin** — SQLite bebas mengembalikannya dalam urutan apapun yang paling efisien baginya. Kalau kamu butuh urutan tertentu, gunakan `ORDER BY`.
+
+## Urutan Menaik (ASC) dan Menurun (DESC)
+
+```sql
+-- Urutkan dari harga termurah ke termahal (menaik / ascending)
+SELECT judul, harga
+FROM buku
+ORDER BY harga ASC;
+```
+
+```sql
+-- Urutkan dari harga termahal ke termurah (menurun / descending)
+SELECT judul, harga
+FROM buku
+ORDER BY harga DESC;
+```
+
+<img src="/images/order-by-comparison.svg" alt="Perbandingan ASC vs DESC" width="100%" />
+
+:::note
+`ASC` (ascending/menaik) adalah default — kalau kamu tulis `ORDER BY harga` saja tanpa `ASC`/`DESC`, SQLite otomatis mengurutkan menaik.
+:::
+
+## Mengurutkan Berdasarkan Teks
+
+Kolom teks diurutkan secara alfabetis:
+
+```sql
+SELECT judul, penulis
+FROM buku
+ORDER BY judul ASC;
+```
+
+## Mengurutkan Berdasarkan Banyak Kolom
+
+Kamu bisa mengurutkan berdasarkan lebih dari satu kolom — kolom kedua dipakai sebagai "pemutus seri" kalau kolom pertama nilainya sama:
+
+```sql
+-- Urutkan per kategori (alfabetis), lalu di dalam tiap kategori urutkan dari termahal
+SELECT kategori, judul, harga
+FROM buku
+ORDER BY kategori ASC, harga DESC;
+```
+
+## Kombinasi dengan WHERE
+
+`WHERE` dan `ORDER BY` bisa dipakai bersamaan — urutan penulisannya selalu `WHERE` dulu, baru `ORDER BY`:
+
+```sql
+SELECT judul, harga
+FROM buku
+WHERE kategori = 'Fiksi'
+ORDER BY harga DESC;
+```
+
+## Kesalahan Umum
+
+**1. Menaruh ORDER BY sebelum WHERE:**
+```sql
+SELECT judul FROM buku ORDER BY harga WHERE kategori = 'Fiksi';  -- ERROR: urutan salah
+```
+Urutan yang benar: `SELECT ... FROM ... WHERE ... ORDER BY ...`
+
+**2. Mengandalkan urutan tanpa ORDER BY:**
+```sql
+SELECT * FROM buku;  -- urutan baris TIDAK dijamin konsisten
+```
+
+## Latihan
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u1l3-ex1"
+  title="Buku Termurah Dulu"
+  description="Tampilkan <code>judul</code> dan <code>harga</code>, diurutkan dari yang termurah ke termahal."
+  type="code-output"
+  strictOrder
+  starterCode="SELECT judul, harga FROM buku ORDER BY harga DESC;"
+  expectedQuery="SELECT judul, harga FROM buku ORDER BY harga ASC;"
+  hints={["Gunakan ASC untuk urutan menaik", "ASC sebenarnya default, boleh dihilangkan"]}
+  explanation="ORDER BY harga ASC mengurutkan dari nilai terkecil ke terbesar."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u1l3-ex2"
+  title="Urutkan Berdasarkan Judul"
+  description="Tampilkan semua judul buku, diurutkan alfabetis A-Z."
+  type="code-output"
+  strictOrder
+  starterCode="SELECT judul FROM buku;"
+  expectedQuery="SELECT judul FROM buku ORDER BY judul ASC;"
+  hints={["Kolom teks diurutkan secara alfabetis dengan ASC"]}
+  explanation="ORDER BY judul ASC mengurutkan judul secara alfabetis dari A ke Z."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u1l3-ex3"
+  title="Default Urutan"
+  description="Jika kamu menulis ORDER BY harga tanpa ASC atau DESC, urutan apa yang dipakai?"
+  type="multiple-choice"
+  options={[
+    "Urutan acak",
+    "Menurun (DESC)",
+    "Menaik (ASC) — ini default",
+    "Query akan error"
+  ]}
+  correctIndex={2}
+  hints={["ASC adalah singkatan dari ascending / menaik"]}
+  explanation="ASC (menaik) adalah default jika ASC/DESC tidak disebutkan secara eksplisit."
+  lang="id"
+/>
+
+## Ringkasan
+
+| Konsep | Contoh |
+|--------|--------|
+| Urutan menaik | `ORDER BY harga ASC` (atau cukup `ORDER BY harga`) |
+| Urutan menurun | `ORDER BY harga DESC` |
+| Banyak kolom | `ORDER BY kategori ASC, harga DESC` |
+| Urutan klausa | `SELECT ... FROM ... WHERE ... ORDER BY ...` |
+
+Selanjutnya: membatasi jumlah baris hasil dengan **LIMIT** — berguna untuk query "top N"!

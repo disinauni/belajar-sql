@@ -1,0 +1,20 @@
+# build
+dist/
+.astro/
+.vercel/
+node_modules/
+
+# generated at install/build time — see scripts/copy-sql-wasm.mjs
+public/wasm/
+
+# env
+.env
+.env.production
+
+# testing
+test-results/
+playwright-report/
+
+# editor / os
+.DS_Store
+*.log

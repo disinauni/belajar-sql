@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 260" width="680" height="260" font-family="'Segoe UI', system-ui, sans-serif">
+  <defs>
+    <style>
+      :root {
+        --bg: #f8fafc; --border: #e2e8f0; --text-sub: #64748b; --value-text: #1e293b;
+        --shadow: rgba(0,0,0,0.07);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root { --bg: #0f172a; --border: #1e293b; --text-sub: #94a3b8; --value-text: #f1f5f9; --shadow: rgba(0,0,0,0.4); }
+      }
+    </style>
+    <filter id="pa-shadow"><feDropShadow dx="0" dy="2" stdDeviation="5" flood-color="var(--shadow)"/></filter>
+  </defs>
+
+  <rect width="680" height="260" rx="14" fill="var(--bg)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="340" y="24" text-anchor="middle" fill="var(--text-sub)" font-size="11" font-weight="600" letter-spacing="0.5">ANATOMI PLAYGROUND SQL</text>
+
+  <!-- Playground window -->
+  <g filter="url(#pa-shadow)">
+    <rect x="40" y="40" width="600" height="190" rx="10" fill="#1e1e2e" stroke="#334155" stroke-width="1.5"/>
+  </g>
+
+  <!-- Toolbar -->
+  <rect x="40" y="40" width="600" height="30" rx="10" fill="#181825"/>
+  <rect x="40" y="55" width="600" height="15" fill="#181825"/>
+  <circle cx="58" cy="55" r="4" fill="#ff5f57"/>
+  <circle cx="72" cy="55" r="4" fill="#febc2e"/>
+  <circle cx="86" cy="55" r="4" fill="#28c840"/>
+  <rect x="580" y="46" width="48" height="18" rx="5" fill="#10b981"/>
+  <text x="604" y="59" text-anchor="middle" fill="white" font-size="9" font-weight="700">Run &#9654;</text>
+
+  <!-- Editor half -->
+  <rect x="40" y="70" width="300" height="160" fill="#282c34"/>
+  <text x="55" y="92" fill="#c678dd" font-size="11" font-family="'JetBrains Mono', monospace">SELECT</text>
+  <text x="55" y="110" fill="#e5c07b" font-size="11" font-family="'JetBrains Mono', monospace">  judul, harga</text>
+  <text x="55" y="128" fill="#c678dd" font-size="11" font-family="'JetBrains Mono', monospace">FROM</text>
+  <text x="105" y="128" fill="#61afef" font-size="11" font-family="'JetBrains Mono', monospace">buku</text>
+  <text x="55" y="146" fill="#c678dd" font-size="11" font-family="'JetBrains Mono', monospace">WHERE</text>
+  <text x="115" y="146" fill="#61afef" font-size="11" font-family="'JetBrains Mono', monospace">harga &gt; 70000;</text>
+
+  <!-- Result half -->
+  <rect x="340" y="70" width="300" height="160" fill="#1d2027"/>
+  <text x="352" y="90" fill="#94a3b8" font-size="9" font-weight="700">HASIL QUERY</text>
+  <rect x="352" y="98" width="276" height="20" fill="#334155"/>
+  <text x="360" y="112" fill="#e2e8f0" font-size="9" font-family="'JetBrains Mono', monospace">judul</text>
+  <text x="470" y="112" fill="#e2e8f0" font-size="9" font-family="'JetBrains Mono', monospace">harga</text>
+  <text x="360" y="132" fill="#a3e635" font-size="9" font-family="'JetBrains Mono', monospace">Filosofi Teras</text>
+  <text x="470" y="132" fill="#a3e635" font-size="9" font-family="'JetBrains Mono', monospace">89000</text>
+  <text x="360" y="150" fill="#a3e635" font-size="9" font-family="'JetBrains Mono', monospace">Sapiens</text>
+  <text x="470" y="150" fill="#a3e635" font-size="9" font-family="'JetBrains Mono', monospace">110000</text>
+
+  <!-- Labels/callouts -->
+  <text x="190" y="248" text-anchor="middle" fill="var(--text-sub)" font-size="10">Editor Query</text>
+  <text x="490" y="248" text-anchor="middle" fill="var(--text-sub)" font-size="10">Panel Hasil (tabel/error)</text>
+</svg>

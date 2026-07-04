@@ -1,0 +1,20 @@
+---
+// Static root redirect — this app is fully static (no server adapter needed,
+// since query execution runs client-side via sql.js). Language is detected
+// client-side from navigator.language, defaulting to 'id' for crawlers/no-JS.
+---
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="refresh" content="0; url=/id" />
+    <title>Belajar SQL</title>
+    <script is:inline>
+      const preferred = (navigator.language || 'id').toLowerCase().startsWith('en') ? 'en' : 'id'
+      window.location.replace(`/${preferred}`)
+    </script>
+  </head>
+  <body>
+    <p>Mengalihkan ke <a href="/id">/id</a>&hellip;</p>
+  </body>
+</html>

@@ -1,0 +1,112 @@
+---
+title: "Tour of the SQL Playground"
+unit: 0
+lesson: 2
+description: "Trying out the SQL playground's features hands-on: the editor, Run button, result table, and error messages"
+objectives:
+  - "Identify the SQL playground's UI regions"
+  - "Run your first SELECT query and read its result"
+  - "Use the Reset button and understand basic error messages"
+estimatedTime: 20
+prerequisites: ["unit-0/01-mengenal-sqlite-dan-playground"]
+difficulty: "beginner"
+tags: ["playground", "hands-on", "project"]
+translationStatus: "complete"
+---
+
+# Tour of the SQL Playground
+
+Time to try it yourself! Every interactive lesson in this course has a **playground** — an editor box where you write and run SQL queries.
+
+## Playground Anatomy
+
+<img src="/images/playground-anatomy.svg" alt="SQL playground anatomy: editor, run button, result panel" width="100%" />
+
+The main parts are:
+
+- **Query editor** — where you type SQL, with syntax highlighting
+- **Run button (▶)** — executes the query you're currently writing
+- **Reset button** — restores the query and data to their initial state
+- **Result panel** — shows the query result as a table, or an error message if something's wrong
+
+## Run Your First Query
+
+Below is a real playground, already seeded with the `toko_buku` sample database. Try typing the following query (or use the one already provided), then click **Run**:
+
+```sql
+SELECT * FROM buku;
+```
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u0l2-ex1"
+  title="Run Your First Query"
+  description="Click <strong>Run</strong> to see the entire contents of the <code>buku</code> table. The query is already provided — you don't need to change anything."
+  type="code-output"
+  starterCode="SELECT * FROM buku;"
+  expectedQuery="SELECT * FROM buku;"
+  hints={["Just click the Run button in the top-right of the playground", "You'll see 12 rows of book data"]}
+  explanation="SELECT * FROM buku; means 'get all columns from the buku table'. The asterisk (*) is a shortcut for 'all columns'."
+  lang="en"
+/>
+
+Look at the result panel on the right (or below the editor on small screens) — each row of book data is rendered as an HTML table, complete with column names.
+
+## Trying Reset
+
+Now try changing the query above to this, then run it:
+
+```sql
+DELETE FROM buku WHERE kategori = 'Fiksi';
+```
+
+You'll see a message like **"N row(s) affected"** — meaning data was actually deleted from the currently-running database! Try running `SELECT * FROM buku;` again — the fiction books are gone.
+
+:::warning
+Don't panic — this isn't real data on any server. Click the **Reset** button and all data will return to its original state, since the database is rebuilt from scratch every time it's reset.
+:::
+
+## Reading Error Messages
+
+This playground runs real SQLite, so the error messages you see are genuine SQLite error messages. Try running a misspelled query:
+
+```sql
+SELCT * FROM buku;
+```
+
+You'll see something like `near "SELCT": syntax error` — SQLite tells you exactly which word it didn't recognize.
+
+:::tip
+When you hit an error, read the message slowly. SQLite usually points to the word or punctuation causing the problem with the phrase "near ...".
+:::
+
+## Exercise
+
+<Exercise client:load
+  id="u0l2-ex2"
+  title="What the Reset Button Does"
+  description="What happens when you click the Reset button in the playground?"
+  type="multiple-choice"
+  options={[
+    "The browser page fully reloads",
+    "The query and database data are restored to their initial state, and the database is rebuilt from scratch",
+    "All your learning progress will be erased",
+    "Nothing happens"
+  ]}
+  correctIndex={1}
+  hints={["Remember: the database runs in-memory, so 'reset' means rebuilding it"]}
+  explanation="Reset discards the currently-running in-memory database and rebuilds it from the initial seed data — so any changes you made (INSERT/UPDATE/DELETE) are lost, but your learning progress stays safe since it's stored separately in localStorage."
+  lang="en"
+/>
+
+## Summary
+
+| UI Element | Function |
+|------------|----------|
+| Query editor | Write SQL with syntax highlighting |
+| Run button | Execute the query being written |
+| Reset button | Rebuild the database from initial data |
+| Result panel | Shows the result table or error message |
+
+Congratulations! You've completed Unit 0. Time to move on to **Unit 1: Basic SELECT** and start writing real queries.

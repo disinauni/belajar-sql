@@ -1,0 +1,163 @@
+---
+title: "SELECT and Choosing Columns"
+unit: 1
+lesson: 0
+description: "Writing your first SELECT query and choosing specific columns from the buku table"
+objectives:
+  - "Write a SELECT query with specific columns"
+  - "Use SELECT * to fetch all columns"
+  - "Understand column ordering in query results"
+estimatedTime: 20
+prerequisites: ["unit-0/02-tur-playground-sql"]
+difficulty: "beginner"
+tags: ["select", "columns", "fundamentals"]
+database: "toko_buku"
+translationStatus: "complete"
+---
+
+# SELECT and Choosing Columns
+
+`SELECT` is the SQL statement you'll write most often. Its job is simple: **choose which columns to display** from a table.
+
+## The Table We'll Use: `buku`
+
+Throughout this unit we'll work with the `buku` (books) table in the `toko_buku` database, with these columns:
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | INTEGER | Each book's unique number (primary key) |
+| `judul` | TEXT | Book title |
+| `penulis` | TEXT | Author name |
+| `kategori` | TEXT | Book category (Fiction, Non-Fiction, etc.) |
+| `harga` | INTEGER | Price in Rupiah |
+| `stok` | INTEGER | Available stock |
+| `tahun_terbit` | INTEGER | Year published |
+
+## SELECT All Columns
+
+The asterisk `*` means "all columns":
+
+```sql
+SELECT * FROM buku;
+```
+
+Output: all 12 rows, with all 7 columns above.
+
+## SELECT Specific Columns
+
+If you only need the title and price, name the columns, separated by commas:
+
+```sql
+SELECT judul, harga FROM buku;
+```
+
+Output:
+
+```
+judul                       | harga
+-----------------------------+-------
+Laskar Pelangi               | 68000
+Bumi Manusia                 | 85000
+Filosofi Teras                | 89000
+...
+```
+
+The column order in the result **follows the order you wrote** in SELECT — not the original order in the table.
+
+```sql
+-- Order reversed from the original table, result is reversed too
+SELECT harga, judul FROM buku;
+```
+
+:::note
+`SELECT` never changes any data in the table — it only "reads" and displays it. Safe to experiment with freely!
+:::
+
+## Anatomy of a SELECT Query
+
+```sql
+SELECT judul, harga FROM buku;
+```
+
+- **`SELECT`** — the required keyword, signals "I want to retrieve data"
+- **`judul, harga`** — the list of columns to display, comma-separated
+- **`FROM buku`** — which table the data comes from
+- **`;`** — the semicolon marks the end of the SQL statement
+
+:::tip
+The semicolon (`;`) at the end of a query matters, especially when you write more than one statement in a single playground. Get in the habit of always ending your queries with `;`.
+:::
+
+## Common Mistakes
+
+**1. Forgetting the table name after FROM:**
+```sql
+SELECT judul, harga;  -- ERROR: doesn't know which table
+```
+
+**2. Misspelling a column name:**
+```sql
+SELECT juduls FROM buku;  -- ERROR: no such column: juduls
+```
+
+**3. Forgetting the comma between columns:**
+```sql
+SELECT judul harga FROM buku;  -- SQLite will mistake "harga" as an alias
+```
+
+## Exercise
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u1l0-ex1"
+  title="Fetch Title and Author"
+  description="Write a query to display only the <code>judul</code> and <code>penulis</code> columns from the <code>buku</code> table."
+  type="code-output"
+  starterCode="-- Write a SELECT query for the judul and penulis columns
+SELECT * FROM buku;"
+  expectedQuery="SELECT judul, penulis FROM buku;"
+  hints={["Replace * with the column names, separated by commas", "Column order: judul, then penulis"]}
+  explanation="SELECT judul, penulis FROM buku; shows only those two columns, in the order you wrote them."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u1l0-ex2"
+  title="Complete the Query"
+  description="Complete the query below so it fetches all columns from the buku table."
+  type="fill-blank"
+  template="SELECT {{BLANK}} FROM buku;"
+  blanks={["*"]}
+  hints={["This symbol means 'all columns'"]}
+  explanation="The asterisk (*) is a shortcut for selecting all columns from a table."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u1l0-ex3"
+  title="The Role of FROM"
+  description="What is the role of the FROM clause in a SELECT query?"
+  type="multiple-choice"
+  options={[
+    "Filtering rows by a condition",
+    "Specifying the source table",
+    "Sorting the result",
+    "Deleting data"
+  ]}
+  correctIndex={1}
+  hints={["FROM is always followed by a table name"]}
+  explanation="FROM specifies which table the data is retrieved from. Filtering is WHERE's job, sorting is ORDER BY's job."
+  lang="en"
+/>
+
+## Summary
+
+| Concept | Example |
+|---------|---------|
+| All columns | `SELECT * FROM buku;` |
+| Specific columns | `SELECT judul, harga FROM buku;` |
+| Column order | Follows the order written in SELECT |
+| Statement end | Always close with `;` |
+
+Next, we'll learn to **filter rows** with `WHERE` — so not all data shows up at once!

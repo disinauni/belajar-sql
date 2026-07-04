@@ -1,0 +1,162 @@
+---
+title: "SELECT dan Memilih Kolom"
+unit: 1
+lesson: 0
+description: "Menulis query SELECT pertamamu dan memilih kolom tertentu dari tabel buku"
+objectives:
+  - "Menulis query SELECT dengan kolom tertentu"
+  - "Menggunakan SELECT * untuk mengambil semua kolom"
+  - "Memahami urutan kolom pada hasil query"
+estimatedTime: 20
+prerequisites: ["unit-0/02-tur-playground-sql"]
+difficulty: "beginner"
+tags: ["select", "kolom", "dasar"]
+database: "toko_buku"
+---
+
+# SELECT dan Memilih Kolom
+
+`SELECT` adalah perintah SQL yang paling sering kamu tulis. Fungsinya sederhana: **memilih kolom mana saja yang ingin ditampilkan** dari sebuah tabel.
+
+## Tabel yang Kita Pakai: `buku`
+
+Sepanjang unit ini kita akan bekerja dengan tabel `buku` di database `toko_buku`, dengan kolom:
+
+| Kolom | Tipe | Keterangan |
+|-------|------|------------|
+| `id` | INTEGER | Nomor unik tiap buku (primary key) |
+| `judul` | TEXT | Judul buku |
+| `penulis` | TEXT | Nama penulis |
+| `kategori` | TEXT | Kategori buku (Fiksi, Non-Fiksi, dst) |
+| `harga` | INTEGER | Harga dalam Rupiah |
+| `stok` | INTEGER | Jumlah stok tersedia |
+| `tahun_terbit` | INTEGER | Tahun buku diterbitkan |
+
+## SELECT Semua Kolom
+
+Tanda bintang `*` berarti "semua kolom":
+
+```sql
+SELECT * FROM buku;
+```
+
+Output: seluruh 12 baris, dengan semua 7 kolom di atas.
+
+## SELECT Kolom Tertentu
+
+Kalau kamu hanya butuh judul dan harga, sebutkan nama kolomnya, dipisah koma:
+
+```sql
+SELECT judul, harga FROM buku;
+```
+
+Output:
+
+```
+judul                       | harga
+-----------------------------+-------
+Laskar Pelangi               | 68000
+Bumi Manusia                 | 85000
+Filosofi Teras                | 89000
+...
+```
+
+Urutan kolom pada hasil **mengikuti urutan yang kamu tulis** di SELECT — bukan urutan aslinya di tabel.
+
+```sql
+-- Urutan dibalik dari tabel asli, hasil juga terbalik
+SELECT harga, judul FROM buku;
+```
+
+:::note
+`SELECT` tidak mengubah data di tabel sama sekali — ia hanya "membaca" dan menampilkan. Aman dicoba-coba sepuasnya!
+:::
+
+## Anatomi Query SELECT
+
+```sql
+SELECT judul, harga FROM buku;
+```
+
+- **`SELECT`** — kata kunci wajib, menandakan "saya ingin mengambil data"
+- **`judul, harga`** — daftar kolom yang ingin ditampilkan, dipisah koma
+- **`FROM buku`** — dari tabel mana data ini diambil
+- **`;`** — titik koma menandai akhir statement SQL
+
+:::tip
+Titik koma (`;`) di akhir query itu penting, apalagi kalau kamu menulis lebih dari satu statement dalam satu playground. Biasakan selalu mengakhiri query dengan `;`.
+:::
+
+## Kesalahan Umum
+
+**1. Lupa nama tabel setelah FROM:**
+```sql
+SELECT judul, harga;  -- ERROR: tidak tahu tabel mana
+```
+
+**2. Salah ketik nama kolom:**
+```sql
+SELECT juduls FROM buku;  -- ERROR: no such column: juduls
+```
+
+**3. Lupa koma antar kolom:**
+```sql
+SELECT judul harga FROM buku;  -- SQLite akan salah mengira "harga" sebagai alias
+```
+
+## Latihan
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u1l0-ex1"
+  title="Ambil Judul dan Penulis"
+  description="Tulis query untuk menampilkan hanya kolom <code>judul</code> dan <code>penulis</code> dari tabel <code>buku</code>."
+  type="code-output"
+  starterCode="-- Tulis query SELECT untuk kolom judul dan penulis
+SELECT * FROM buku;"
+  expectedQuery="SELECT judul, penulis FROM buku;"
+  hints={["Ganti * dengan nama-nama kolom, dipisah koma", "Urutan kolom: judul, lalu penulis"]}
+  explanation="SELECT judul, penulis FROM buku; menampilkan hanya dua kolom itu, dalam urutan yang kamu tulis."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u1l0-ex2"
+  title="Lengkapi Query"
+  description="Lengkapi query berikut agar mengambil semua kolom dari tabel buku."
+  type="fill-blank"
+  template="SELECT {{BLANK}} FROM buku;"
+  blanks={["*"]}
+  hints={["Simbol ini berarti 'semua kolom'"]}
+  explanation="Tanda bintang (*) adalah shortcut untuk memilih semua kolom pada tabel."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u1l0-ex3"
+  title="Fungsi FROM"
+  description="Apa fungsi klausa FROM dalam sebuah query SELECT?"
+  type="multiple-choice"
+  options={[
+    "Menyaring baris berdasarkan kondisi",
+    "Menentukan tabel sumber data",
+    "Mengurutkan hasil",
+    "Menghapus data"
+  ]}
+  correctIndex={1}
+  hints={["FROM selalu diikuti nama tabel"]}
+  explanation="FROM menentukan dari tabel mana data akan diambil. Menyaring adalah tugas WHERE, mengurutkan adalah tugas ORDER BY."
+  lang="id"
+/>
+
+## Ringkasan
+
+| Konsep | Contoh |
+|--------|--------|
+| Semua kolom | `SELECT * FROM buku;` |
+| Kolom tertentu | `SELECT judul, harga FROM buku;` |
+| Urutan kolom | Mengikuti urutan penulisan di SELECT |
+| Akhir statement | Selalu tutup dengan `;` |
+
+Selanjutnya, kita belajar **menyaring baris** dengan `WHERE` — supaya tidak semua data ditampilkan sekaligus!

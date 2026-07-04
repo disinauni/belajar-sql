@@ -1,0 +1,120 @@
+---
+title: "Removing Duplicates with DISTINCT"
+unit: 1
+lesson: 6
+description: "Displaying unique values from a column or combination of columns with DISTINCT"
+objectives:
+  - "Use SELECT DISTINCT to remove duplicate rows"
+  - "Understand that DISTINCT works on the combination of all selected columns"
+  - "Learn how DISTINCT relates to GROUP BY (a preview of Unit 3)"
+estimatedTime: 15
+prerequisites: ["unit-1/05-alias-as"]
+difficulty: "beginner"
+tags: ["distinct", "duplicates"]
+database: "toko_buku"
+translationStatus: "complete"
+---
+
+# Removing Duplicates with DISTINCT
+
+Our `buku` table has 12 rows, but only a handful of unique **categories** (Fiction, Non-Fiction, Self-Help, Technology, Finance). If you want to know what categories exist in the store — without duplicates — use `DISTINCT`.
+
+## Basic DISTINCT
+
+```sql
+-- Without DISTINCT: the Fiksi category appears repeatedly (once per book)
+SELECT kategori FROM buku;
+```
+
+```sql
+-- With DISTINCT: each category appears only once
+SELECT DISTINCT kategori FROM buku;
+```
+
+<img src="/images/distinct-dedup.svg" alt="DISTINCT removes duplicate rows" width="100%" />
+
+## DISTINCT on Multiple Columns
+
+When `DISTINCT` is used with more than one column, it treats a row as "duplicate" only if the **entire combination of columns** matches exactly:
+
+```sql
+-- Unique combinations of (kategori, tahun_terbit)
+SELECT DISTINCT kategori, tahun_terbit FROM buku;
+```
+
+Two rows with `kategori = 'Fiksi'` but different `tahun_terbit` are **not** considered duplicates — because the combination differs.
+
+:::warning
+`DISTINCT` is always placed right after `SELECT`, not before each column name:
+```sql
+SELECT DISTINCT kategori, penulis FROM buku;   -- correct
+SELECT DISTINCT kategori, DISTINCT penulis FROM buku;  -- ERROR
+```
+:::
+
+## DISTINCT vs GROUP BY
+
+`DISTINCT` is similar to `GROUP BY`, which we'll learn in **Unit 3** — both group unique values together. The difference is that `GROUP BY` is usually paired with an aggregate function like `COUNT()` to count how many members are in each group, while `DISTINCT` simply removes duplicates without counting anything.
+
+```sql
+-- DISTINCT: just the list of unique categories
+SELECT DISTINCT kategori FROM buku;
+
+-- GROUP BY (later, in Unit 3): list of categories + count of books per category
+-- SELECT kategori, COUNT(*) FROM buku GROUP BY kategori;
+```
+
+## Exercise
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u1l6-ex1"
+  title="List of Unique Authors"
+  description="Display the list of unique (non-duplicate) author names from the buku table."
+  type="code-output"
+  starterCode="SELECT penulis FROM buku;"
+  expectedQuery="SELECT DISTINCT penulis FROM buku;"
+  hints={["Add the DISTINCT keyword right after SELECT"]}
+  explanation="SELECT DISTINCT penulis removes author names that repeat across many rows."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u1l6-ex2"
+  title="Unique Combination"
+  description="Display the unique combinations of category and tahun_terbit from the buku table."
+  type="code-output"
+  starterCode="SELECT kategori, tahun_terbit FROM buku;"
+  expectedQuery="SELECT DISTINCT kategori, tahun_terbit FROM buku;"
+  hints={["DISTINCT can be followed by more than one column"]}
+  explanation="DISTINCT across two columns treats a row as a duplicate only if the combination of both columns matches exactly."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u1l6-ex3"
+  title="How DISTINCT Works on Multiple Columns"
+  description="If you write SELECT DISTINCT kategori, penulis FROM buku, when is a row considered a duplicate?"
+  type="multiple-choice"
+  options={[
+    "If either kategori or penulis matches",
+    "If the combination of kategori AND penulis matches exactly",
+    "DISTINCT can't be used with more than one column",
+    "If the rows are adjacent to each other"
+  ]}
+  correctIndex={1}
+  hints={["DISTINCT looks at the combination of all selected columns"]}
+  explanation="DISTINCT across multiple columns removes a row only if the combination of ALL selected columns matches another row exactly."
+  lang="en"
+/>
+
+## Summary
+
+| Concept | Example |
+|---------|---------|
+| Unique values, one column | `SELECT DISTINCT kategori FROM buku;` |
+| Unique combination, multiple columns | `SELECT DISTINCT kategori, tahun_terbit FROM buku;` |
+| Related to | `GROUP BY` (covered in Unit 3) |
+
+You've now mastered all the basic SELECT fundamentals! Time to combine it all in the **Mini Project: Bookstore Queries**.

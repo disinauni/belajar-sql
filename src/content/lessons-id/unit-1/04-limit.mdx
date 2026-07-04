@@ -1,0 +1,130 @@
+---
+title: "Membatasi Hasil dengan LIMIT"
+unit: 1
+lesson: 4
+description: "Membatasi jumlah baris hasil query dengan LIMIT, termasuk pola query top-N dan OFFSET"
+objectives:
+  - "Membatasi jumlah baris hasil dengan LIMIT"
+  - "Menggabungkan LIMIT dengan ORDER BY untuk query top-N"
+  - "Menggunakan OFFSET untuk melompati sejumlah baris"
+estimatedTime: 15
+prerequisites: ["unit-1/03-order-by"]
+difficulty: "beginner"
+tags: ["limit", "offset", "top-n"]
+database: "toko_buku"
+---
+
+# Membatasi Hasil dengan LIMIT
+
+Kadang kamu hanya butuh beberapa baris teratas, bukan semuanya — misalnya "5 buku terlaris" atau "3 buku termahal". Di sinilah `LIMIT` berguna.
+
+## LIMIT Dasar
+
+```sql
+-- Ambil 5 baris pertama saja, urutan apa adanya
+SELECT judul FROM buku LIMIT 5;
+```
+
+## Pola "Top N": LIMIT + ORDER BY
+
+`LIMIT` paling berguna ketika digabung dengan `ORDER BY` — inilah pola **"top N"** yang sangat umum dipakai:
+
+<img src="/images/limit-offset-diagram.svg" alt="LIMIT dan OFFSET pada hasil query" width="100%" />
+
+```sql
+-- 3 buku termahal
+SELECT judul, harga
+FROM buku
+ORDER BY harga DESC
+LIMIT 3;
+```
+
+```sql
+-- 3 buku dengan stok tersedikit
+SELECT judul, stok
+FROM buku
+ORDER BY stok ASC
+LIMIT 3;
+```
+
+:::warning
+`LIMIT` tanpa `ORDER BY` tidak bisa diandalkan untuk "top N" — karena urutan baris tanpa ORDER BY tidak dijamin. Selalu gabungkan keduanya kalau kamu butuh "N teratas" yang konsisten.
+:::
+
+## OFFSET: Melompati Sejumlah Baris
+
+`OFFSET` dipakai bersama `LIMIT` untuk melompati sejumlah baris pertama — berguna untuk fitur seperti "halaman 2" pada daftar:
+
+```sql
+-- Lewati 3 buku termahal pertama, tampilkan 3 buku berikutnya (peringkat 4-6)
+SELECT judul, harga
+FROM buku
+ORDER BY harga DESC
+LIMIT 3 OFFSET 3;
+```
+
+## Anatomi LIMIT
+
+```sql
+SELECT judul FROM buku ORDER BY harga DESC LIMIT 3;
+```
+
+Urutan klausa lengkap sampai sejauh ini: `SELECT ... FROM ... WHERE ... ORDER BY ... LIMIT ...`
+
+## Latihan
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u1l4-ex1"
+  title="5 Buku Termurah"
+  description="Tampilkan <code>judul</code> dan <code>harga</code> dari 5 buku termurah."
+  type="code-output"
+  strictOrder
+  starterCode="SELECT judul, harga FROM buku ORDER BY harga DESC LIMIT 5;"
+  expectedQuery="SELECT judul, harga FROM buku ORDER BY harga ASC LIMIT 5;"
+  hints={["Urutkan ASC untuk termurah dulu", "Gabungkan ORDER BY dan LIMIT"]}
+  explanation="ORDER BY harga ASC LIMIT 5 mengambil 5 baris dengan harga terendah."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u1l4-ex2"
+  title="Buku Terbaru Kedua"
+  description="Tampilkan 1 judul buku dengan tahun_terbit terbaru KEDUA (urutkan terbaru dulu, lewati yang pertama)."
+  type="code-output"
+  strictOrder
+  starterCode="SELECT judul, tahun_terbit FROM buku ORDER BY tahun_terbit DESC LIMIT 1;"
+  expectedQuery="SELECT judul, tahun_terbit FROM buku ORDER BY tahun_terbit DESC LIMIT 1 OFFSET 1;"
+  hints={["Gunakan OFFSET 1 untuk melompati baris pertama", "LIMIT 1 OFFSET 1 berarti ambil baris ke-2"]}
+  explanation="LIMIT 1 OFFSET 1 melompati baris pertama (paling baru) lalu mengambil 1 baris berikutnya — yaitu peringkat kedua."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u1l4-ex3"
+  title="LIMIT tanpa ORDER BY"
+  description="Kenapa LIMIT tanpa ORDER BY tidak bisa diandalkan untuk query 'top N'?"
+  type="multiple-choice"
+  options={[
+    "Karena LIMIT hanya bisa dipakai bersama WHERE",
+    "Karena urutan baris tanpa ORDER BY tidak dijamin konsisten",
+    "Karena LIMIT hanya bekerja pada kolom angka",
+    "Karena LIMIT selalu mengambil baris terakhir"
+  ]}
+  correctIndex={1}
+  hints={["Ingat materi tentang ORDER BY sebelumnya"]}
+  explanation="Tanpa ORDER BY, SQLite bebas mengembalikan baris dalam urutan apapun — jadi LIMIT bisa mengambil baris yang berbeda-beda, bukan benar-benar 'N teratas'."
+  lang="id"
+/>
+
+## Ringkasan
+
+| Konsep | Contoh |
+|--------|--------|
+| Batasi jumlah baris | `LIMIT 5` |
+| Top N | `ORDER BY harga DESC LIMIT 3` |
+| Lompati baris (paging) | `LIMIT 3 OFFSET 3` |
+| Urutan klausa | `SELECT...FROM...WHERE...ORDER BY...LIMIT...` |
+
+Selanjutnya: memberi nama sementara pada kolom hasil dengan **alias (AS)**.

@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="og-bg" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+    <linearGradient id="og-logo" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#1d4ed8"/>
+      <stop offset="100%" stop-color="#4f46e5"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#og-bg)"/>
+  <g transform="translate(64,64)">
+    <rect width="56" height="56" rx="14" fill="url(#og-logo)"/>
+    <ellipse cx="28" cy="18" rx="15" ry="5" fill="none" stroke="white" stroke-width="3"/>
+    <path d="M13 18 V38 C13 41 19.7 43.5 28 43.5 C36.3 43.5 43 41 43 38 V18" fill="none" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  </g>
+  <text x="150" y="105" font-family="'Segoe UI', system-ui, sans-serif" font-size="24" fill="#94a3b8">belajar-sql.varnimyr.my.id</text>
+  <text x="64" y="280" font-family="'Segoe UI', system-ui, sans-serif" font-size="64" font-weight="700" fill="#f1f5f9">Belajar SQL</text>
+  <text x="64" y="340" font-family="'Segoe UI', system-ui, sans-serif" font-size="28" fill="#93c5fd" letter-spacing="1">PLATFORM PEMBELAJARAN SQL</text>
+  <text x="64" y="400" font-family="'Segoe UI', system-ui, sans-serif" font-size="26" fill="#94a3b8">Gratis, interaktif, dan bilingual untuk siswa SMP &amp; SMA Indonesia</text>
+  <text x="64" y="560" font-family="'Segoe UI', system-ui, sans-serif" font-size="20" fill="#475569">Gratis · Bilingual · Tanpa install · Playground SQL langsung di browser</text>
+</svg>

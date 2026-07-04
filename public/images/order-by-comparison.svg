@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 220" width="680" height="220" font-family="'Segoe UI', system-ui, sans-serif">
+  <defs>
+    <style>
+      :root {
+        --bg: #f8fafc; --border: #e2e8f0; --card-bg: #ffffff; --card-border: #e2e8f0;
+        --value-text: #1e293b; --text-sub: #64748b; --shadow: rgba(0,0,0,0.07);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #0f172a; --border: #1e293b; --card-bg: #1e293b; --card-border: #334155;
+          --value-text: #f1f5f9; --text-sub: #94a3b8; --shadow: rgba(0,0,0,0.4);
+        }
+      }
+    </style>
+    <filter id="ob-shadow"><feDropShadow dx="0" dy="2" stdDeviation="5" flood-color="var(--shadow)"/></filter>
+  </defs>
+
+  <rect width="680" height="220" rx="14" fill="var(--bg)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="340" y="24" text-anchor="middle" fill="var(--text-sub)" font-size="11" font-weight="600" letter-spacing="0.5">ORDER BY harga ASC vs DESC</text>
+
+  <!-- ASC column -->
+  <g filter="url(#ob-shadow)">
+    <rect x="60" y="44" width="240" height="150" rx="12" fill="var(--card-bg)" stroke="#3b82f6" stroke-width="1.5"/>
+  </g>
+  <text x="180" y="66" text-anchor="middle" fill="#2563eb" font-size="13" font-weight="700" font-family="'JetBrains Mono', monospace">ASC (menaik)</text>
+  <g font-family="'JetBrains Mono', monospace" font-size="11">
+    <rect x="80" y="76" width="200" height="24" rx="5" fill="#3b82f6" fill-opacity="0.08"/>
+    <text x="90" y="93" fill="var(--value-text)">55000</text>
+    <rect x="80" y="104" width="200" height="24" rx="5" fill="#3b82f6" fill-opacity="0.14"/>
+    <text x="90" y="121" fill="var(--value-text)">68000</text>
+    <rect x="80" y="132" width="200" height="24" rx="5" fill="#3b82f6" fill-opacity="0.20"/>
+    <text x="90" y="149" fill="var(--value-text)">85000</text>
+    <rect x="80" y="160" width="200" height="24" rx="5" fill="#3b82f6" fill-opacity="0.26"/>
+    <text x="90" y="177" fill="var(--value-text)">110000</text>
+  </g>
+  <path d="M265 82 L265 178" stroke="#2563eb" stroke-width="2"/>
+  <text x="285" y="86" fill="#2563eb" font-size="9">&#8593;kecil</text>
+  <text x="285" y="182" fill="#2563eb" font-size="9">besar&#8595;</text>
+
+  <!-- DESC column -->
+  <g filter="url(#ob-shadow)">
+    <rect x="380" y="44" width="240" height="150" rx="12" fill="var(--card-bg)" stroke="#f59e0b" stroke-width="1.5"/>
+  </g>
+  <text x="500" y="66" text-anchor="middle" fill="#d97706" font-size="13" font-weight="700" font-family="'JetBrains Mono', monospace">DESC (menurun)</text>
+  <g font-family="'JetBrains Mono', monospace" font-size="11">
+    <rect x="400" y="76" width="200" height="24" rx="5" fill="#f59e0b" fill-opacity="0.26"/>
+    <text x="410" y="93" fill="var(--value-text)">110000</text>
+    <rect x="400" y="104" width="200" height="24" rx="5" fill="#f59e0b" fill-opacity="0.20"/>
+    <text x="410" y="121" fill="var(--value-text)">85000</text>
+    <rect x="400" y="132" width="200" height="24" rx="5" fill="#f59e0b" fill-opacity="0.14"/>
+    <text x="410" y="149" fill="var(--value-text)">68000</text>
+    <rect x="400" y="160" width="200" height="24" rx="5" fill="#f59e0b" fill-opacity="0.08"/>
+    <text x="410" y="177" fill="var(--value-text)">55000</text>
+  </g>
+  <text x="605" y="86" fill="#d97706" font-size="9">besar&#8593;</text>
+  <text x="605" y="182" fill="#d97706" font-size="9">&#8595;kecil</text>
+</svg>

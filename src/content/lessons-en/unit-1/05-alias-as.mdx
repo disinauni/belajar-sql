@@ -1,0 +1,123 @@
+---
+title: "Column & Table Aliases with AS"
+unit: 1
+lesson: 5
+description: "Giving query result columns a temporary name using the AS keyword"
+objectives:
+  - "Give a result column an alias with AS"
+  - "Understand that an alias is purely cosmetic and doesn't change the original data"
+  - "Learn table aliases as groundwork for JOIN in a future unit"
+estimatedTime: 20
+prerequisites: ["unit-1/04-limit"]
+difficulty: "beginner"
+tags: ["alias", "as"]
+database: "toko_buku"
+translationStatus: "complete"
+---
+
+# Column & Table Aliases with AS
+
+Sometimes the original column name isn't pleasant to read in a report, or you want to give a calculated result a more descriptive name. The `AS` keyword creates an **alias** — a temporary name that only applies while that query runs.
+
+## Column Aliases
+
+```sql
+SELECT judul AS nama_buku, harga AS harga_rupiah
+FROM buku;
+```
+
+The result: the column formerly named `judul` now displays with the header `nama_buku` — but this is **display only**, the actual column name in the table doesn't change at all.
+
+```sql
+-- Aliases with spaces need double quotes or brackets
+SELECT judul AS "Judul Buku", harga AS "Harga (Rp)"
+FROM buku;
+```
+
+:::note
+`AS` is actually optional in SQLite — `SELECT judul nama_buku FROM buku` works the same way. But writing `AS` explicitly makes queries much easier to read, so make it a habit to always write it out.
+:::
+
+## Why Aliases Are Useful
+
+Aliases are especially helpful when a result column isn't just a raw column, but a calculation or expression:
+
+```sql
+-- Without an alias, the calculated column's name would look odd/long
+SELECT judul, harga * stok AS total_nilai_stok
+FROM buku;
+```
+
+Without `AS total_nilai_stok`, that multiplication result column would get an automatic name like `harga * stok`, which is messy for other applications to read.
+
+## A Preview: Table Aliases
+
+`AS` can also give an alias to a **table name** — this will be very useful later when we learn `JOIN` in Unit 4, since writing a long table name over and over gets tedious:
+
+```sql
+SELECT b.judul, b.harga
+FROM buku AS b
+WHERE b.harga > 80000;
+```
+
+Here `b` is an alias for the `buku` table, and `b.judul` means "the judul column from the table aliased b".
+
+:::tip
+For now (since we only have one table), table aliases won't feel very useful yet. Keep this concept in mind — it'll help a lot once queries involve multiple tables at once.
+:::
+
+## Exercise
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u1l5-ex1"
+  title="Alias for the Title Column"
+  description="Display the judul column aliased as <code>nama_buku</code>, and the harga column as-is."
+  type="code-output"
+  starterCode="SELECT judul, harga FROM buku;"
+  expectedQuery="SELECT judul AS nama_buku, harga FROM buku;"
+  hints={["Add AS nama_buku after judul"]}
+  explanation="SELECT judul AS nama_buku gives the judul column the display name 'nama_buku', without changing the original data."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u1l5-ex2"
+  title="Total Stock Value"
+  description="Display the title and the result of harga * stok, aliased as total_nilai."
+  type="code-output"
+  starterCode="SELECT judul, harga, stok FROM buku;"
+  expectedQuery="SELECT judul, harga * stok AS total_nilai FROM buku;"
+  hints={["Multiply the two columns with *", "Give it an alias with AS total_nilai"]}
+  explanation="harga * stok computes each row's total value, and AS total_nilai gives that calculated column a clear name."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u1l5-ex3"
+  title="The Effect of an Alias on Data"
+  description="What happens to the original data in the table when you use an alias with AS?"
+  type="multiple-choice"
+  options={[
+    "The table's original column name permanently changes",
+    "The table's data doesn't change at all — the alias only affects the query result's display",
+    "All rows get deleted",
+    "The query will always error"
+  ]}
+  correctIndex={1}
+  hints={["An alias is temporary, only for that query"]}
+  explanation="AS only changes the column name in the query result's display. The table's actual structure and column names never change."
+  lang="en"
+/>
+
+## Summary
+
+| Concept | Example |
+|---------|---------|
+| Column alias | `SELECT judul AS nama_buku FROM buku;` |
+| Alias with spaces | `SELECT harga AS "Harga (Rp)" FROM buku;` |
+| Alias on a calculation | `SELECT harga * stok AS total_nilai FROM buku;` |
+| Table alias | `FROM buku AS b` |
+
+Next: removing duplicate rows from a result with **DISTINCT**.

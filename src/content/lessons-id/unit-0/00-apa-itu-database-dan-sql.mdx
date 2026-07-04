@@ -1,0 +1,124 @@
+---
+title: "Apa itu Database & SQL?"
+unit: 0
+lesson: 0
+description: "Mengenal konsep database, tabel, dan bahasa SQL sebelum mulai menulis query"
+objectives:
+  - "Menjelaskan apa itu database dan bedanya dengan spreadsheet biasa"
+  - "Memahami apa itu SQL dan kenapa bahasa ini penting di dunia kerja"
+  - "Mengenal istilah tabel, baris, dan kolom"
+estimatedTime: 15
+difficulty: "beginner"
+tags: ["database", "sql", "konsep-dasar"]
+---
+
+# Apa itu Database & SQL?
+
+Setiap kali kamu buka aplikasi seperti Instagram, marketplace, atau e-learning, ada satu hal yang selalu bekerja di balik layar: **database**. Data seperti daftar pengguna, produk, nilai ujian, atau riwayat transaksi — semuanya disimpan dan diambil dari database.
+
+## Database vs Spreadsheet
+
+Sekilas, database terlihat mirip spreadsheet (seperti Excel atau Google Sheets): sama-sama berbentuk baris dan kolom. Tapi database dirancang untuk menangani data dalam skala jauh lebih besar dan lebih ketat aturannya.
+
+<img src="/images/database-vs-spreadsheet.svg" alt="Perbandingan database dan spreadsheet" width="100%" />
+
+| | Spreadsheet | Database |
+|---|---|---|
+| Ukuran data | Ribuan baris, mulai lambat | Jutaan-miliaran baris, tetap cepat |
+| Banyak pengguna sekaligus | Rawan konflik/tertimpa | Dirancang untuk diakses bersamaan |
+| Aturan tipe data | Bebas, gampang salah ketik | Ketat — kolom `harga` hanya bisa diisi angka |
+| Cara mengambil data | Klik dan scroll manual | Ditanya lewat **query** SQL |
+
+:::note
+Excel bagus untuk data kecil yang kamu kelola sendiri. Database dipakai ketika data itu besar, berubah terus, dan diakses banyak orang/program sekaligus — seperti aplikasi toko online.
+:::
+
+## Apa itu SQL?
+
+**SQL** (dibaca "ess-kyu-el" atau "sequel") adalah singkatan dari **Structured Query Language** — bahasa standar untuk "berbicara" dengan database. Dengan SQL kamu bisa:
+
+- **Mengambil** data (misalnya: "tampilkan semua buku dengan harga di bawah 50000")
+- **Menambah** data baru
+- **Mengubah** data yang sudah ada
+- **Menghapus** data
+- **Merancang** struktur tabel itu sendiri
+
+Bahasa ini sudah dipakai sejak tahun 1970-an dan hingga kini tetap jadi standar industri — dipakai di aplikasi bank, e-commerce, media sosial, sampai sistem akademik sekolah.
+
+```sql
+-- Ini contoh perintah SQL: minta database menampilkan semua data buku
+SELECT * FROM buku;
+```
+
+Jangan khawatir kalau belum paham arti baris di atas — itu yang akan kita pelajari mulai unit berikutnya!
+
+## Tabel, Baris, dan Kolom
+
+Data dalam database relasional (jenis database yang kita pelajari di kursus ini) disimpan dalam bentuk **tabel**.
+
+<img src="/images/table-anatomy.svg" alt="Anatomi tabel: baris dan kolom" width="100%" />
+
+Sebuah tabel bernama `buku` misalnya, bisa terlihat seperti ini:
+
+| id | judul | penulis | harga |
+|----|-------|---------|-------|
+| 1 | Laskar Pelangi | Andrea Hirata | 68000 |
+| 2 | Bumi Manusia | Pramoedya Ananta Toer | 85000 |
+
+- Setiap **baris** (row) = satu data buku
+- Setiap **kolom** (column) = satu jenis informasi (judul, penulis, harga, dst)
+- Setiap kolom punya **tipe data** tetap — kolom `harga` selalu angka, tidak bisa tiba-tiba diisi teks
+
+:::tip
+Bayangkan tabel seperti daftar hadir sekolah: satu baris per siswa, satu kolom untuk nama, satu kolom untuk kelas, satu kolom untuk nilai. SQL adalah cara kita "bertanya" ke daftar itu.
+:::
+
+## Latihan
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u0l0-ex1"
+  title="Database vs Spreadsheet"
+  description="Manakah pernyataan yang paling tepat menjelaskan kelebihan database dibanding spreadsheet biasa?"
+  type="multiple-choice"
+  options={[
+    "Database selalu gratis, spreadsheet berbayar",
+    "Database dirancang untuk data besar dan diakses banyak pengguna sekaligus dengan aturan tipe data yang ketat",
+    "Database hanya bisa dipakai oleh programmer profesional",
+    "Spreadsheet dan database sebenarnya adalah hal yang sama"
+  ]}
+  correctIndex={1}
+  hints={["Pikirkan skala data dan siapa saja yang mengaksesnya", "Ingat tabel perbandingan di atas"]}
+  explanation="Database unggul saat data besar, sering berubah, dan diakses banyak pengguna/program secara bersamaan — dengan aturan tipe data yang konsisten per kolom."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u0l0-ex2"
+  title="Kepanjangan SQL"
+  description="Apa kepanjangan dari SQL?"
+  type="multiple-choice"
+  options={[
+    "Simple Query List",
+    "Structured Query Language",
+    "System Question Language",
+    "Standard Quality Log"
+  ]}
+  correctIndex={1}
+  hints={["Kata pertama berkaitan dengan 'terstruktur'"]}
+  explanation="SQL adalah singkatan dari Structured Query Language, bahasa standar untuk berkomunikasi dengan database relasional."
+  lang="id"
+/>
+
+## Ringkasan
+
+| Istilah | Arti |
+|---------|------|
+| Database | Kumpulan data terstruktur, biasanya berupa tabel |
+| SQL | Bahasa untuk mengambil/mengubah data di database |
+| Tabel | Struktur data berbentuk baris & kolom |
+| Baris (row) | Satu record/entri data |
+| Kolom (column) | Satu atribut/field data dengan tipe tetap |
+
+Di pelajaran berikutnya, kita akan berkenalan dengan **SQLite** — mesin database yang akan kita pakai sepanjang kursus ini, langsung di browser tanpa install apapun!

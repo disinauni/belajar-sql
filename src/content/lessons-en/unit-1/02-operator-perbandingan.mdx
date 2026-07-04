@@ -1,0 +1,138 @@
+---
+title: "Comparison Operators"
+unit: 1
+lesson: 2
+description: "Learning the full set of comparison operators: >, <, >=, <=, and <> for WHERE conditions"
+objectives:
+  - "Use the >, <, >=, <= operators in a WHERE condition"
+  - "Use <> or != for 'not equal'"
+  - "Combine comparison operators on numeric and text columns"
+estimatedTime: 20
+prerequisites: ["unit-1/01-where-dasar"]
+difficulty: "beginner"
+tags: ["operators", "comparison", "where"]
+database: "toko_buku"
+translationStatus: "complete"
+---
+
+# Comparison Operators
+
+Besides `=`, SQL has a full set of comparison operators usable in a `WHERE` clause — similar to the math operators you already know.
+
+## List of Comparison Operators
+
+| Operator | Meaning | Example |
+|----------|---------|---------|
+| `=` | Equal to | `harga = 68000` |
+| `<>` or `!=` | Not equal to | `kategori <> 'Fiksi'` |
+| `>` | Greater than | `harga > 80000` |
+| `<` | Less than | `stok < 5` |
+| `>=` | Greater than or equal | `tahun_terbit >= 2010` |
+| `<=` | Less than or equal | `harga <= 70000` |
+
+## Usage Examples
+
+Books published in 2010 or later:
+
+```sql
+SELECT judul, tahun_terbit
+FROM buku
+WHERE tahun_terbit >= 2010;
+```
+
+Books that are **not** in the Fiction category:
+
+```sql
+SELECT judul, kategori
+FROM buku
+WHERE kategori <> 'Fiksi';
+```
+
+Books with stock below 10 (might need restocking):
+
+```sql
+SELECT judul, stok
+FROM buku
+WHERE stok < 10;
+```
+
+:::tip
+`<>` and `!=` mean exactly the same thing: "not equal to". SQLite supports both — pick one and use it consistently.
+:::
+
+## Comparison Operators on Text
+
+`>` and `<` can also be used on text — compared alphabetically:
+
+```sql
+-- Book titles starting with a letter alphabetically after 'M'
+SELECT judul FROM buku WHERE judul > 'M';
+```
+
+However, this is rarely used for free-form text — it's more common with numeric or date columns.
+
+## Common Mistakes
+
+**1. Using `=` for "greater than":**
+```sql
+WHERE harga = 80000;   -- only finds EXACTLY 80000
+WHERE harga > 80000;   -- finds MORE THAN 80000 — different meaning!
+```
+
+**2. Flipped comparison direction:**
+```sql
+WHERE 80000 > harga;  -- valid, but reversed: means "price below 80000"
+```
+
+This is syntactically valid, but easier to read with the column on the left: `WHERE harga < 80000`.
+
+## Exercise
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u1l2-ex1"
+  title="Cheapest Books"
+  description="Display the <code>judul</code> and <code>harga</code> of books priced 70000 or less."
+  type="code-output"
+  starterCode="SELECT judul, harga FROM buku WHERE harga > 70000;"
+  expectedQuery="SELECT judul, harga FROM buku WHERE harga <= 70000;"
+  hints={["Use the <= operator", "70000 itself should be included (inclusive)"]}
+  explanation="WHERE harga <= 70000 filters rows priced at 70000 or lower."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u1l2-ex2"
+  title="Everything Except Self-Help"
+  description="Display all columns for books whose category is NOT 'Pengembangan Diri' (Self-Help)."
+  type="code-output"
+  starterCode="SELECT * FROM buku WHERE kategori = 'Pengembangan Diri';"
+  expectedQuery="SELECT * FROM buku WHERE kategori <> 'Pengembangan Diri';"
+  hints={["Use the <> or != operator", "Don't forget quotes around the text value"]}
+  explanation="WHERE kategori <> 'Pengembangan Diri' shows every row except the ones with that exact category."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u1l2-ex3"
+  title="The Not-Equal Operator"
+  description="Which operator means 'not equal to' in SQLite?"
+  type="multiple-choice"
+  options={["==", "<>", "!==", "=/="]}
+  correctIndex={1}
+  hints={["SQLite supports two equivalent spellings for this operator"]}
+  explanation="<> (and also !=) means 'not equal to' in SQLite."
+  lang="en"
+/>
+
+## Summary
+
+| Operator | Meaning |
+|----------|---------|
+| `=` | Equal to |
+| `<>` / `!=` | Not equal to |
+| `>`, `<` | Greater than / less than |
+| `>=`, `<=` | Greater/less than or equal |
+
+Next: how to **sort** query results with `ORDER BY`.

@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 200" width="680" height="200" font-family="'Segoe UI', system-ui, sans-serif">
+  <defs>
+    <style>
+      :root {
+        --bg: #f8fafc; --border: #e2e8f0; --card-bg: #ffffff; --card-border: #e2e8f0;
+        --value-text: #1e293b; --text-sub: #64748b; --shadow: rgba(0,0,0,0.07);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #0f172a; --border: #1e293b; --card-bg: #1e293b; --card-border: #334155;
+          --value-text: #f1f5f9; --text-sub: #94a3b8; --shadow: rgba(0,0,0,0.4);
+        }
+      }
+    </style>
+    <filter id="lo-shadow"><feDropShadow dx="0" dy="2" stdDeviation="5" flood-color="var(--shadow)"/></filter>
+  </defs>
+
+  <rect width="680" height="200" rx="14" fill="var(--bg)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="340" y="24" text-anchor="middle" fill="var(--text-sub)" font-size="11" font-weight="600" letter-spacing="0.5">LIMIT 3 OFFSET 3 — MELOMPATI &amp; MEMBATASI BARIS</text>
+
+  <g filter="url(#lo-shadow)">
+    <rect x="40" y="50" width="600" height="46" rx="8" fill="var(--card-bg)" stroke="var(--card-border)" stroke-width="1.5"/>
+  </g>
+  <!-- 9 cells representing ordered rows -->
+  <g font-family="'JetBrains Mono', monospace" font-size="10">
+    <!-- offset region (0-2) -->
+    <rect x="44" y="54" width="66" height="38" fill="#94a3b8" fill-opacity="0.15"/>
+    <text x="77" y="77" text-anchor="middle" fill="var(--text-sub)">#1</text>
+    <rect x="110" y="54" width="66" height="38" fill="#94a3b8" fill-opacity="0.15"/>
+    <text x="143" y="77" text-anchor="middle" fill="var(--text-sub)">#2</text>
+    <rect x="176" y="54" width="66" height="38" fill="#94a3b8" fill-opacity="0.15"/>
+    <text x="209" y="77" text-anchor="middle" fill="var(--text-sub)">#3</text>
+    <!-- limit region (3-5) -->
+    <rect x="242" y="54" width="66" height="38" fill="#10b981" fill-opacity="0.22"/>
+    <text x="275" y="77" text-anchor="middle" fill="#059669" font-weight="700">#4</text>
+    <rect x="308" y="54" width="66" height="38" fill="#10b981" fill-opacity="0.22"/>
+    <text x="341" y="77" text-anchor="middle" fill="#059669" font-weight="700">#5</text>
+    <rect x="374" y="54" width="66" height="38" fill="#10b981" fill-opacity="0.22"/>
+    <text x="407" y="77" text-anchor="middle" fill="#059669" font-weight="700">#6</text>
+    <!-- rest -->
+    <rect x="440" y="54" width="66" height="38" fill="none"/>
+    <text x="473" y="77" text-anchor="middle" fill="var(--text-sub)" opacity="0.5">#7</text>
+    <rect x="506" y="54" width="66" height="38" fill="none"/>
+    <text x="539" y="77" text-anchor="middle" fill="var(--text-sub)" opacity="0.5">#8</text>
+    <rect x="572" y="54" width="66" height="38" fill="none"/>
+    <text x="605" y="77" text-anchor="middle" fill="var(--text-sub)" opacity="0.5">#9</text>
+  </g>
+
+  <!-- Braces / labels -->
+  <text x="143" y="118" text-anchor="middle" fill="var(--text-sub)" font-size="10" font-weight="600">OFFSET 3 (dilewati)</text>
+  <text x="341" y="118" text-anchor="middle" fill="#059669" font-size="10" font-weight="700">LIMIT 3 (diambil)</text>
+  <text x="539" y="118" text-anchor="middle" fill="var(--text-sub)" font-size="10" opacity="0.6">sisanya diabaikan</text>
+
+  <text x="340" y="150" text-anchor="middle" fill="var(--value-text)" font-size="11" font-family="'JetBrains Mono', monospace">ORDER BY harga DESC LIMIT 3 OFFSET 3</text>
+  <text x="340" y="172" text-anchor="middle" fill="var(--text-sub)" font-size="10">Berguna untuk paging: "halaman 2" dari daftar buku termahal</text>
+</svg>

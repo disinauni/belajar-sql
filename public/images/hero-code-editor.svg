@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 400" width="560" height="400" font-family="'Segoe UI', system-ui, sans-serif">
+  <defs>
+    <style>
+      :root { --shadow: rgba(0,0,0,0.15); }
+      @media (prefers-color-scheme: dark) { :root { --shadow: rgba(0,0,0,0.5); } }
+    </style>
+    <filter id="hce-shadow"><feDropShadow dx="0" dy="10" stdDeviation="16" flood-color="var(--shadow)"/></filter>
+    <linearGradient id="hce-bg" x1="0" y1="0" x2="560" y2="400" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#1e1e2e"/>
+      <stop offset="100%" stop-color="#181825"/>
+    </linearGradient>
+  </defs>
+
+  <g filter="url(#hce-shadow)">
+    <rect x="30" y="30" width="500" height="340" rx="16" fill="url(#hce-bg)"/>
+  </g>
+
+  <!-- Title bar -->
+  <rect x="30" y="30" width="500" height="36" rx="16" fill="#11111b"/>
+  <rect x="30" y="50" width="500" height="16" fill="#11111b"/>
+  <circle cx="54" cy="48" r="5" fill="#ff5f57"/>
+  <circle cx="72" cy="48" r="5" fill="#febc2e"/>
+  <circle cx="90" cy="48" r="5" fill="#28c840"/>
+  <text x="280" y="53" text-anchor="middle" fill="#6c7086" font-size="12" font-family="'JetBrains Mono', monospace">query.sql</text>
+
+  <!-- Code lines -->
+  <g font-family="'JetBrains Mono', monospace" font-size="15">
+    <text x="52" y="106" fill="#c678dd">SELECT</text>
+    <text x="52" y="132" fill="#e5c07b">  judul, penulis, harga</text>
+    <text x="52" y="158" fill="#c678dd">FROM</text><text x="112" y="158" fill="#61afef">buku</text>
+    <text x="52" y="184" fill="#c678dd">WHERE</text><text x="122" y="184" fill="#61afef">kategori</text><text x="200" y="184" fill="#abb2bf"> = </text><text x="222" y="184" fill="#98c379">'Fiksi'</text>
+    <text x="52" y="210" fill="#c678dd">ORDER BY</text><text x="150" y="210" fill="#61afef">harga</text><text x="212" y="210" fill="#c678dd"> DESC</text>
+    <text x="52" y="236" fill="#c678dd">LIMIT</text><text x="112" y="236" fill="#d19a66">5</text><text x="122" y="236" fill="#abb2bf">;</text>
+  </g>
+
+  <!-- Result table preview -->
+  <rect x="46" y="262" width="468" height="92" rx="8" fill="#11111b"/>
+  <text x="60" y="284" fill="#94a3b8" font-size="11" font-weight="700">HASIL QUERY</text>
+  <g font-family="'JetBrains Mono', monospace" font-size="11" fill="#a3e635">
+    <text x="60" y="304">Filosofi Teras</text><text x="230" y="304" fill="#e5c07b">Henry Manampiring</text><text x="400" y="304">89000</text>
+    <text x="60" y="324">Sapiens</text><text x="230" y="324" fill="#e5c07b">Yuval Noah Harari</text><text x="400" y="324">110000</text>
+    <text x="60" y="344">Bumi Manusia</text><text x="230" y="344" fill="#e5c07b">Pramoedya A. Toer</text><text x="400" y="344">85000</text>
+  </g>
+
+  <!-- Cursor blink -->
+  <rect x="140" y="224" width="2" height="16" fill="#61afef"/>
+</svg>

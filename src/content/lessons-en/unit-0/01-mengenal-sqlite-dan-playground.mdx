@@ -1,0 +1,106 @@
+---
+title: "Meet SQLite & the Playground"
+unit: 0
+lesson: 1
+description: "Understanding the SQLite database engine and how this course's playground runs 100% in the browser"
+objectives:
+  - "Explain what SQLite is and how it differs from server databases like MySQL/PostgreSQL"
+  - "Understand that the course playground runs entirely in the browser via WebAssembly"
+  - "Distinguish between the terms database, table, and query"
+estimatedTime: 15
+prerequisites: ["unit-0/00-apa-itu-database-dan-sql"]
+difficulty: "beginner"
+tags: ["sqlite", "wasm", "fundamentals"]
+translationStatus: "complete"
+---
+
+# Meet SQLite & the Playground
+
+There are many database "engines" in the real world: **MySQL**, **PostgreSQL**, **SQL Server**, **Oracle**, and **SQLite**. They all understand the SQL language, but they differ in how they run and where they "live".
+
+## SQLite: A Database Without a Server
+
+Most databases (MySQL, PostgreSQL, etc.) run as a separate **server** — a program that must be started and listened to over a network, usually on a different machine (a server).
+
+**SQLite** is different. It's an **embedded** database — the entire database lives in a single small file, with no separate server needed, no complicated installation, no login process. Mobile apps, browsers, and even desktop applications widely use SQLite to store local data.
+
+<img src="/images/sqlite-in-browser.svg" alt="SQLite running in the browser via WebAssembly" width="100%" />
+
+:::note
+SQLite is the most widely deployed database in the world — it's on nearly every Android/iOS phone, in browsers, and in millions of applications. Despite being "lite", it fully supports standard SQL.
+:::
+
+## A Playground That Runs in the Browser
+
+In this course, we use a library called **sql.js** — a version of SQLite compiled to **WebAssembly (WASM)**, a format that lets non-JavaScript code run directly in the browser at near-native speed.
+
+This means:
+
+- **No installation** of any database on your computer
+- **No server** — every query runs directly in the browser
+- **No API key** or internet connection needed after the page loads
+- Every time you click **Reset**, the database is rebuilt instantly
+
+```sql
+-- This query runs directly in your browser, not on any server
+SELECT * FROM buku;
+```
+
+:::tip
+Since everything runs in the browser, you can experiment as freely as you like — even trying `DELETE` or `DROP TABLE` — without fear of breaking anyone's data. Just click Reset to go back to the start.
+:::
+
+## Database, Table, and Query — Commonly Confused Terms
+
+| Term | Definition | Analogy |
+|------|------------|---------|
+| **Database** | A container holding many tables | A filing cabinet |
+| **Table** | A data structure of rows & columns | One folder inside the cabinet |
+| **Query** | The SQL statement you write and run | A request to the archive clerk |
+
+Throughout this course, we'll work with a single sample database called **`toko_buku`** (bookstore), containing a `buku` (books) table — so you can focus on learning SQL without worrying about a new schema every lesson.
+
+## Exercise
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u0l1-ex1"
+  title="What Makes SQLite Different"
+  description="What makes SQLite different from a database like MySQL or PostgreSQL?"
+  type="multiple-choice"
+  options={[
+    "SQLite doesn't support the standard SQL language",
+    "SQLite is an embedded database that doesn't need a separate server",
+    "SQLite can only be used on Android",
+    "SQLite can only store one table"
+  ]}
+  correctIndex={1}
+  hints={["Think about 'server' and 'installation'"]}
+  explanation="SQLite is an embedded database — the entire database lives in a single file/in memory, with no separate server process needed, while still supporting standard SQL."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u0l1-ex2"
+  title="Complete the Term"
+  description="Complete the sentence: A <code>____</code> holds many tables, and each table holds rows and columns."
+  type="fill-blank"
+  template="A {{BLANK}} holds many tables."
+  blanks={["database"]}
+  hints={["This term is the biggest 'container', like a filing cabinet"]}
+  explanation="A database is the container that holds many tables; each table holds rows and columns."
+  lang="en"
+/>
+
+## Summary
+
+| Concept | Explanation |
+|---------|-------------|
+| SQLite | An embedded database, no server, a single file/in-memory |
+| sql.js | SQLite compiled to WebAssembly, runs in the browser |
+| Database | A container holding many tables |
+| Query | The SQL statement you write and run |
+| `toko_buku` | The sample database we use throughout Unit 1 |
+
+Next, let's try the playground itself in the **Tour of the SQL Playground** lesson!

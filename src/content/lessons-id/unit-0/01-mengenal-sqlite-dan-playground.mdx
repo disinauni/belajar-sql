@@ -1,0 +1,105 @@
+---
+title: "Mengenal SQLite & Playground"
+unit: 0
+lesson: 1
+description: "Memahami mesin database SQLite dan bagaimana playground kursus ini berjalan 100% di browser"
+objectives:
+  - "Menjelaskan apa itu SQLite dan bedanya dengan database server seperti MySQL/PostgreSQL"
+  - "Memahami bahwa playground kursus berjalan penuh di browser lewat WebAssembly"
+  - "Membedakan istilah database, tabel, dan query"
+estimatedTime: 15
+prerequisites: ["unit-0/00-apa-itu-database-dan-sql"]
+difficulty: "beginner"
+tags: ["sqlite", "wasm", "konsep-dasar"]
+---
+
+# Mengenal SQLite & Playground
+
+Ada banyak "mesin" database di dunia nyata: **MySQL**, **PostgreSQL**, **SQL Server**, **Oracle**, dan **SQLite**. Semuanya memahami bahasa SQL, tapi cara kerja dan tempat "hidup"-nya berbeda-beda.
+
+## SQLite: Database Tanpa Server
+
+Kebanyakan database (MySQL, PostgreSQL, dst) berjalan sebagai **server** terpisah — sebuah program yang harus dinyalakan dan didengarkan lewat jaringan, biasanya di komputer lain (server).
+
+**SQLite** berbeda. Ia adalah database **embedded** (tertanam) — seluruh database hidup dalam satu file kecil, tanpa perlu server terpisah, tanpa instalasi rumit, tanpa proses login. Aplikasi ponsel, browser, bahkan aplikasi desktop banyak yang memakai SQLite untuk menyimpan data lokal.
+
+<img src="/images/sqlite-in-browser.svg" alt="SQLite berjalan di browser lewat WebAssembly" width="100%" />
+
+:::note
+SQLite adalah database yang paling banyak dipakai di dunia — ada di hampir setiap ponsel Android/iOS, browser, dan jutaan aplikasi. Meskipun "kecil", ia sepenuhnya mendukung SQL standar.
+:::
+
+## Playground yang Berjalan di Browser
+
+Di kursus ini, kita memakai library bernama **sql.js** — versi SQLite yang dikompilasi ke **WebAssembly (WASM)**, sebuah format yang membuat kode non-JavaScript bisa berjalan langsung di browser dengan kecepatan hampir seperti aplikasi native.
+
+Artinya:
+
+- **Tidak perlu install** database apapun di komputermu
+- **Tidak perlu server** — semua query dijalankan langsung di browser
+- **Tidak perlu API key** atau koneksi internet setelah halaman termuat
+- Setiap kali kamu klik **Reset**, database dibuat ulang secara instan
+
+```sql
+-- Query ini akan dijalankan langsung di browser kamu, bukan di server manapun
+SELECT * FROM buku;
+```
+
+:::tip
+Karena semuanya berjalan di browser, kamu bisa bereksperimen sebebas mungkin — bahkan mencoba `DELETE` atau `DROP TABLE` — tanpa takut merusak data siapapun. Tinggal klik Reset untuk kembali ke awal.
+:::
+
+## Database, Tabel, dan Query — Istilah yang Sering Tertukar
+
+| Istilah | Definisi | Analogi |
+|---------|----------|---------|
+| **Database** | Wadah yang berisi banyak tabel | Sebuah lemari arsip |
+| **Tabel** | Struktur data berbentuk baris & kolom | Satu map/folder di dalam lemari |
+| **Query** | Perintah SQL yang kamu tulis dan jalankan | Permintaan ke petugas arsip |
+
+Sepanjang kursus ini, kita akan bekerja dengan satu database contoh bernama **`toko_buku`**, yang berisi tabel `buku` — supaya kamu bisa fokus belajar SQL tanpa perlu memikirkan skema baru setiap lesson.
+
+## Latihan
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u0l1-ex1"
+  title="Ciri Khas SQLite"
+  description="Apa yang membuat SQLite berbeda dari database seperti MySQL atau PostgreSQL?"
+  type="multiple-choice"
+  options={[
+    "SQLite tidak mendukung bahasa SQL standar",
+    "SQLite adalah database embedded yang tidak butuh server terpisah",
+    "SQLite hanya bisa dipakai di Android",
+    "SQLite hanya bisa menyimpan satu tabel"
+  ]}
+  correctIndex={1}
+  hints={["Pikirkan soal 'server' dan 'instalasi'"]}
+  explanation="SQLite adalah database embedded — seluruh database hidup dalam satu file/memori, tanpa perlu proses server terpisah, dan tetap mendukung SQL standar."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u0l1-ex2"
+  title="Lengkapi Istilah"
+  description="Lengkapi kalimat berikut: Sebuah <code>____</code> berisi banyak tabel, dan setiap tabel berisi baris dan kolom."
+  type="fill-blank"
+  template="{{BLANK}} berisi banyak tabel."
+  blanks={["database"]}
+  hints={["Istilah ini adalah 'wadah' terbesar, seperti lemari arsip"]}
+  explanation="Database adalah wadah yang berisi banyak tabel; tiap tabel berisi baris dan kolom."
+  lang="id"
+/>
+
+## Ringkasan
+
+| Konsep | Penjelasan |
+|--------|------------|
+| SQLite | Database embedded, tanpa server, satu file/memori |
+| sql.js | SQLite yang dikompilasi ke WebAssembly, berjalan di browser |
+| Database | Wadah berisi banyak tabel |
+| Query | Perintah SQL yang kamu tulis dan jalankan |
+| `toko_buku` | Database contoh yang kita pakai sepanjang Unit 1 |
+
+Selanjutnya, mari langsung mencoba playground-nya di lesson **Tur Playground SQL**!

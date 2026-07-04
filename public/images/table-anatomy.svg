@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 240" width="680" height="240" font-family="'Segoe UI', system-ui, sans-serif">
+  <defs>
+    <style>
+      :root {
+        --bg: #f8fafc; --border: #e2e8f0; --card-bg: #ffffff; --card-border: #e2e8f0;
+        --value-text: #1e293b; --text-sub: #64748b; --shadow: rgba(0,0,0,0.07);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #0f172a; --border: #1e293b; --card-bg: #1e293b; --card-border: #334155;
+          --value-text: #f1f5f9; --text-sub: #94a3b8; --shadow: rgba(0,0,0,0.4);
+        }
+      }
+    </style>
+    <filter id="ta-shadow"><feDropShadow dx="0" dy="2" stdDeviation="5" flood-color="var(--shadow)"/></filter>
+  </defs>
+
+  <rect width="680" height="240" rx="14" fill="var(--bg)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="340" y="24" text-anchor="middle" fill="var(--text-sub)" font-size="11" font-weight="600" letter-spacing="0.5">ANATOMI TABEL: buku</text>
+
+  <g filter="url(#ta-shadow)">
+    <rect x="60" y="46" width="560" height="164" rx="10" fill="var(--card-bg)" stroke="var(--card-border)" stroke-width="1.5"/>
+  </g>
+
+  <!-- Header row -->
+  <rect x="60" y="46" width="560" height="32" rx="10" fill="#2563eb" fill-opacity="0.12"/>
+  <text x="95" y="67" fill="#2563eb" font-size="11" font-weight="700" font-family="'JetBrains Mono', monospace">id</text>
+  <text x="190" y="67" fill="#2563eb" font-size="11" font-weight="700" font-family="'JetBrains Mono', monospace">judul</text>
+  <text x="360" y="67" fill="#2563eb" font-size="11" font-weight="700" font-family="'JetBrains Mono', monospace">kategori</text>
+  <text x="490" y="67" fill="#2563eb" font-size="11" font-weight="700" font-family="'JetBrains Mono', monospace">harga</text>
+
+  <!-- Column dividers -->
+  <line x1="150" y1="46" x2="150" y2="210" stroke="var(--card-border)" stroke-width="1"/>
+  <line x1="320" y1="46" x2="320" y2="210" stroke="var(--card-border)" stroke-width="1"/>
+  <line x1="450" y1="46" x2="450" y2="210" stroke="var(--card-border)" stroke-width="1"/>
+
+  <!-- Rows -->
+  <line x1="60" y1="110" x2="620" y2="110" stroke="var(--card-border)" stroke-width="1"/>
+  <line x1="60" y1="142" x2="620" y2="142" stroke="var(--card-border)" stroke-width="1"/>
+  <line x1="60" y1="174" x2="620" y2="174" stroke="var(--card-border)" stroke-width="1"/>
+
+  <text x="95" y="97" fill="#f59e0b" font-size="11" font-weight="700" font-family="'JetBrains Mono', monospace">1</text>
+  <text x="190" y="97" fill="var(--value-text)" font-size="11" font-family="'JetBrains Mono', monospace">Laskar Pelangi</text>
+  <text x="360" y="97" fill="var(--value-text)" font-size="11" font-family="'JetBrains Mono', monospace">Fiksi</text>
+  <text x="490" y="97" fill="var(--value-text)" font-size="11" font-family="'JetBrains Mono', monospace">68000</text>
+
+  <text x="95" y="129" fill="#f59e0b" font-size="11" font-weight="700" font-family="'JetBrains Mono', monospace">2</text>
+  <text x="190" y="129" fill="var(--value-text)" font-size="11" font-family="'JetBrains Mono', monospace">Bumi Manusia</text>
+  <text x="360" y="129" fill="var(--value-text)" font-size="11" font-family="'JetBrains Mono', monospace">Fiksi</text>
+  <text x="490" y="129" fill="var(--value-text)" font-size="11" font-family="'JetBrains Mono', monospace">85000</text>
+
+  <text x="95" y="161" fill="#f59e0b" font-size="11" font-weight="700" font-family="'JetBrains Mono', monospace">3</text>
+  <text x="190" y="161" fill="var(--value-text)" font-size="11" font-family="'JetBrains Mono', monospace">Filosofi Teras</text>
+  <text x="360" y="161" fill="var(--value-text)" font-size="11" font-family="'JetBrains Mono', monospace">Pengembangan Diri</text>
+  <text x="490" y="161" fill="var(--value-text)" font-size="11" font-family="'JetBrains Mono', monospace">89000</text>
+
+  <text x="95" y="193" fill="#f59e0b" font-size="11" font-weight="700" font-family="'JetBrains Mono', monospace">4</text>
+  <text x="190" y="193" fill="var(--value-text)" font-size="11" font-family="'JetBrains Mono', monospace">Sapiens</text>
+  <text x="360" y="193" fill="var(--value-text)" font-size="11" font-family="'JetBrains Mono', monospace">Non-Fiksi</text>
+  <text x="490" y="193" fill="var(--value-text)" font-size="11" font-family="'JetBrains Mono', monospace">110000</text>
+
+  <!-- Callouts -->
+  <text x="95" y="228" text-anchor="middle" fill="#f59e0b" font-size="10" font-weight="600">id = Primary Key</text>
+  <text x="335" y="228" text-anchor="middle" fill="var(--text-sub)" font-size="10">Kolom (column)</text>
+  <text x="560" y="228" text-anchor="middle" fill="var(--text-sub)" font-size="10">&#8592; setiap baris (row) = 1 buku</text>
+</svg>

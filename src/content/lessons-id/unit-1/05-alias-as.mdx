@@ -1,0 +1,122 @@
+---
+title: "Alias Kolom & Tabel dengan AS"
+unit: 1
+lesson: 5
+description: "Memberi nama sementara pada kolom hasil query menggunakan kata kunci AS"
+objectives:
+  - "Memberi alias pada kolom hasil dengan AS"
+  - "Memahami bahwa alias hanya kosmetik, tidak mengubah data asli"
+  - "Mengenal alias tabel sebagai bekal untuk JOIN di unit mendatang"
+estimatedTime: 20
+prerequisites: ["unit-1/04-limit"]
+difficulty: "beginner"
+tags: ["alias", "as"]
+database: "toko_buku"
+---
+
+# Alias Kolom & Tabel dengan AS
+
+Kadang nama kolom asli kurang enak dibaca di laporan, atau kamu ingin memberi nama yang lebih deskriptif pada hasil perhitungan. Kata kunci `AS` membuat **alias** — nama sementara yang hanya berlaku selama query itu berjalan.
+
+## Alias Kolom
+
+```sql
+SELECT judul AS nama_buku, harga AS harga_rupiah
+FROM buku;
+```
+
+Hasilnya, kolom yang tadinya bernama `judul` sekarang tampil dengan header `nama_buku` — tapi ini **hanya tampilan**, nama kolom asli di tabel tidak berubah sama sekali.
+
+```sql
+-- Alias dengan spasi butuh tanda kutip ganda atau kurung siku
+SELECT judul AS "Judul Buku", harga AS "Harga (Rp)"
+FROM buku;
+```
+
+:::note
+`AS` sebenarnya opsional di SQLite — `SELECT judul nama_buku FROM buku` juga berfungsi sama. Tapi menulis `AS` secara eksplisit membuat query jauh lebih mudah dibaca, jadi biasakan selalu menuliskannya.
+:::
+
+## Kenapa Alias Berguna?
+
+Alias sangat membantu ketika kolom hasil bukan sekadar kolom asli, tapi hasil perhitungan atau ekspresi:
+
+```sql
+-- Tanpa alias, nama kolom hasil perhitungan akan aneh/panjang
+SELECT judul, harga * stok AS total_nilai_stok
+FROM buku;
+```
+
+Tanpa `AS total_nilai_stok`, kolom hasil perkalian itu akan diberi nama otomatis seperti `harga * stok` yang kurang rapi dibaca aplikasi lain.
+
+## Sekilas: Alias Tabel
+
+`AS` juga bisa dipakai untuk memberi alias pada **nama tabel** — ini akan sangat berguna nanti saat kita belajar `JOIN` di Unit 4, karena menulis nama tabel panjang berkali-kali jadi merepotkan:
+
+```sql
+SELECT b.judul, b.harga
+FROM buku AS b
+WHERE b.harga > 80000;
+```
+
+Di sini `b` adalah alias untuk tabel `buku`, dan `b.judul` berarti "kolom judul dari tabel yang aliasnya b".
+
+:::tip
+Untuk sekarang (karena baru satu tabel), alias tabel belum terlalu terasa manfaatnya. Simpan konsep ini di kepala — akan sangat membantu saat query melibatkan banyak tabel sekaligus.
+:::
+
+## Latihan
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u1l5-ex1"
+  title="Alias untuk Kolom Judul"
+  description="Tampilkan kolom judul dengan alias <code>nama_buku</code>, dan kolom harga apa adanya."
+  type="code-output"
+  starterCode="SELECT judul, harga FROM buku;"
+  expectedQuery="SELECT judul AS nama_buku, harga FROM buku;"
+  hints={["Tambahkan AS nama_buku setelah judul"]}
+  explanation="SELECT judul AS nama_buku memberi nama tampilan 'nama_buku' pada kolom judul, tanpa mengubah data aslinya."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u1l5-ex2"
+  title="Total Nilai Stok"
+  description="Tampilkan judul dan hasil perkalian harga * stok dengan alias total_nilai."
+  type="code-output"
+  starterCode="SELECT judul, harga, stok FROM buku;"
+  expectedQuery="SELECT judul, harga * stok AS total_nilai FROM buku;"
+  hints={["Kalikan dua kolom dengan tanda *", "Beri alias dengan AS total_nilai"]}
+  explanation="harga * stok menghitung nilai total tiap baris, dan AS total_nilai memberi nama yang jelas pada kolom hasil perhitungan itu."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u1l5-ex3"
+  title="Efek Alias pada Data"
+  description="Apa yang terjadi pada data asli di tabel ketika kamu memakai alias dengan AS?"
+  type="multiple-choice"
+  options={[
+    "Nama kolom di tabel asli ikut berubah permanen",
+    "Data di tabel tidak berubah sama sekali — alias hanya mengubah tampilan hasil query",
+    "Semua baris akan terhapus",
+    "Query akan selalu error"
+  ]}
+  correctIndex={1}
+  hints={["Alias bersifat sementara, hanya untuk query itu"]}
+  explanation="AS hanya mengubah nama kolom pada tampilan hasil query. Struktur dan nama kolom asli di tabel tidak berubah sama sekali."
+  lang="id"
+/>
+
+## Ringkasan
+
+| Konsep | Contoh |
+|--------|--------|
+| Alias kolom | `SELECT judul AS nama_buku FROM buku;` |
+| Alias dengan spasi | `SELECT harga AS "Harga (Rp)" FROM buku;` |
+| Alias hasil perhitungan | `SELECT harga * stok AS total_nilai FROM buku;` |
+| Alias tabel | `FROM buku AS b` |
+
+Selanjutnya: menghilangkan baris duplikat dari hasil query dengan **DISTINCT**.

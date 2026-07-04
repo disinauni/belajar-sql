@@ -1,0 +1,137 @@
+---
+title: "Operator Perbandingan"
+unit: 1
+lesson: 2
+description: "Mengenal operator perbandingan lengkap: >, <, >=, <=, dan <> untuk kondisi WHERE"
+objectives:
+  - "Menggunakan operator >, <, >=, <= pada kondisi WHERE"
+  - "Menggunakan operator <> atau != untuk 'tidak sama dengan'"
+  - "Menggabungkan operator perbandingan pada kolom angka dan teks"
+estimatedTime: 20
+prerequisites: ["unit-1/01-where-dasar"]
+difficulty: "beginner"
+tags: ["operator", "perbandingan", "where"]
+database: "toko_buku"
+---
+
+# Operator Perbandingan
+
+Selain `=`, SQL punya operator perbandingan lengkap yang bisa dipakai di klausa `WHERE` — mirip dengan operator matematika yang sudah kamu kenal.
+
+## Daftar Operator Perbandingan
+
+| Operator | Arti | Contoh |
+|----------|------|--------|
+| `=` | Sama dengan | `harga = 68000` |
+| `<>` atau `!=` | Tidak sama dengan | `kategori <> 'Fiksi'` |
+| `>` | Lebih besar dari | `harga > 80000` |
+| `<` | Lebih kecil dari | `stok < 5` |
+| `>=` | Lebih besar sama dengan | `tahun_terbit >= 2010` |
+| `<=` | Lebih kecil sama dengan | `harga <= 70000` |
+
+## Contoh Penggunaan
+
+Buku yang terbit tahun 2010 atau lebih baru:
+
+```sql
+SELECT judul, tahun_terbit
+FROM buku
+WHERE tahun_terbit >= 2010;
+```
+
+Buku yang **bukan** kategori Fiksi:
+
+```sql
+SELECT judul, kategori
+FROM buku
+WHERE kategori <> 'Fiksi';
+```
+
+Buku dengan stok kurang dari 10 (mungkin perlu di-restock):
+
+```sql
+SELECT judul, stok
+FROM buku
+WHERE stok < 10;
+```
+
+:::tip
+`<>` dan `!=` artinya persis sama: "tidak sama dengan". SQLite mendukung keduanya — pilih salah satu dan konsisten memakainya.
+:::
+
+## Operator Perbandingan pada Teks
+
+Operator `>` dan `<` juga bisa dipakai pada teks — dibandingkan secara alfabetis:
+
+```sql
+-- Judul buku yang dimulai huruf setelah 'M' secara alfabet
+SELECT judul FROM buku WHERE judul > 'M';
+```
+
+Namun perbandingan ini jarang dipakai untuk teks bebas — lebih sering dipakai untuk kolom angka atau tanggal.
+
+## Kesalahan Umum
+
+**1. Memakai `=` untuk "lebih dari":**
+```sql
+WHERE harga = 80000;   -- hanya cari yang PERSIS 80000
+WHERE harga > 80000;   -- cari yang LEBIH DARI 80000 — beda arti!
+```
+
+**2. Salah arah tanda:**
+```sql
+WHERE 80000 > harga;  -- valid, tapi urutan dibalik: artinya "harga di bawah 80000"
+```
+
+Ini valid secara sintaks, tapi lebih mudah dibaca kalau kolom ditulis di kiri: `WHERE harga < 80000`.
+
+## Latihan
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u1l2-ex1"
+  title="Buku Termurah"
+  description="Tampilkan <code>judul</code> dan <code>harga</code> buku dengan harga 70000 atau kurang."
+  type="code-output"
+  starterCode="SELECT judul, harga FROM buku WHERE harga > 70000;"
+  expectedQuery="SELECT judul, harga FROM buku WHERE harga <= 70000;"
+  hints={["Gunakan operator <=", "70000 termasuk yang dicari (inklusif)"]}
+  explanation="WHERE harga <= 70000 menyaring baris dengan harga 70000 atau lebih rendah."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u1l2-ex2"
+  title="Selain Kategori Pengembangan Diri"
+  description="Tampilkan semua kolom untuk buku yang kategorinya BUKAN 'Pengembangan Diri'."
+  type="code-output"
+  starterCode="SELECT * FROM buku WHERE kategori = 'Pengembangan Diri';"
+  expectedQuery="SELECT * FROM buku WHERE kategori <> 'Pengembangan Diri';"
+  hints={["Gunakan operator <> atau !=", "Jangan lupa tanda kutip pada nilai teks"]}
+  explanation="WHERE kategori <> 'Pengembangan Diri' menampilkan semua baris kecuali yang kategorinya persis itu."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u1l2-ex3"
+  title="Operator Tidak Sama Dengan"
+  description="Operator mana yang berarti 'tidak sama dengan' di SQLite?"
+  type="multiple-choice"
+  options={["==", "<>", "!==", "=/="]}
+  correctIndex={1}
+  hints={["SQLite mendukung dua penulisan yang setara untuk operator ini"]}
+  explanation="<> (dan juga !=) berarti 'tidak sama dengan' di SQLite."
+  lang="id"
+/>
+
+## Ringkasan
+
+| Operator | Arti |
+|----------|------|
+| `=` | Sama dengan |
+| `<>` / `!=` | Tidak sama dengan |
+| `>`, `<` | Lebih besar / lebih kecil |
+| `>=`, `<=` | Lebih besar/kecil sama dengan |
+
+Selanjutnya: bagaimana cara **mengurutkan** hasil query dengan `ORDER BY`.

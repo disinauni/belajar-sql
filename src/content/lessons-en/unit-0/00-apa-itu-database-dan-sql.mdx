@@ -1,0 +1,125 @@
+---
+title: "What is a Database & SQL?"
+unit: 0
+lesson: 0
+description: "Understanding databases, tables, and the SQL language before writing your first query"
+objectives:
+  - "Explain what a database is and how it differs from an ordinary spreadsheet"
+  - "Understand what SQL is and why it matters in the industry"
+  - "Learn the terms table, row, and column"
+estimatedTime: 15
+difficulty: "beginner"
+tags: ["database", "sql", "fundamentals"]
+translationStatus: "complete"
+---
+
+# What is a Database & SQL?
+
+Every time you open an app like Instagram, an online marketplace, or an e-learning platform, one thing is always working behind the scenes: a **database**. Data such as user lists, products, exam scores, or transaction history — all of it is stored in and retrieved from a database.
+
+## Database vs Spreadsheet
+
+At first glance, a database looks similar to a spreadsheet (like Excel or Google Sheets): both are organized in rows and columns. But databases are built to handle data at a much larger scale, with much stricter rules.
+
+<img src="/images/database-vs-spreadsheet.svg" alt="Database vs spreadsheet comparison" width="100%" />
+
+| | Spreadsheet | Database |
+|---|---|---|
+| Data size | Thousands of rows, gets slow | Millions-billions of rows, stays fast |
+| Multiple simultaneous users | Prone to conflicts/overwrites | Built for concurrent access |
+| Data type rules | Loose, easy to mistype | Strict — a `price` column only accepts numbers |
+| How you retrieve data | Manual clicking and scrolling | Asked for via a **query** in SQL |
+
+:::note
+Excel is great for small data you manage yourself. Databases are used when data is large, constantly changing, and accessed by many people/programs at once — like an online store's application.
+:::
+
+## What is SQL?
+
+**SQL** (pronounced "ess-cue-el" or "sequel") stands for **Structured Query Language** — the standard language for "talking" to a database. With SQL you can:
+
+- **Retrieve** data (e.g., "show all books priced under 50000")
+- **Add** new data
+- **Modify** existing data
+- **Delete** data
+- **Design** the table structure itself
+
+This language has been around since the 1970s and remains an industry standard to this day — used in banking apps, e-commerce, social media, and school academic systems alike.
+
+```sql
+-- This is a sample SQL command: ask the database to show all book data
+SELECT * FROM buku;
+```
+
+Don't worry if you don't understand the line above yet — that's exactly what we'll learn starting next unit!
+
+## Tables, Rows, and Columns
+
+Data in a relational database (the kind we're learning in this course) is stored in **tables**.
+
+<img src="/images/table-anatomy.svg" alt="Table anatomy: rows and columns" width="100%" />
+
+A table called `buku` (books), for example, might look like this:
+
+| id | judul | penulis | harga |
+|----|-------|---------|-------|
+| 1 | Laskar Pelangi | Andrea Hirata | 68000 |
+| 2 | Bumi Manusia | Pramoedya Ananta Toer | 85000 |
+
+- Each **row** = one book's data
+- Each **column** = one type of information (title, author, price, etc.)
+- Each column has a fixed **data type** — the `harga` (price) column is always a number, it can't suddenly hold text
+
+:::tip
+Think of a table like a school attendance list: one row per student, one column for name, one column for class, one column for grade. SQL is how we "ask questions" of that list.
+:::
+
+## Exercise
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u0l0-ex1"
+  title="Database vs Spreadsheet"
+  description="Which statement best explains the advantage of a database over an ordinary spreadsheet?"
+  type="multiple-choice"
+  options={[
+    "Databases are always free, spreadsheets are paid",
+    "Databases are built for large data accessed by many users at once, with strict data type rules",
+    "Databases can only be used by professional programmers",
+    "Spreadsheets and databases are actually the same thing"
+  ]}
+  correctIndex={1}
+  hints={["Think about data scale and who accesses it", "Recall the comparison table above"]}
+  explanation="Databases excel when data is large, frequently changing, and accessed by many users/programs concurrently — with consistent data type rules per column."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u0l0-ex2"
+  title="What SQL Stands For"
+  description="What does SQL stand for?"
+  type="multiple-choice"
+  options={[
+    "Simple Query List",
+    "Structured Query Language",
+    "System Question Language",
+    "Standard Quality Log"
+  ]}
+  correctIndex={1}
+  hints={["The first word relates to being 'structured'"]}
+  explanation="SQL stands for Structured Query Language, the standard language for communicating with a relational database."
+  lang="en"
+/>
+
+## Summary
+
+| Term | Meaning |
+|------|---------|
+| Database | An organized collection of data, usually stored as tables |
+| SQL | The language for retrieving/modifying data in a database |
+| Table | A data structure of rows & columns |
+| Row | One data record/entry |
+| Column | One data attribute/field with a fixed type |
+
+In the next lesson, we'll meet **SQLite** — the database engine we'll use throughout this course, running right in the browser without installing anything!

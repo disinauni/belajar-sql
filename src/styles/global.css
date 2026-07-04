@@ -1,0 +1,172 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+@config "../../tailwind.config.ts";
+
+@layer base {
+  :root {
+    --font-sans: 'Inter', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Menlo', monospace;
+    color-scheme: light dark;
+  }
+
+  body {
+    @apply bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100;
+    font-family: var(--font-sans);
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  code, pre {
+    font-family: var(--font-mono);
+  }
+
+  /* Text selection */
+  ::selection {
+    @apply bg-primary-200 dark:bg-primary-800 text-slate-900 dark:text-white;
+  }
+}
+
+/* Prose overrides for lesson content */
+.prose pre {
+  @apply !p-0 !bg-transparent !border-0 !shadow-none;
+}
+
+.prose code {
+  @apply !font-mono !text-sm;
+  background: rgb(241 245 249) !important;
+  color: #1d4ed8 !important;
+  padding: 0.15em 0.45em !important;
+  border-radius: 0.3rem !important;
+  font-weight: 500 !important;
+}
+
+.dark .prose code {
+  background: rgb(30 41 59) !important;
+  color: #93c5fd !important;
+}
+
+/* Strip backtick pseudo-elements from prose inline code */
+.prose code::before,
+.prose code::after {
+  content: '' !important;
+}
+
+/* :::note :::tip :::warning :::error :::fun directive styles */
+.infobox {
+  @apply border-l-4 p-4 my-5 rounded-r-lg text-sm;
+}
+.infobox p {
+  @apply m-0 leading-relaxed;
+}
+.infobox > *:first-child {
+  @apply mt-0;
+}
+.infobox > *:last-child {
+  @apply mb-0;
+}
+.infobox::before {
+  display: block;
+  font-weight: 600;
+  font-size: 0.8rem;
+  margin-bottom: 0.4rem;
+  letter-spacing: 0.02em;
+}
+.infobox-note {
+  @apply border-slate-400 bg-slate-50 dark:bg-slate-900/60 text-slate-700 dark:text-slate-300;
+}
+.infobox-note::before { content: "📝  Catatan"; }
+.infobox-tip {
+  @apply border-blue-500 bg-blue-50 dark:bg-blue-950/30 text-blue-800 dark:text-blue-200;
+}
+.infobox-tip::before { content: "💡  Tips"; }
+.infobox-warning {
+  @apply border-amber-500 bg-amber-50 dark:bg-amber-950/30 text-amber-800 dark:text-amber-200;
+}
+.infobox-warning::before { content: "⚠️  Perhatian"; }
+.infobox-error {
+  @apply border-red-500 bg-red-50 dark:bg-red-950/30 text-red-800 dark:text-red-200;
+}
+.infobox-error::before { content: "🚫  Error"; }
+.infobox-fun {
+  @apply border-violet-500 bg-violet-50 dark:bg-violet-950/30 text-violet-800 dark:text-violet-200;
+}
+.infobox-fun::before { content: "🌟  Fun Fact"; }
+
+/* Shiki copy button (injected at build time by transformer) */
+.shiki-copy-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 5px 8px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.08);
+  color: #9ca3af;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-family: inherit;
+  line-height: 1;
+  opacity: 0;
+}
+pre:hover > .shiki-copy-btn {
+  opacity: 1;
+}
+/* Show copy button on touch devices (no hover state) */
+@media (hover: none) {
+  .shiki-copy-btn { opacity: 0.8; }
+}
+.shiki-copy-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #e2e8f0;
+}
+.shiki-copy-btn.copied {
+  background: rgba(52, 211, 153, 0.15);
+  color: #34d399;
+  opacity: 1;
+}
+
+/* Custom scrollbar for code blocks */
+pre::-webkit-scrollbar { height: 5px; width: 5px; }
+pre::-webkit-scrollbar-track { background: transparent; }
+pre::-webkit-scrollbar-thumb { background: #374151; border-radius: 9999px; }
+pre::-webkit-scrollbar-thumb:hover { background: #4b5563; }
+
+/* Responsive tables in prose */
+.prose table {
+  display: block;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Query result tables rendered by ResultTable.tsx */
+.result-table-wrapper {
+  @apply overflow-x-auto rounded-lg border border-slate-700;
+}
+.result-table {
+  @apply w-full text-sm font-mono border-collapse;
+}
+.result-table th {
+  @apply bg-slate-800 text-slate-300 text-left px-3 py-2 sticky top-0 whitespace-nowrap;
+}
+.result-table td {
+  @apply px-3 py-1.5 border-t border-slate-800 text-slate-200 whitespace-nowrap;
+}
+.result-table tr:nth-child(even) td {
+  @apply bg-slate-900/40;
+}
+
+/* Hide duplicate H1 from MDX (lesson title already shown in page header) */
+.prose > h1:first-child { display: none; }
+
+/* Infobox labels in English */
+html[lang="en"] .infobox-note::before    { content: "📝  Note"; }
+html[lang="en"] .infobox-tip::before     { content: "💡  Tip"; }
+html[lang="en"] .infobox-warning::before { content: "⚠️  Warning"; }
+html[lang="en"] .infobox-error::before   { content: "🚫  Error"; }
+html[lang="en"] .infobox-fun::before     { content: "🌟  Fun Fact"; }
+
+/* Smooth scroll for TOC */
+html { scroll-behavior: smooth; }

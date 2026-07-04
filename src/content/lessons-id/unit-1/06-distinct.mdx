@@ -1,0 +1,119 @@
+---
+title: "Menghilangkan Duplikat dengan DISTINCT"
+unit: 1
+lesson: 6
+description: "Menampilkan nilai unik dari sebuah kolom atau kombinasi kolom dengan DISTINCT"
+objectives:
+  - "Menggunakan SELECT DISTINCT untuk menghilangkan baris duplikat"
+  - "Memahami DISTINCT bekerja pada kombinasi seluruh kolom yang dipilih"
+  - "Mengetahui hubungan DISTINCT dengan GROUP BY (bekal Unit 3)"
+estimatedTime: 15
+prerequisites: ["unit-1/05-alias-as"]
+difficulty: "beginner"
+tags: ["distinct", "duplikat"]
+database: "toko_buku"
+---
+
+# Menghilangkan Duplikat dengan DISTINCT
+
+Tabel `buku` kita punya 12 baris, tapi hanya beberapa **kategori** unik (Fiksi, Non-Fiksi, Pengembangan Diri, Teknologi, Keuangan). Kalau kamu ingin tahu apa saja kategori yang ada — tanpa duplikat — pakai `DISTINCT`.
+
+## DISTINCT Dasar
+
+```sql
+-- Tanpa DISTINCT: kategori Fiksi akan muncul berkali-kali (satu per buku)
+SELECT kategori FROM buku;
+```
+
+```sql
+-- Dengan DISTINCT: setiap kategori hanya muncul sekali
+SELECT DISTINCT kategori FROM buku;
+```
+
+<img src="/images/distinct-dedup.svg" alt="DISTINCT menghilangkan baris duplikat" width="100%" />
+
+## DISTINCT pada Banyak Kolom
+
+Ketika `DISTINCT` dipakai dengan lebih dari satu kolom, ia menganggap baris "duplikat" hanya jika **seluruh kombinasi kolom** itu sama persis:
+
+```sql
+-- Kombinasi (kategori, tahun_terbit) yang unik
+SELECT DISTINCT kategori, tahun_terbit FROM buku;
+```
+
+Dua baris dengan `kategori = 'Fiksi'` tapi `tahun_terbit` berbeda **tidak** dianggap duplikat — karena kombinasinya beda.
+
+:::warning
+`DISTINCT` selalu diletakkan tepat setelah `SELECT`, bukan sebelum tiap nama kolom:
+```sql
+SELECT DISTINCT kategori, penulis FROM buku;   -- benar
+SELECT DISTINCT kategori, DISTINCT penulis FROM buku;  -- ERROR
+```
+:::
+
+## DISTINCT vs GROUP BY
+
+`DISTINCT` mirip dengan `GROUP BY` yang akan kita pelajari di **Unit 3** — keduanya sama-sama mengelompokkan nilai unik. Bedanya, `GROUP BY` biasanya dipakai bersama fungsi agregat seperti `COUNT()` untuk menghitung berapa banyak anggota tiap kelompok, sedangkan `DISTINCT` sekadar menghilangkan duplikat tanpa menghitung apapun.
+
+```sql
+-- DISTINCT: hanya daftar kategori unik
+SELECT DISTINCT kategori FROM buku;
+
+-- GROUP BY (nanti di Unit 3): daftar kategori + jumlah buku per kategori
+-- SELECT kategori, COUNT(*) FROM buku GROUP BY kategori;
+```
+
+## Latihan
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u1l6-ex1"
+  title="Daftar Penulis Unik"
+  description="Tampilkan daftar nama penulis yang unik (tanpa duplikat) dari tabel buku."
+  type="code-output"
+  starterCode="SELECT penulis FROM buku;"
+  expectedQuery="SELECT DISTINCT penulis FROM buku;"
+  hints={["Tambahkan kata kunci DISTINCT tepat setelah SELECT"]}
+  explanation="SELECT DISTINCT penulis menghilangkan nama penulis yang muncul berulang di banyak baris."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u1l6-ex2"
+  title="Kombinasi Unik"
+  description="Tampilkan kombinasi kategori dan tahun_terbit yang unik dari tabel buku."
+  type="code-output"
+  starterCode="SELECT kategori, tahun_terbit FROM buku;"
+  expectedQuery="SELECT DISTINCT kategori, tahun_terbit FROM buku;"
+  hints={["DISTINCT bisa diikuti lebih dari satu kolom"]}
+  explanation="DISTINCT pada dua kolom menganggap baris duplikat hanya jika kombinasi kedua kolom itu sama persis."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u1l6-ex3"
+  title="Cara Kerja DISTINCT pada Banyak Kolom"
+  description="Jika kamu menulis SELECT DISTINCT kategori, penulis FROM buku, kapan sebuah baris dianggap duplikat?"
+  type="multiple-choice"
+  options={[
+    "Jika salah satu dari kategori atau penulis sama",
+    "Jika kombinasi kategori DAN penulis sama persis",
+    "DISTINCT tidak bisa dipakai untuk lebih dari satu kolom",
+    "Jika urutan barisnya berdekatan"
+  ]}
+  correctIndex={1}
+  hints={["DISTINCT melihat gabungan seluruh kolom yang dipilih"]}
+  explanation="DISTINCT pada banyak kolom menghilangkan baris hanya jika kombinasi SELURUH kolom yang dipilih sama persis dengan baris lain."
+  lang="id"
+/>
+
+## Ringkasan
+
+| Konsep | Contoh |
+|--------|--------|
+| Nilai unik satu kolom | `SELECT DISTINCT kategori FROM buku;` |
+| Kombinasi unik banyak kolom | `SELECT DISTINCT kategori, tahun_terbit FROM buku;` |
+| Terkait dengan | `GROUP BY` (dipelajari di Unit 3) |
+
+Kamu sudah menguasai semua fondasi SELECT dasar! Saatnya menggabungkan semuanya di **Proyek Mini: Query Toko Buku**.

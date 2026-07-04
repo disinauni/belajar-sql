@@ -1,0 +1,145 @@
+---
+title: "Sorting with ORDER BY"
+unit: 1
+lesson: 3
+description: "Sorting query results ascending (ASC) or descending (DESC) with ORDER BY"
+objectives:
+  - "Sort query results with ORDER BY ASC and DESC"
+  - "Sort by more than one column"
+  - "Understand that row order without ORDER BY is not guaranteed"
+estimatedTime: 20
+prerequisites: ["unit-1/02-operator-perbandingan"]
+difficulty: "beginner"
+tags: ["order-by", "sorting"]
+database: "toko_buku"
+translationStatus: "complete"
+---
+
+# Sorting with ORDER BY
+
+Without `ORDER BY`, the row order of a query result is **not guaranteed** — SQLite is free to return rows in whatever order is most efficient for it. If you need a specific order, use `ORDER BY`.
+
+## Ascending (ASC) and Descending (DESC)
+
+```sql
+-- Sort from cheapest to most expensive (ascending)
+SELECT judul, harga
+FROM buku
+ORDER BY harga ASC;
+```
+
+```sql
+-- Sort from most expensive to cheapest (descending)
+SELECT judul, harga
+FROM buku
+ORDER BY harga DESC;
+```
+
+<img src="/images/order-by-comparison.svg" alt="ASC vs DESC comparison" width="100%" />
+
+:::note
+`ASC` (ascending) is the default — if you write `ORDER BY harga` alone without `ASC`/`DESC`, SQLite sorts ascending automatically.
+:::
+
+## Sorting by Text
+
+Text columns are sorted alphabetically:
+
+```sql
+SELECT judul, penulis
+FROM buku
+ORDER BY judul ASC;
+```
+
+## Sorting by Multiple Columns
+
+You can sort by more than one column — the second column acts as a "tiebreaker" when the first column's values are equal:
+
+```sql
+-- Sort by category (alphabetically), then within each category by price descending
+SELECT kategori, judul, harga
+FROM buku
+ORDER BY kategori ASC, harga DESC;
+```
+
+## Combining with WHERE
+
+`WHERE` and `ORDER BY` can be used together — the writing order is always `WHERE` first, then `ORDER BY`:
+
+```sql
+SELECT judul, harga
+FROM buku
+WHERE kategori = 'Fiksi'
+ORDER BY harga DESC;
+```
+
+## Common Mistakes
+
+**1. Placing ORDER BY before WHERE:**
+```sql
+SELECT judul FROM buku ORDER BY harga WHERE kategori = 'Fiksi';  -- ERROR: wrong order
+```
+The correct order: `SELECT ... FROM ... WHERE ... ORDER BY ...`
+
+**2. Relying on order without ORDER BY:**
+```sql
+SELECT * FROM buku;  -- row order is NOT guaranteed to be consistent
+```
+
+## Exercise
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u1l3-ex1"
+  title="Cheapest Books First"
+  description="Display <code>judul</code> and <code>harga</code>, sorted from cheapest to most expensive."
+  type="code-output"
+  strictOrder
+  starterCode="SELECT judul, harga FROM buku ORDER BY harga DESC;"
+  expectedQuery="SELECT judul, harga FROM buku ORDER BY harga ASC;"
+  hints={["Use ASC for ascending order", "ASC is actually the default, it may be omitted"]}
+  explanation="ORDER BY harga ASC sorts from the smallest value to the largest."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u1l3-ex2"
+  title="Sort by Title"
+  description="Display all book titles, sorted alphabetically A-Z."
+  type="code-output"
+  strictOrder
+  starterCode="SELECT judul FROM buku;"
+  expectedQuery="SELECT judul FROM buku ORDER BY judul ASC;"
+  hints={["Text columns are sorted alphabetically with ASC"]}
+  explanation="ORDER BY judul ASC sorts titles alphabetically from A to Z."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u1l3-ex3"
+  title="Default Order"
+  description="If you write ORDER BY harga without ASC or DESC, which order is used?"
+  type="multiple-choice"
+  options={[
+    "Random order",
+    "Descending (DESC)",
+    "Ascending (ASC) — this is the default",
+    "The query will error"
+  ]}
+  correctIndex={2}
+  hints={["ASC stands for ascending"]}
+  explanation="ASC (ascending) is the default if ASC/DESC isn't explicitly stated."
+  lang="en"
+/>
+
+## Summary
+
+| Concept | Example |
+|---------|---------|
+| Ascending order | `ORDER BY harga ASC` (or just `ORDER BY harga`) |
+| Descending order | `ORDER BY harga DESC` |
+| Multiple columns | `ORDER BY kategori ASC, harga DESC` |
+| Clause order | `SELECT ... FROM ... WHERE ... ORDER BY ...` |
+
+Next: limiting the number of result rows with **LIMIT** — useful for "top N" queries!

@@ -1,0 +1,145 @@
+---
+title: "Filtering with WHERE"
+unit: 1
+lesson: 1
+description: "Filtering rows of data using the WHERE clause based on a given condition"
+objectives:
+  - "Write a query with a WHERE clause"
+  - "Filter data based on text and numeric values"
+  - "Understand how SQLite evaluates a condition per row"
+estimatedTime: 25
+prerequisites: ["unit-1/00-select-dan-kolom"]
+difficulty: "beginner"
+tags: ["where", "filter", "condition"]
+database: "toko_buku"
+translationStatus: "complete"
+---
+
+# Filtering with WHERE
+
+Without `WHERE`, `SELECT` always returns **every row** in the table. The `WHERE` clause lets you filter — only rows matching a given condition are shown.
+
+## How WHERE is Evaluated
+
+<img src="/images/where-filter-flow.svg" alt="WHERE filter flow: rows checked one by one" width="100%" />
+
+SQLite checks **every row one at a time**: if the WHERE condition is true for that row, it makes it into the result. If not, that row is skipped.
+
+## Filtering by a Number
+
+```sql
+SELECT judul, harga
+FROM buku
+WHERE harga > 80000;
+```
+
+Only books priced above 80000 show up.
+
+## Filtering by Text
+
+Text (string) values must be wrapped in single quotes `'...'`:
+
+```sql
+SELECT judul, kategori
+FROM buku
+WHERE kategori = 'Fiksi';
+```
+
+:::warning
+Forgetting quotes around a text value is the most common mistake:
+```sql
+WHERE kategori = Fiksi;  -- ERROR: SQLite thinks Fiksi is a column name
+```
+Always use quotes: `WHERE kategori = 'Fiksi'`.
+:::
+
+## Filtering by Exact Equality
+
+The `=` operator looks for an **exact match**:
+
+```sql
+SELECT * FROM buku WHERE penulis = 'Tere Liye';
+```
+
+If you misspell the case or add extra spaces, nothing will match (though SQLite's default text comparison is not case-sensitive for ASCII letters).
+
+## Anatomy of WHERE
+
+```sql
+SELECT judul FROM buku WHERE harga > 80000;
+```
+
+- **`WHERE`** — starts the filtering condition
+- **`harga > 80000`** — the condition expression: column, operator, comparison value
+- A row is only shown if this expression evaluates to **true**
+
+## Common Mistakes
+
+**1. Placing WHERE before FROM:**
+```sql
+SELECT judul WHERE harga > 80000 FROM buku;  -- ERROR: wrong order
+```
+The correct order is always: `SELECT ... FROM ... WHERE ...`
+
+**2. Forgetting quotes on text:**
+```sql
+WHERE judul = Sapiens;  -- ERROR
+```
+
+## Exercise
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u1l1-ex1"
+  title="Books in the Technology Category"
+  description="Display the <code>judul</code> and <code>harga</code> of all books in the <code>'Teknologi'</code> category."
+  type="code-output"
+  starterCode="SELECT judul, harga
+FROM buku
+WHERE kategori = 'Fiksi';"
+  expectedQuery="SELECT judul, harga FROM buku WHERE kategori = 'Teknologi';"
+  hints={["Change the value 'Fiksi' to 'Teknologi'", "Remember the quotes around the text value"]}
+  explanation="WHERE kategori = 'Teknologi' only shows rows where the kategori column is exactly 'Teknologi'."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u1l1-ex2"
+  title="Out-of-Stock Books"
+  description="Display all columns for books whose stock is 0 (out of stock)."
+  type="code-output"
+  starterCode="SELECT * FROM buku WHERE stok > 0;"
+  expectedQuery="SELECT * FROM buku WHERE stok = 0;"
+  hints={["Use the = operator to find a value that's exactly 0"]}
+  explanation="WHERE stok = 0 looks for rows whose stok column value is exactly zero."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u1l1-ex3"
+  title="Quoting Text Values"
+  description="Which is the correct way to filter rows with category 'Fiksi'?"
+  type="multiple-choice"
+  options={[
+    "WHERE kategori = Fiksi",
+    "WHERE kategori = 'Fiksi'",
+    "WHERE kategori == Fiksi",
+    "WHERE 'kategori' = Fiksi"
+  ]}
+  correctIndex={1}
+  hints={["Text/string values must be wrapped in single quotes"]}
+  explanation="Text values in SQL must be wrapped in single quotes, e.g. 'Fiksi'. Without quotes, SQLite would mistake Fiksi for a column name."
+  lang="en"
+/>
+
+## Summary
+
+| Concept | Example |
+|---------|---------|
+| Filter by number | `WHERE harga > 80000` |
+| Filter by text | `WHERE kategori = 'Fiksi'` |
+| Clause order | `SELECT ... FROM ... WHERE ...` |
+| Text values | Always wrapped in single quotes `'...'` |
+
+Next, we'll cover the **full set of comparison operators** — beyond just `=` and `>`!

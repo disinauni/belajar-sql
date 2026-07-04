@@ -1,0 +1,131 @@
+---
+title: "Limiting Results with LIMIT"
+unit: 1
+lesson: 4
+description: "Limiting the number of result rows with LIMIT, including top-N patterns and OFFSET"
+objectives:
+  - "Limit the number of result rows with LIMIT"
+  - "Combine LIMIT with ORDER BY for top-N queries"
+  - "Use OFFSET to skip a number of rows"
+estimatedTime: 15
+prerequisites: ["unit-1/03-order-by"]
+difficulty: "beginner"
+tags: ["limit", "offset", "top-n"]
+database: "toko_buku"
+translationStatus: "complete"
+---
+
+# Limiting Results with LIMIT
+
+Sometimes you only need a handful of top rows, not everything — e.g. "top 5 best sellers" or "3 most expensive books". That's where `LIMIT` comes in.
+
+## Basic LIMIT
+
+```sql
+-- Take only the first 5 rows, in whatever order they come
+SELECT judul FROM buku LIMIT 5;
+```
+
+## The "Top N" Pattern: LIMIT + ORDER BY
+
+`LIMIT` is most useful combined with `ORDER BY` — this is the very common **"top N"** pattern:
+
+<img src="/images/limit-offset-diagram.svg" alt="LIMIT and OFFSET over a result set" width="100%" />
+
+```sql
+-- 3 most expensive books
+SELECT judul, harga
+FROM buku
+ORDER BY harga DESC
+LIMIT 3;
+```
+
+```sql
+-- 3 books with the lowest stock
+SELECT judul, stok
+FROM buku
+ORDER BY stok ASC
+LIMIT 3;
+```
+
+:::warning
+`LIMIT` without `ORDER BY` can't be relied on for "top N" — because row order without ORDER BY isn't guaranteed. Always combine both when you need a consistent "top N".
+:::
+
+## OFFSET: Skipping a Number of Rows
+
+`OFFSET` is used together with `LIMIT` to skip a number of leading rows — useful for features like "page 2" of a list:
+
+```sql
+-- Skip the top 3 most expensive books, show the next 3 (ranks 4-6)
+SELECT judul, harga
+FROM buku
+ORDER BY harga DESC
+LIMIT 3 OFFSET 3;
+```
+
+## Anatomy of LIMIT
+
+```sql
+SELECT judul FROM buku ORDER BY harga DESC LIMIT 3;
+```
+
+The full clause order so far: `SELECT ... FROM ... WHERE ... ORDER BY ... LIMIT ...`
+
+## Exercise
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u1l4-ex1"
+  title="5 Cheapest Books"
+  description="Display the <code>judul</code> and <code>harga</code> of the 5 cheapest books."
+  type="code-output"
+  strictOrder
+  starterCode="SELECT judul, harga FROM buku ORDER BY harga DESC LIMIT 5;"
+  expectedQuery="SELECT judul, harga FROM buku ORDER BY harga ASC LIMIT 5;"
+  hints={["Sort ASC for cheapest first", "Combine ORDER BY and LIMIT"]}
+  explanation="ORDER BY harga ASC LIMIT 5 takes the 5 rows with the lowest price."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u1l4-ex2"
+  title="Second-Newest Book"
+  description="Display 1 book title with the SECOND-newest tahun_terbit (sort newest first, skip the first one)."
+  type="code-output"
+  strictOrder
+  starterCode="SELECT judul, tahun_terbit FROM buku ORDER BY tahun_terbit DESC LIMIT 1;"
+  expectedQuery="SELECT judul, tahun_terbit FROM buku ORDER BY tahun_terbit DESC LIMIT 1 OFFSET 1;"
+  hints={["Use OFFSET 1 to skip the first row", "LIMIT 1 OFFSET 1 means take the 2nd row"]}
+  explanation="LIMIT 1 OFFSET 1 skips the first (newest) row then takes 1 more row — which is the second rank."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u1l4-ex3"
+  title="LIMIT Without ORDER BY"
+  description="Why can't LIMIT without ORDER BY be relied on for a 'top N' query?"
+  type="multiple-choice"
+  options={[
+    "Because LIMIT can only be used with WHERE",
+    "Because row order without ORDER BY isn't guaranteed to be consistent",
+    "Because LIMIT only works on numeric columns",
+    "Because LIMIT always takes the last row"
+  ]}
+  correctIndex={1}
+  hints={["Recall the earlier lesson on ORDER BY"]}
+  explanation="Without ORDER BY, SQLite is free to return rows in any order — so LIMIT could grab different rows each time, not truly the 'top N'."
+  lang="en"
+/>
+
+## Summary
+
+| Concept | Example |
+|---------|---------|
+| Limit row count | `LIMIT 5` |
+| Top N | `ORDER BY harga DESC LIMIT 3` |
+| Skip rows (paging) | `LIMIT 3 OFFSET 3` |
+| Clause order | `SELECT...FROM...WHERE...ORDER BY...LIMIT...` |
+
+Next: giving result columns a temporary name with **aliases (AS)**.
