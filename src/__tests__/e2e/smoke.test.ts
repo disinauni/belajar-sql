@@ -25,7 +25,7 @@ test.describe('Curriculum page', () => {
   test('shows all 7 units', async ({ page }) => {
     await page.goto('/id/curriculum')
     await expect(page.locator('main h1').first()).toBeVisible()
-    // Should have unit-0 through unit-6 listed (only 0-1 available, rest roadmap)
+    // Should have unit-0 through unit-6 listed, all available
     const unitCards = page.locator('[data-unit-card]')
     await expect(unitCards).toHaveCount(7)
   })
@@ -62,7 +62,7 @@ test.describe('Lesson page', () => {
 test.describe('Glossary page', () => {
   test('ID glossary loads with terms', async ({ page }) => {
     await page.goto('/id/glossary', { waitUntil: 'domcontentloaded' })
-    await expect(page.locator('h1')).toContainText('Glosarium')
+    await expect(page.locator('main h1')).toContainText('Glosarium')
     // Should have category headings
     await expect(page.locator('h2').first()).toBeVisible()
     // Should have term definitions
@@ -71,14 +71,14 @@ test.describe('Glossary page', () => {
 
   test('EN glossary loads', async ({ page }) => {
     await page.goto('/en/glossary', { waitUntil: 'domcontentloaded' })
-    await expect(page.locator('h1')).toContainText('Glossary')
+    await expect(page.locator('main h1')).toContainText('Glossary')
   })
 })
 
 test.describe('Playground page', () => {
   test('loads with query editor area', async ({ page }) => {
     await page.goto('/id/playground')
-    await expect(page.locator('h1')).toBeVisible()
+    await expect(page.locator('main h1').first()).toBeVisible()
   })
 })
 
@@ -86,7 +86,7 @@ test.describe('Progress page', () => {
   test('loads correctly', async ({ page }) => {
     await page.goto('/id/progress')
     await expect(page).not.toHaveTitle(/404/)
-    await expect(page.locator('h1')).toBeVisible()
+    await expect(page.locator('main h1').first()).toBeVisible()
   })
 })
 
