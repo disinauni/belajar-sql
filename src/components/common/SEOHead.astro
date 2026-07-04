@@ -9,7 +9,7 @@ interface Props {
 const { title, description, lang, url, ogImage } = Astro.props
 const siteUrl = import.meta.env.PUBLIC_SITE_URL || 'https://belajar-sql.varnimyr.my.id'
 const canonicalUrl = new URL(url, siteUrl).href
-const image = ogImage || `${siteUrl}/og-default.svg`
+const image = ogImage || `${siteUrl}/og-default.png`
 ---
 <!-- Canonical -->
 <link rel="canonical" href={canonicalUrl} />
