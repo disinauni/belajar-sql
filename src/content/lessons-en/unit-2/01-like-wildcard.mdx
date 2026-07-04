@@ -1,0 +1,129 @@
+---
+title: "LIKE & Wildcards"
+unit: 2
+lesson: 1
+description: "Matching text patterns with LIKE, and the % and _ wildcards"
+objectives:
+  - "Search for text containing, starting with, or ending with a pattern using LIKE"
+  - "Understand the difference between the % and _ wildcards"
+  - "Combine LIKE with NOT LIKE"
+estimatedTime: 25
+prerequisites: ["unit-2/00-operator-logika"]
+difficulty: "beginner"
+tags: ["like", "wildcard", "pattern-matching"]
+database: "toko_buku"
+translationStatus: "complete"
+---
+
+# LIKE & Wildcards
+
+`WHERE judul = 'Sapiens'` only finds an **exact** match. But what if you want to find every title **containing** the word "Cinta", without knowing the full title? That's what `LIKE` is for.
+
+## The `%` Wildcard — Zero or More Characters
+
+```sql
+-- Titles that CONTAIN the word "Cinta" anywhere
+SELECT judul FROM buku WHERE judul LIKE '%Cinta%';
+```
+
+```sql
+-- Titles STARTING with the letter "B"
+SELECT judul FROM buku WHERE judul LIKE 'B%';
+```
+
+```sql
+-- Titles ENDING with the letter "a"
+SELECT judul FROM buku WHERE judul LIKE '%a';
+```
+
+The `%` symbol means "here there can be zero characters, one character, or any number of characters at all".
+
+## The `_` Wildcard — Exactly One Character
+
+An underscore `_` matches **exactly one** character, no more, no less:
+
+```sql
+-- Categories with exactly 5 letters: "Fiksi" matches, "Teknologi" doesn't
+SELECT judul, kategori FROM buku WHERE kategori LIKE '_____';
+```
+
+<img src="/images/like-wildcard-pattern.svg" alt="The % and _ wildcard patterns in LIKE" width="100%" />
+
+## NOT LIKE
+
+```sql
+-- Titles that do NOT contain the word "Cinta"
+SELECT judul FROM buku WHERE judul NOT LIKE '%Cinta%';
+```
+
+## Combining Patterns
+
+```sql
+-- Starts with "A", ends with "a"
+SELECT judul FROM buku WHERE judul LIKE 'A%a';
+```
+
+:::note
+By default, `LIKE` in SQLite is **not case-sensitive** for ASCII letters — `LIKE '%cinta%'` and `LIKE '%Cinta%'` produce the same result.
+:::
+
+:::warning
+`LIKE` without any wildcard behaves just like `=` — `WHERE judul LIKE 'Sapiens'` only matches "Sapiens" exactly. The `%`/`_` wildcards are what make LIKE useful for pattern searches.
+:::
+
+## Exercise
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u2l1-ex1"
+  title="Title Containing 'Cantik'"
+  description="Show all book titles that contain the word 'Cantik' anywhere in the title."
+  type="code-output"
+  starterCode="SELECT judul FROM buku WHERE judul LIKE '%Sapiens%';"
+  expectedQuery="SELECT judul FROM buku WHERE judul LIKE '%Cantik%';"
+  hints={["Wrap the keyword with % on both sides"]}
+  explanation="'%Cantik%' matches any title containing the word 'Cantik' anywhere in it."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u2l1-ex2"
+  title="Author Starting With 'Tere'"
+  description="Show the title and author of books whose author's name STARTS WITH 'Tere'."
+  type="code-output"
+  starterCode="SELECT judul, penulis FROM buku;"
+  expectedQuery="SELECT judul, penulis FROM buku WHERE penulis LIKE 'Tere%';"
+  hints={["A trailing % alone means 'starts with'", "Add WHERE penulis LIKE 'Tere%'"]}
+  explanation="'Tere%' matches text that STARTS WITH 'Tere' — different from '%Tere%', which would also match if 'Tere' appeared in the middle or end of the name."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u2l1-ex3"
+  title="Difference Between % and _"
+  description="What is the difference between the % and _ wildcards in LIKE?"
+  type="multiple-choice"
+  options={[
+    "They're identical, just different symbols",
+    "% matches zero or more characters, _ matches exactly one character",
+    "% is only for numbers, _ is only for letters",
+    "_ matches zero or more characters, % matches exactly one character"
+  ]}
+  correctIndex={1}
+  hints={["Think of % as 'anything, any amount', _ as 'one character slot'"]}
+  explanation="% matches zero or more characters of any kind, while _ matches exactly one character at that position."
+  lang="en"
+/>
+
+## Summary
+
+| Pattern | Meaning | Example |
+|---------|---------|---------|
+| `'%word%'` | Contains "word" anywhere | `LIKE '%Cinta%'` |
+| `'word%'` | Starts with "word" | `LIKE 'B%'` |
+| `'%word'` | Ends with "word" | `LIKE '%a'` |
+| `'_____'` | Exactly 5 characters | `LIKE '_____'` |
+| `NOT LIKE` | The opposite of LIKE | `NOT LIKE '%Cinta%'` |
+
+Next: checking against several possible values at once with **IN**.

@@ -1,0 +1,121 @@
+---
+title: "MIN & MAX"
+unit: 3
+lesson: 2
+description: "Finding the smallest and largest values in a column with MIN and MAX"
+objectives:
+  - "Find the smallest value with MIN"
+  - "Find the largest value with MAX"
+  - "Understand that MIN/MAX also work on text and dates"
+estimatedTime: 15
+prerequisites: ["unit-3/01-sum-avg"]
+difficulty: "beginner"
+tags: ["min", "max", "aggregate-function"]
+database: "toko_buku"
+translationStatus: "complete"
+---
+
+# MIN & MAX
+
+`MIN` and `MAX` are aggregate functions for finding the smallest and largest values in a column.
+
+## MIN & MAX on Numbers
+
+```sql
+SELECT MIN(harga) AS termurah, MAX(harga) AS termahal FROM buku;
+```
+
+A single query can produce two summary numbers at once — the cheapest and most expensive price.
+
+```sql
+SELECT MIN(tahun_terbit) AS tertua, MAX(tahun_terbit) AS terbaru FROM buku;
+```
+
+## MIN/MAX Aren't Just for Numbers
+
+`MIN`/`MAX` also work on text columns (alphabetically) and dates (chronologically):
+
+```sql
+-- First and last title alphabetically
+SELECT MIN(judul) AS judul_pertama_abjad, MAX(judul) AS judul_terakhir_abjad
+FROM buku;
+```
+
+## Finding the Full Row for a MIN/MAX Value
+
+`MIN(harga)` only returns **the number itself**, not the entire book row. To find out *which* book is the cheapest, complete with all its columns, combine `ORDER BY` + `LIMIT` (from Unit 1) — not `MIN()`:
+
+```sql
+-- Gets just the cheapest number
+SELECT MIN(harga) FROM buku;
+
+-- Gets the FULL row of the cheapest book
+SELECT * FROM buku ORDER BY harga ASC LIMIT 1;
+```
+
+:::tip
+This is a common beginner mistake: assuming `SELECT judul, MIN(harga) FROM buku` will show the cheapest book's title. That mixes a plain column with an aggregate function without `GROUP BY` — the result is not well-defined. We'll cover why in the next **GROUP BY** lesson.
+:::
+
+## MIN/MAX with WHERE
+
+```sql
+-- Most expensive price, Fiction category only
+SELECT MAX(harga) AS termahal_fiksi FROM buku WHERE kategori = 'Fiksi';
+```
+
+## Exercise
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u3l2-ex1"
+  title="Highest and Lowest Stock"
+  description="Show the smallest stock (aliased stok_min) and the largest stock (aliased stok_max) across all books."
+  type="code-output"
+  starterCode="SELECT MIN(harga), MAX(harga) FROM buku;"
+  expectedQuery="SELECT MIN(stok) AS stok_min, MAX(stok) AS stok_max FROM buku;"
+  hints={["Change the harga column to stok"]}
+  explanation="MIN(stok) and MAX(stok) produce two summary numbers at once in a single query."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u3l2-ex2"
+  title="Full Cheapest Book Row (not just the number)"
+  description="Show ALL COLUMNS for the cheapest book (use ORDER BY + LIMIT, not MIN())."
+  type="code-output"
+  strictOrder
+  starterCode="SELECT MIN(harga) FROM buku;"
+  expectedQuery="SELECT * FROM buku ORDER BY harga ASC LIMIT 1;"
+  hints={["MIN(harga) only gives you the number, not the row", "Sort ASC then take the first row"]}
+  explanation="To get the full row with the lowest value, use ORDER BY ASC LIMIT 1 — not MIN(), which only returns a number."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u3l2-ex3"
+  title="MIN/MAX on Text"
+  description="What does MAX(judul) do on a text column?"
+  type="multiple-choice"
+  options={[
+    "Always errors because MAX is numbers-only",
+    "Returns the title that's alphabetically last",
+    "Returns the longest title",
+    "Returns the most frequently occurring title"
+  ]}
+  correctIndex={1}
+  hints={["MIN/MAX on text work based on alphabetical order"]}
+  explanation="MAX on a text column returns the value that's alphabetically last, just as MIN returns the one that's alphabetically first."
+  lang="en"
+/>
+
+## Summary
+
+| Function | Use |
+|----------|-----|
+| `MIN(column)` | Smallest value (numbers) or alphabetically first (text/dates) |
+| `MAX(column)` | Largest value (numbers) or alphabetically last (text/dates) |
+| Full min/max row | Use `ORDER BY` + `LIMIT 1`, not `MIN()`/`MAX()` |
+
+You now have 5 aggregate functions: `COUNT`, `SUM`, `AVG`, `MIN`, `MAX`. Next we'll learn **GROUP BY** — how to group rows so these aggregate functions can be computed per group, not just one number for the whole table.

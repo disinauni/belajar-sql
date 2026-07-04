@@ -1,0 +1,143 @@
+---
+title: "Apa itu JOIN & Foreign Key?"
+unit: 4
+lesson: 0
+description: "Memahami kenapa data dipecah ke banyak tabel dan bagaimana Foreign Key menghubungkannya"
+objectives:
+  - "Menjelaskan kenapa database relasional memecah data ke banyak tabel (normalisasi)"
+  - "Mengenal skema database baru: perpustakaan (anggota, buku, peminjaman)"
+  - "Memahami Foreign Key sebagai penghubung antar tabel"
+estimatedTime: 25
+prerequisites: ["unit-3/06-proyek-mini-laporan-penjualan"]
+difficulty: "intermediate"
+tags: ["join", "foreign-key", "normalisasi"]
+database: "perpustakaan"
+---
+
+# Apa itu JOIN & Foreign Key?
+
+Sejauh ini kita hanya bekerja dengan **satu tabel**: `buku`. Tapi database dunia nyata nyaris selalu terdiri dari **banyak tabel yang saling berhubungan**. Mulai unit ini, kita memakai database contoh baru: **`perpustakaan`** (sistem peminjaman buku perpustakaan sekolah).
+
+## Kenapa Data Dipecah ke Banyak Tabel?
+
+Bayangkan kalau semua data peminjaman buku disimpan dalam **satu tabel raksasa**:
+
+| peminjam | kelas | judul_buku | penulis | tanggal_pinjam |
+|----------|-------|-----------|---------|-----------------|
+| Dewi | 10A | Laskar Pelangi | Andrea Hirata | 2026-05-01 |
+| Dewi | 10A | Sapiens | Yuval Noah Harari | 2026-05-15 |
+
+Nama "Dewi" dan kelasnya "10A" **terduplikasi** setiap kali dia meminjam buku baru. Kalau Dewi pindah kelas, kamu harus mengubah banyak baris sekaligus — rawan data jadi tidak konsisten.
+
+**Normalisasi** adalah praktik memecah data seperti ini ke tabel-tabel terpisah, masing-masing menyimpan satu jenis informasi, supaya tidak ada duplikasi.
+
+## Skema `perpustakaan`
+
+<img src="/images/multi-table-join-flow.svg" alt="Skema tiga tabel: anggota, buku, peminjaman" width="100%" />
+
+Database `perpustakaan` punya 3 tabel:
+
+**`anggota`** — data anggota perpustakaan
+| id | nama | kelas |
+|----|------|-------|
+| 1 | Dewi | 10A |
+| 2 | Farhan | 10B |
+| ... | ... | ... |
+
+**`buku`** — koleksi buku perpustakaan (tabel baru, terpisah dari `buku` di database `toko_buku` sebelumnya)
+| id | judul | penulis | stok |
+|----|-------|---------|------|
+| 1 | Laskar Pelangi | Andrea Hirata | 3 |
+| ... | ... | ... | ... |
+
+**`peminjaman`** — catatan transaksi peminjaman, menghubungkan `anggota` dan `buku`
+| id | anggota_id | buku_id | tanggal_pinjam | tanggal_kembali |
+|----|-----------|---------|-----------------|-------------------|
+| 1 | 1 | 1 | 2026-05-01 | 2026-05-10 |
+| 2 | 1 | 3 | 2026-05-15 | *(NULL — belum dikembalikan)* |
+
+## Foreign Key — Penghubung Antar Tabel
+
+Kolom `anggota_id` dan `buku_id` di tabel `peminjaman` disebut **Foreign Key** — kolom yang merujuk ke Primary Key di tabel lain. `anggota_id = 1` di baris peminjaman berarti "peminjam ini adalah anggota dengan id 1" (yaitu Dewi).
+
+```sql
+CREATE TABLE peminjaman (
+  id INTEGER PRIMARY KEY,
+  anggota_id INTEGER REFERENCES anggota(id),
+  buku_id INTEGER REFERENCES buku(id),
+  tanggal_pinjam TEXT NOT NULL,
+  tanggal_kembali TEXT
+);
+```
+
+Kata kunci `REFERENCES anggota(id)` mendeklarasikan hubungan Foreign Key ini secara eksplisit.
+
+:::note
+Tanpa `JOIN`, tabel `peminjaman` sendirian hanya berisi angka-angka ID yang tidak bermakna bagi manusia (`anggota_id = 1`, `buku_id = 3`). `JOIN` adalah cara menggabungkan tabel-tabel ini kembali supaya kamu bisa melihat "Dewi meminjam Sapiens", bukan cuma "1 meminjam 3".
+:::
+
+:::tip
+Coba jalankan `SELECT * FROM peminjaman;` di playground lesson ini — kamu akan melihat kenapa tabel ini sendirian kurang berguna tanpa JOIN. Kita akan perbaiki itu di lesson berikutnya!
+:::
+
+## Latihan
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u4l0-ex1"
+  title="Lihat Isi Tabel peminjaman"
+  description="Tampilkan semua kolom dari tabel peminjaman untuk melihat kenapa data ini sulit dibaca tanpa JOIN."
+  type="code-output"
+  database="perpustakaan"
+  starterCode="SELECT * FROM anggota;"
+  expectedQuery="SELECT * FROM peminjaman;"
+  hints={["Ganti nama tabel menjadi peminjaman"]}
+  explanation="Tabel peminjaman hanya berisi ID (anggota_id, buku_id) — bukan nama anggota atau judul buku. Ini akan kita gabungkan dengan JOIN di lesson berikutnya."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u4l0-ex2"
+  title="Kenapa Normalisasi?"
+  description="Apa alasan utama data dipecah menjadi beberapa tabel (anggota, buku, peminjaman) alih-alih satu tabel besar?"
+  type="multiple-choice"
+  options={[
+    "Supaya query selalu lebih cepat tanpa syarat",
+    "Untuk menghindari duplikasi data (seperti nama & kelas anggota berulang di tiap peminjaman) dan menjaga konsistensi",
+    "Karena SQLite membatasi jumlah kolom per tabel",
+    "Supaya setiap tabel bisa dibuat oleh orang yang berbeda"
+  ]}
+  correctIndex={1}
+  hints={["Pikirkan apa yang terjadi kalau Dewi pindah kelas dan datanya terduplikasi di banyak baris"]}
+  explanation="Normalisasi menghindari duplikasi data dan menjaga konsistensi — perubahan pada data anggota cukup dilakukan di satu tempat (tabel anggota), bukan di setiap baris peminjaman."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u4l0-ex3"
+  title="Definisi Foreign Key"
+  description="Apa itu Foreign Key?"
+  type="multiple-choice"
+  options={[
+    "Kolom yang nilainya selalu unik di seluruh database",
+    "Kolom yang merujuk ke Primary Key di tabel lain, untuk membangun relasi antar tabel",
+    "Kolom yang tidak boleh diisi NULL",
+    "Nama lain untuk Primary Key"
+  ]}
+  correctIndex={1}
+  hints={["Foreign = 'asing', merujuk ke tabel lain"]}
+  explanation="Foreign Key adalah kolom yang nilainya merujuk ke Primary Key tabel lain, dipakai untuk membangun relasi antar tabel — dasar dari operasi JOIN."
+  lang="id"
+/>
+
+## Ringkasan
+
+| Istilah | Arti |
+|---------|------|
+| Normalisasi | Memecah data ke banyak tabel untuk menghindari duplikasi |
+| Foreign Key | Kolom yang merujuk ke Primary Key tabel lain |
+| `perpustakaan` | Database contoh baru: `anggota`, `buku`, `peminjaman` |
+| `REFERENCES` | Kata kunci mendeklarasikan Foreign Key di CREATE TABLE |
+
+Selanjutnya: menggabungkan tabel-tabel ini kembali dengan **INNER JOIN**.

@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 220" width="680" height="220" font-family="'Segoe UI', system-ui, sans-serif">
+  <defs>
+    <style>
+      :root {
+        --bg: #f8fafc; --border: #e2e8f0; --card-bg: #ffffff; --card-border: #e2e8f0;
+        --value-text: #1e293b; --text-sub: #64748b; --shadow: rgba(0,0,0,0.07);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #0f172a; --border: #1e293b; --card-bg: #1e293b; --card-border: #334155;
+          --value-text: #f1f5f9; --text-sub: #94a3b8; --shadow: rgba(0,0,0,0.4);
+        }
+      }
+    </style>
+    <filter id="lw-shadow"><feDropShadow dx="0" dy="2" stdDeviation="5" flood-color="var(--shadow)"/></filter>
+  </defs>
+
+  <rect width="680" height="220" rx="14" fill="var(--bg)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="340" y="24" text-anchor="middle" fill="var(--text-sub)" font-size="11" font-weight="600" letter-spacing="0.5">WILDCARD LIKE: % dan _</text>
+
+  <!-- % example -->
+  <g filter="url(#lw-shadow)">
+    <rect x="40" y="46" width="290" height="150" rx="12" fill="var(--card-bg)" stroke="#3b82f6" stroke-width="1.5"/>
+  </g>
+  <text x="185" y="72" text-anchor="middle" fill="#2563eb" font-size="14" font-weight="700" font-family="'JetBrains Mono', monospace">'%Cinta%'</text>
+  <text x="185" y="94" text-anchor="middle" fill="var(--text-sub)" font-size="10">% = nol atau lebih karakter apapun</text>
+  <g font-family="'JetBrains Mono', monospace" font-size="12">
+    <text x="60" y="124" fill="var(--value-text)">Ayat-Ayat <tspan fill="#2563eb" font-weight="700">Cinta</tspan></text>
+    <text x="335" y="124" fill="#059669">✓</text>
+    <text x="60" y="148" fill="var(--value-text)"><tspan fill="#2563eb" font-weight="700">Cinta</tspan> Suci</text>
+    <text x="335" y="148" fill="#059669">✓</text>
+    <text x="60" y="172" fill="var(--value-text)">Laskar Pelangi</text>
+    <text x="335" y="172" fill="#dc2626">✗</text>
+  </g>
+
+  <!-- _ example -->
+  <g filter="url(#lw-shadow)">
+    <rect x="350" y="46" width="290" height="150" rx="12" fill="var(--card-bg)" stroke="#f59e0b" stroke-width="1.5"/>
+  </g>
+  <text x="495" y="72" text-anchor="middle" fill="#d97706" font-size="14" font-weight="700" font-family="'JetBrains Mono', monospace">'_____'</text>
+  <text x="495" y="94" text-anchor="middle" fill="var(--text-sub)" font-size="10">_ = tepat SATU karakter per slot</text>
+  <g font-family="'JetBrains Mono', monospace" font-size="12">
+    <text x="380" y="124" fill="var(--value-text)">F-i-k-s-i (5 huruf)</text>
+    <text x="605" y="124" fill="#059669">✓</text>
+    <text x="380" y="148" fill="var(--value-text)">Teknologi (9 huruf)</text>
+    <text x="605" y="148" fill="#dc2626">✗</text>
+    <text x="380" y="172" fill="var(--value-text)">Non-Fiksi (9 huruf)</text>
+    <text x="605" y="172" fill="#dc2626">✗</text>
+  </g>
+</svg>

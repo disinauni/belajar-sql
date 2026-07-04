@@ -1,0 +1,127 @@
+---
+title: "Subquery di SELECT & FROM"
+unit: 5
+lesson: 1
+description: "Menaruh subquery sebagai kolom hasil (scalar subquery) atau sebagai tabel sumber (derived table)"
+objectives:
+  - "Menulis scalar subquery di dalam SELECT untuk menampilkan nilai pembanding"
+  - "Menulis subquery di FROM sebagai tabel turunan (derived table)"
+  - "Memahami kapan memakai subquery di SELECT vs FROM vs WHERE"
+estimatedTime: 25
+prerequisites: ["unit-5/00-subquery-where"]
+difficulty: "intermediate"
+tags: ["subquery", "select", "from"]
+database: "toko_buku"
+---
+
+# Subquery di SELECT & FROM
+
+Subquery tidak hanya bisa dipakai di `WHERE` — subquery juga bisa muncul di `SELECT` (sebagai kolom tambahan) dan di `FROM` (sebagai "tabel" yang dihasilkan dari query lain).
+
+## Subquery di SELECT — Menampilkan Nilai Pembanding
+
+```sql
+SELECT
+  judul,
+  harga,
+  (SELECT AVG(harga) FROM buku) AS rata_rata_semua
+FROM buku;
+```
+
+Setiap baris hasil sekarang menampilkan harganya sendiri **berdampingan** dengan rata-rata keseluruhan — berguna untuk membandingkan tanpa harus menjalankan dua query terpisah.
+
+```sql
+-- Selisih harga tiap buku dari rata-rata keseluruhan
+SELECT
+  judul,
+  harga,
+  harga - (SELECT AVG(harga) FROM buku) AS selisih_dari_rata_rata
+FROM buku;
+```
+
+:::note
+Subquery di `SELECT` dijalankan **ulang untuk setiap baris** hasil (secara konsep) — meski untuk subquery non-correlated seperti ini, SQLite cukup pintar untuk menghitungnya sekali saja karena hasilnya selalu sama.
+:::
+
+## Subquery di FROM — Tabel Turunan (Derived Table)
+
+Kamu bisa memakai hasil sebuah query sebagai "tabel sementara" untuk di-query lagi:
+
+```sql
+SELECT kategori, rata_rata
+FROM (
+  SELECT kategori, AVG(harga) AS rata_rata
+  FROM buku
+  GROUP BY kategori
+) AS ringkasan_kategori
+WHERE rata_rata > 80000;
+```
+
+Query di dalam kurung menghasilkan tabel sementara bernama `ringkasan_kategori` (lewat alias), lalu query luar men-`SELECT`/`WHERE` dari tabel sementara itu — persis seperti tabel biasa.
+
+:::tip
+Pola ini berguna ketika kamu perlu menyaring berdasarkan hasil `GROUP BY` dengan cara yang lebih fleksibel daripada `HAVING`, atau ketika kamu ingin memproses hasil agregat lebih lanjut (misalnya menghitung agregat dari agregat).
+:::
+
+## Kapan Pakai yang Mana?
+
+| Kebutuhan | Taruh Subquery di |
+|-----------|---------------------|
+| Menyaring baris berdasarkan perbandingan | `WHERE` |
+| Menampilkan nilai pembanding sebagai kolom | `SELECT` |
+| Memproses hasil query lain sebagai "tabel" | `FROM` |
+
+## Latihan
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u5l1-ex1"
+  title="Bandingkan dengan Harga Termahal"
+  description="Tampilkan judul, harga, dan harga termahal keseluruhan (alias harga_termahal) sebagai kolom di setiap baris."
+  type="code-output"
+  starterCode="SELECT judul, harga, (SELECT AVG(harga) FROM buku) AS rata_rata_semua FROM buku;"
+  expectedQuery="SELECT judul, harga, (SELECT MAX(harga) FROM buku) AS harga_termahal FROM buku;"
+  hints={["Ganti subquery AVG menjadi MAX, dan alias-nya menjadi harga_termahal"]}
+  explanation="Subquery scalar di SELECT menampilkan nilai yang sama (harga termahal keseluruhan) di setiap baris, berdampingan dengan harga masing-masing buku."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u5l1-ex2"
+  title="Kategori dengan Total Nilai Tinggi"
+  description="Dari hasil ringkasan (kategori dan total_nilai = SUM(harga*stok) per kategori), tampilkan hanya kategori dengan total_nilai di atas 2000000."
+  type="code-output"
+  starterCode="SELECT kategori, total_nilai FROM (SELECT kategori, SUM(harga * stok) AS total_nilai FROM buku GROUP BY kategori) AS ringkasan;"
+  expectedQuery="SELECT kategori, total_nilai FROM (SELECT kategori, SUM(harga * stok) AS total_nilai FROM buku GROUP BY kategori) AS ringkasan WHERE total_nilai > 2000000;"
+  hints={["Tambahkan WHERE total_nilai > 2000000 di akhir, di query LUAR"]}
+  explanation="Query luar memperlakukan hasil subquery FROM sebagai tabel biasa — bisa disaring dengan WHERE seperti tabel apapun."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u5l1-ex3"
+  title="Subquery FROM sebagai Tabel"
+  description="Subquery yang ditaruh di klausa FROM biasanya disebut apa?"
+  type="multiple-choice"
+  options={[
+    "Scalar subquery",
+    "Tabel turunan (derived table)",
+    "Correlated subquery",
+    "Foreign Key"
+  ]}
+  correctIndex={1}
+  hints={["Query itu 'menurunkan' hasilnya menjadi sesuatu yang bisa di-query lagi, seperti tabel"]}
+  explanation="Subquery di FROM disebut derived table (tabel turunan) — hasilnya diperlakukan seperti tabel biasa oleh query luar, lengkap dengan alias wajib."
+  lang="id"
+/>
+
+## Ringkasan
+
+| Lokasi | Kegunaan | Contoh |
+|--------|----------|--------|
+| `WHERE` | Menyaring baris | `WHERE harga > (SELECT AVG(harga) FROM buku)` |
+| `SELECT` | Kolom nilai pembanding | `(SELECT AVG(harga) FROM buku) AS rata_rata` |
+| `FROM` | Tabel turunan | `FROM (SELECT ... ) AS alias` |
+
+Selanjutnya: memakai subquery bersama **IN** untuk mencocokkan dengan daftar hasil, bukan cuma satu nilai.

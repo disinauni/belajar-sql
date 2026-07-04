@@ -1,0 +1,137 @@
+---
+title: "ALTER TABLE & DROP TABLE"
+unit: 6
+lesson: 5
+description: "Mengubah struktur tabel yang sudah ada dengan ALTER TABLE, dan menghapus tabel sepenuhnya dengan DROP TABLE"
+objectives:
+  - "Menambah kolom baru ke tabel yang sudah ada dengan ALTER TABLE ADD COLUMN"
+  - "Mengganti nama tabel dan kolom dengan ALTER TABLE RENAME"
+  - "Menghapus tabel sepenuhnya dengan DROP TABLE, dan memahami risikonya"
+estimatedTime: 20
+prerequisites: ["unit-6/04-constraint"]
+difficulty: "intermediate"
+tags: ["alter-table", "drop-table", "ddl"]
+---
+
+# ALTER TABLE & DROP TABLE
+
+Kadang tabel yang sudah ada perlu diubah strukturnya — menambah kolom baru, mengganti nama, atau (dalam kasus ekstrem) dihapus sepenuhnya. `ALTER TABLE` dan `DROP TABLE` adalah perintah DDL untuk ini.
+
+## Menambah Kolom dengan ALTER TABLE ADD COLUMN
+
+```sql
+CREATE TABLE buku (
+  id INTEGER PRIMARY KEY,
+  judul TEXT NOT NULL
+);
+
+ALTER TABLE buku ADD COLUMN rating REAL;
+
+SELECT * FROM buku;
+```
+
+Tabel yang sudah punya data tetap aman — baris yang sudah ada akan mendapat nilai `NULL` untuk kolom baru itu, kecuali kamu tambahkan `DEFAULT`:
+
+```sql
+ALTER TABLE buku ADD COLUMN stok INTEGER DEFAULT 0;
+```
+
+## Mengganti Nama Tabel
+
+```sql
+ALTER TABLE buku RENAME TO koleksi_buku;
+```
+
+## Mengganti Nama Kolom
+
+```sql
+ALTER TABLE koleksi_buku RENAME COLUMN judul TO judul_buku;
+```
+
+:::note
+SQLite historis hanya mendukung operasi `ALTER TABLE` yang terbatas (`ADD COLUMN`, `RENAME TABLE`, `RENAME COLUMN`) dibanding RDBMS lain seperti PostgreSQL yang bisa mengubah tipe data kolom langsung. Untuk perubahan kompleks di SQLite, pola umumnya adalah: buat tabel baru dengan struktur yang diinginkan, salin data, hapus tabel lama, ganti nama tabel baru.
+:::
+
+## DROP TABLE — Menghapus Tabel Sepenuhnya
+
+```sql
+DROP TABLE koleksi_buku;
+```
+
+Setelah ini, tabel `koleksi_buku` **beserta seluruh datanya** hilang total — bukan cuma isinya (seperti `DELETE FROM`), tapi strukturnya juga tidak ada lagi.
+
+:::warning
+`DROP TABLE` tidak bisa dibatalkan. Ini adalah perintah paling merusak dalam SQL — bahkan lebih drastis dari `DELETE` atau `UPDATE` tanpa `WHERE`, karena menghapus definisi tabelnya juga. Di database produksi sungguhan, `DROP TABLE` biasanya dibatasi hanya untuk administrator dengan proses persetujuan khusus.
+:::
+
+## Latihan
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u6l5-ex1"
+  title="Tambah Kolom ke Tabel"
+  description="Buat tabel siswa (id INTEGER PRIMARY KEY, nama TEXT NOT NULL), lalu tambahkan kolom baru nilai (INTEGER DEFAULT 0) dengan ALTER TABLE. Tampilkan strukturnya lewat SELECT * FROM siswa setelah INSERT satu baris."
+  type="code-output"
+  schema=""
+  starterCode="CREATE TABLE siswa (
+  id INTEGER PRIMARY KEY,
+  nama TEXT NOT NULL
+);
+
+INSERT INTO siswa (id, nama) VALUES (1, 'Dewi');
+
+SELECT * FROM siswa;"
+  expectedQuery="CREATE TABLE siswa (id INTEGER PRIMARY KEY, nama TEXT NOT NULL); ALTER TABLE siswa ADD COLUMN nilai INTEGER DEFAULT 0; INSERT INTO siswa (id, nama) VALUES (1, 'Dewi'); SELECT * FROM siswa;"
+  hints={["Tambahkan ALTER TABLE siswa ADD COLUMN nilai INTEGER DEFAULT 0; setelah CREATE TABLE"]}
+  explanation="ALTER TABLE ADD COLUMN menambahkan kolom baru ke tabel yang sudah ada, lengkap dengan DEFAULT untuk baris yang akan datang."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u6l5-ex2"
+  title="Ganti Nama Tabel"
+  description="Buat tabel item (id INTEGER PRIMARY KEY, nama TEXT), lalu ganti namanya menjadi produk dengan ALTER TABLE RENAME TO. Tampilkan isinya dari nama tabel yang baru."
+  type="code-output"
+  schema=""
+  starterCode="CREATE TABLE item (
+  id INTEGER PRIMARY KEY,
+  nama TEXT
+);
+
+INSERT INTO item (id, nama) VALUES (1, 'Pulpen');
+
+SELECT * FROM item;"
+  expectedQuery="CREATE TABLE item (id INTEGER PRIMARY KEY, nama TEXT); INSERT INTO item (id, nama) VALUES (1, 'Pulpen'); ALTER TABLE item RENAME TO produk; SELECT * FROM produk;"
+  hints={["Tambahkan ALTER TABLE item RENAME TO produk;", "SELECT terakhir harus memakai nama BARU: produk"]}
+  explanation="Setelah ALTER TABLE ... RENAME TO produk, tabel harus diakses dengan nama barunya — nama lama (item) tidak berlaku lagi."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u6l5-ex3"
+  title="Perbedaan DROP TABLE dan DELETE"
+  description="Apa yang membedakan DROP TABLE dari DELETE FROM (tanpa WHERE)?"
+  type="multiple-choice"
+  options={[
+    "Tidak ada bedanya sama sekali",
+    "DROP TABLE menghapus struktur tabel itu sendiri, sedangkan DELETE hanya mengosongkan isinya (struktur tetap ada)",
+    "DELETE lebih berbahaya daripada DROP TABLE",
+    "DROP TABLE hanya bisa dipakai pada tabel kosong"
+  ]}
+  correctIndex={1}
+  hints={["Setelah masing-masing perintah, coba pikirkan: apakah tabelnya masih 'ada' secara struktur?"]}
+  explanation="DELETE FROM (tanpa WHERE) mengosongkan semua baris tapi struktur tabel tetap ada. DROP TABLE menghapus tabel itu sendiri sepenuhnya — struktur dan data keduanya hilang."
+  lang="id"
+/>
+
+## Ringkasan
+
+| Perintah | Efek |
+|----------|------|
+| `ALTER TABLE ... ADD COLUMN` | Menambah kolom baru ke tabel yang sudah ada |
+| `ALTER TABLE ... RENAME TO` | Mengganti nama tabel |
+| `ALTER TABLE ... RENAME COLUMN` | Mengganti nama kolom |
+| `DROP TABLE` | Menghapus tabel beserta strukturnya secara permanen |
+
+Kamu sudah menguasai seluruh materi kursus ini! Saatnya menutup dengan **Final Project: Rancang & Kelola Database Sendiri** — menggabungkan semua yang sudah kamu pelajari dari Unit 0 sampai Unit 6.

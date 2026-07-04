@@ -1,0 +1,153 @@
+---
+title: "Constraints: PRIMARY KEY, FOREIGN KEY, etc."
+unit: 6
+lesson: 4
+description: "Tightening data rules with constraints: PRIMARY KEY, FOREIGN KEY, NOT NULL, UNIQUE, DEFAULT, CHECK"
+objectives:
+  - "Explain the function of each major constraint"
+  - "Write a CREATE TABLE combining several constraints"
+  - "Understand that constraints prevent invalid data from being stored"
+estimatedTime: 30
+prerequisites: ["unit-6/03-create-table"]
+difficulty: "intermediate"
+tags: ["constraint", "primary-key", "foreign-key", "ddl"]
+translationStatus: "complete"
+---
+
+# Constraints: PRIMARY KEY, FOREIGN KEY, etc.
+
+A **constraint** is a rule attached to a table column to prevent invalid data from being stored. You've already been using some constraints since early in this course (`PRIMARY KEY`, `NOT NULL`, `REFERENCES`) — now let's see them all in full.
+
+## Constraint Summary
+
+| Constraint | Function |
+|-----------|----------|
+| `PRIMARY KEY` | Unique value, the main identity of each row |
+| `FOREIGN KEY` / `REFERENCES` | References another table's Primary Key |
+| `NOT NULL` | Column is required, cannot be NULL |
+| `UNIQUE` | Value must differ from every other row |
+| `DEFAULT` | Automatic value if not supplied during INSERT |
+| `CHECK` | Value must satisfy a given condition |
+
+## Full Example
+
+```sql
+CREATE TABLE anggota (
+  id INTEGER PRIMARY KEY,
+  nama TEXT NOT NULL,
+  email TEXT UNIQUE,
+  status TEXT DEFAULT 'aktif',
+  umur INTEGER CHECK (umur >= 10)
+);
+```
+
+Let's break down each constraint:
+- `id INTEGER PRIMARY KEY` — every member must have a unique id
+- `nama TEXT NOT NULL` — name is required
+- `email TEXT UNIQUE` — two members can't share the same email (but it can be NULL if not filled in)
+- `status TEXT DEFAULT 'aktif'` — if not supplied during INSERT, automatically fills with `'aktif'`
+- `umur INTEGER CHECK (umur >= 10)` — SQLite rejects an `INSERT` with age under 10
+
+## Seeing Constraints in Action
+
+```sql
+-- This will succeed — status defaults to 'aktif', email is unique
+INSERT INTO anggota (id, nama, email, umur) VALUES (1, 'Dewi', 'dewi@email.com', 15);
+
+-- This will FAIL — email already used by id 1 (violates UNIQUE)
+INSERT INTO anggota (id, nama, email, umur) VALUES (2, 'Farhan', 'dewi@email.com', 16);
+
+-- This will FAIL — age below 10 (violates CHECK)
+INSERT INTO anggota (id, nama, email, umur) VALUES (3, 'Budi', 'budi@email.com', 8);
+```
+
+:::tip
+Constraints are data "gatekeepers" — they reject data that violates a rule **before** it gets stored, so you don't need to manually validate data on every query. Design constraints from the start in `CREATE TABLE`, don't wait for invalid data to get in and clean it up later.
+:::
+
+## FOREIGN KEY as a Constraint
+
+```sql
+CREATE TABLE peminjaman (
+  id INTEGER PRIMARY KEY,
+  anggota_id INTEGER NOT NULL REFERENCES anggota(id),
+  tanggal_pinjam TEXT NOT NULL
+);
+```
+
+`REFERENCES anggota(id)` is shorthand for a `FOREIGN KEY` constraint — SQLite (if enabled) will reject an `INSERT` into `peminjaman` with an `anggota_id` that doesn't exist in the `anggota` table.
+
+## Exercise
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u6l4-ex1"
+  title="A Table With DEFAULT"
+  description="Create a table pesanan with columns id (INTEGER PRIMARY KEY), item (TEXT NOT NULL), and status (TEXT DEFAULT 'menunggu'). INSERT one row without supplying status, then show all its columns."
+  type="code-output"
+  schema=""
+  starterCode="CREATE TABLE pesanan (
+  id INTEGER PRIMARY KEY,
+  item TEXT NOT NULL
+);
+
+INSERT INTO pesanan (id, item) VALUES (1, 'Buku Tulis');
+
+SELECT * FROM pesanan;"
+  expectedQuery="CREATE TABLE pesanan (id INTEGER PRIMARY KEY, item TEXT NOT NULL, status TEXT DEFAULT 'menunggu'); INSERT INTO pesanan (id, item) VALUES (1, 'Buku Tulis'); SELECT * FROM pesanan;"
+  hints={["Add a status TEXT DEFAULT 'menunggu' column"]}
+  explanation="Since status isn't supplied during INSERT, DEFAULT 'menunggu' automatically fills that value."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u6l4-ex2"
+  title="A Table With CHECK"
+  description="Create a table produk with columns id (INTEGER PRIMARY KEY), nama (TEXT NOT NULL), and harga (INTEGER CHECK (harga >= 0)). Try INSERTing one product priced 15000, then show its contents."
+  type="code-output"
+  schema=""
+  starterCode="CREATE TABLE produk (
+  id INTEGER PRIMARY KEY,
+  nama TEXT NOT NULL,
+  harga INTEGER
+);
+
+INSERT INTO produk (id, nama, harga) VALUES (1, 'Pensil', 15000);
+
+SELECT * FROM produk;"
+  expectedQuery="CREATE TABLE produk (id INTEGER PRIMARY KEY, nama TEXT NOT NULL, harga INTEGER CHECK (harga >= 0)); INSERT INTO produk (id, nama, harga) VALUES (1, 'Pensil', 15000); SELECT * FROM produk;"
+  hints={["Add CHECK (harga >= 0) to the harga column"]}
+  explanation="CHECK (harga >= 0) doesn't block this INSERT since 15000 satisfies it — but it would reject a negative value."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u6l4-ex3"
+  title="UNIQUE vs PRIMARY KEY"
+  description="What's the main difference between the UNIQUE and PRIMARY KEY constraints?"
+  type="multiple-choice"
+  options={[
+    "No difference, they're identical",
+    "A table can only have ONE Primary Key, but can have SEVERAL UNIQUE columns",
+    "UNIQUE only applies to numeric columns",
+    "PRIMARY KEY can be NULL, UNIQUE cannot"
+  ]}
+  correctIndex={1}
+  hints={["Think about how many 'main identity' columns make sense for one table"]}
+  explanation="A table can only have one Primary Key (its main identity), but can have several different UNIQUE columns (e.g. email and phone number, both must be unique but neither is the Primary Key)."
+  lang="en"
+/>
+
+## Summary
+
+| Constraint | Example |
+|-----------|---------|
+| `PRIMARY KEY` | `id INTEGER PRIMARY KEY` |
+| `FOREIGN KEY` | `anggota_id INTEGER REFERENCES anggota(id)` |
+| `NOT NULL` | `nama TEXT NOT NULL` |
+| `UNIQUE` | `email TEXT UNIQUE` |
+| `DEFAULT` | `status TEXT DEFAULT 'aktif'` |
+| `CHECK` | `umur INTEGER CHECK (umur >= 10)` |
+
+Next: modifying an existing table's structure with **ALTER TABLE**, and removing it entirely with **DROP TABLE**.

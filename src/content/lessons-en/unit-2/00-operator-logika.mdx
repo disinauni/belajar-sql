@@ -1,0 +1,142 @@
+---
+title: "Logical Operators: AND, OR, NOT"
+unit: 2
+lesson: 0
+description: "Combining multiple WHERE conditions with AND, OR, and NOT"
+objectives:
+  - "Combine two or more conditions with AND and OR"
+  - "Invert a condition's result with NOT"
+  - "Understand AND/OR evaluation order and when parentheses are needed"
+estimatedTime: 25
+prerequisites: ["unit-1/07-proyek-mini-query-toko-buku"]
+difficulty: "beginner"
+tags: ["logical-operators", "and", "or", "not", "where"]
+database: "toko_buku"
+translationStatus: "complete"
+---
+
+# Logical Operators: AND, OR, NOT
+
+In Unit 1 you used `WHERE` with a single condition. But real questions often need **more than one requirement at once** — e.g. "Fiction books priced under 70000". That's where `AND`, `OR`, and `NOT` come in.
+
+## AND — Both Conditions Must Be True
+
+```sql
+SELECT judul, kategori, harga
+FROM buku
+WHERE kategori = 'Fiksi' AND harga < 70000;
+```
+
+A row only appears if **both** conditions are satisfied. You can chain more than two conditions with repeated `AND`:
+
+```sql
+SELECT judul FROM buku
+WHERE kategori = 'Fiksi' AND harga < 70000 AND stok > 0;
+```
+
+## OR — Either Condition Is Enough
+
+```sql
+SELECT judul, kategori
+FROM buku
+WHERE kategori = 'Teknologi' OR kategori = 'Keuangan';
+```
+
+A row appears if **at least one** of the conditions is satisfied.
+
+:::warning
+`AND`/`OR` are often confused with everyday language. "Show Fiction and Technology books" sounds like "AND" in casual speech, but it actually means "category = Fiction **OR** category = Technology" — since one row can't have two categories at once!
+:::
+
+## NOT — Inverting a Condition
+
+```sql
+SELECT judul, kategori
+FROM buku
+WHERE NOT kategori = 'Fiksi';
+```
+
+Equivalent to `WHERE kategori <> 'Fiksi'`. `NOT` is more useful when inverting a more complex condition:
+
+```sql
+SELECT judul FROM buku
+WHERE NOT (kategori = 'Fiksi' AND harga > 80000);
+```
+
+## Evaluation Order & Parentheses
+
+When `AND` and `OR` are combined, SQL evaluates `AND` **before** `OR` — the same way multiplication happens before addition in math.
+
+```sql
+-- Without parentheses: evaluated as (kategori = 'Fiksi') OR (kategori = 'Teknologi' AND harga < 60000)
+SELECT judul FROM buku
+WHERE kategori = 'Fiksi' OR kategori = 'Teknologi' AND harga < 60000;
+```
+
+If you mean something different, **always write explicit parentheses** — don't rely on implicit ordering:
+
+```sql
+-- Clearer: "category Fiksi OR Teknologi, AND priced under 60000"
+SELECT judul FROM buku
+WHERE (kategori = 'Fiksi' OR kategori = 'Teknologi') AND harga < 60000;
+```
+
+:::tip
+Once your WHERE clause has more than one AND/OR, always add parentheses even if the default order is already correct — so anyone reading it (including future you) immediately understands the intent without recalling precedence rules.
+:::
+
+## Exercise
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u2l0-ex1"
+  title="Cheap and Available Fiction"
+  description="Show the title of 'Fiksi' category books priced under 70000 AND with stock greater than 0."
+  type="code-output"
+  starterCode="SELECT judul, kategori, harga, stok FROM buku WHERE kategori = 'Fiksi';"
+  expectedQuery="SELECT judul, kategori, harga, stok FROM buku WHERE kategori = 'Fiksi' AND harga < 70000 AND stok > 0;"
+  hints={["Combine three conditions with AND", "kategori = 'Fiksi', harga < 70000, stok > 0"]}
+  explanation="Three conditions combined with AND — a row only appears if all three are true at once."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u2l0-ex2"
+  title="Technology or Finance"
+  description="Show the title and category of books whose category is 'Teknologi' OR 'Keuangan'."
+  type="code-output"
+  starterCode="SELECT judul, kategori FROM buku WHERE kategori = 'Teknologi';"
+  expectedQuery="SELECT judul, kategori FROM buku WHERE kategori = 'Teknologi' OR kategori = 'Keuangan';"
+  hints={["Use OR to combine two possible categories"]}
+  explanation="OR makes a row appear if either of the two conditions is satisfied."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u2l0-ex3"
+  title="AND vs OR Precedence"
+  description="Without parentheses, which is evaluated first between AND and OR in a WHERE condition?"
+  type="multiple-choice"
+  options={[
+    "OR is always evaluated first",
+    "AND is evaluated before OR",
+    "Both are evaluated together with no order",
+    "The order is random depending on the data"
+  ]}
+  correctIndex={1}
+  hints={["Similar to how multiplication happens before addition in math"]}
+  explanation="AND has higher precedence than OR, so it's evaluated first when there are no parentheses. You should still always use explicit parentheses for clarity."
+  lang="en"
+/>
+
+## Summary
+
+| Operator | Meaning | Example |
+|----------|---------|---------|
+| `AND` | Both conditions must be true | `harga < 70000 AND stok > 0` |
+| `OR` | Either condition is enough | `kategori = 'A' OR kategori = 'B'` |
+| `NOT` | Inverts a condition | `NOT kategori = 'Fiksi'` |
+| `(...)` | Groups conditions explicitly | `(A OR B) AND C` |
+
+Next: matching text patterns with **LIKE** and wildcards.

@@ -1,4 +1,4 @@
-export type GlossaryCategory = 'dasar' | 'query' | 'operator' | 'agregasi' | 'join' | 'skema'
+export type GlossaryCategory = 'dasar' | 'query' | 'operator' | 'agregasi' | 'join' | 'lanjutan' | 'skema'
 
 export interface GlossaryTerm {
   term: string
@@ -13,7 +13,7 @@ export interface GlossaryTerm {
   unit?: number         // first introduced in which unit
 }
 
-export const CATEGORY_ORDER: GlossaryCategory[] = ['dasar', 'query', 'operator', 'agregasi', 'join', 'skema']
+export const CATEGORY_ORDER: GlossaryCategory[] = ['dasar', 'query', 'operator', 'agregasi', 'join', 'lanjutan', 'skema']
 
 export const CATEGORY_LABELS: Record<GlossaryCategory, { id: string; en: string }> = {
   dasar: { id: 'Dasar-Dasar', en: 'Fundamentals' },
@@ -21,6 +21,7 @@ export const CATEGORY_LABELS: Record<GlossaryCategory, { id: string; en: string 
   operator: { id: 'Operator', en: 'Operators' },
   agregasi: { id: 'Agregasi & GROUP BY', en: 'Aggregation & GROUP BY' },
   join: { id: 'JOIN', en: 'JOIN' },
+  lanjutan: { id: 'Subquery & Lanjutan', en: 'Subqueries & Advanced' },
   skema: { id: 'Skema Database', en: 'Database Schema' },
 }
 
@@ -189,6 +190,17 @@ export const GLOSSARY: GlossaryTerm[] = [
       en: 'A marker for "no value" in a column — not zero or an empty string. Ordinary comparison (`=`) cannot check for NULL.',
     },
   },
+  {
+    term: 'COALESCE',
+    category: 'query',
+    definition: {
+      id: 'Fungsi yang mengembalikan nilai pertama yang bukan NULL dari daftar argumennya — berguna untuk memberi nilai pengganti saat data NULL.',
+      en: 'A function that returns the first non-NULL value from its argument list — useful for substituting a default when data is NULL.',
+    },
+    example: "SELECT judul, COALESCE(tanggal_kembali, 'Belum dikembalikan') FROM peminjaman;",
+    unit: 2,
+    seeAlso: ['NULL'],
+  },
 
   // ── OPERATOR ───────────────────────────────────────────────────
   {
@@ -237,7 +249,7 @@ export const GLOSSARY: GlossaryTerm[] = [
     example: 'SELECT * FROM buku WHERE harga BETWEEN 50000 AND 90000;',
   },
 
-  // ── AGREGASI (roadmap Unit 3) ──────────────────────────────────
+  // ── AGREGASI (Unit 3) ────────────────────────────────────────
   {
     term: 'Fungsi Agregat',
     termEn: 'Aggregate Function',
@@ -267,7 +279,7 @@ export const GLOSSARY: GlossaryTerm[] = [
     unit: 3,
   },
 
-  // ── JOIN (roadmap Unit 4) ───────────────────────────────────────
+  // ── JOIN (Unit 4) ────────────────────────────────────────────
   {
     term: 'JOIN',
     category: 'join',
@@ -296,6 +308,62 @@ export const GLOSSARY: GlossaryTerm[] = [
     },
     unit: 4,
     seeAlso: ['JOIN', 'NULL'],
+  },
+  {
+    term: 'Self JOIN',
+    category: 'join',
+    definition: {
+      id: 'JOIN antara sebuah tabel dengan dirinya sendiri, dipakai saat baris dalam tabel merujuk ke baris lain di tabel yang sama (misalnya pegawai dan atasannya).',
+      en: 'A JOIN between a table and itself, used when rows in a table reference other rows in that same table (e.g. an employee and their manager).',
+    },
+    example: 'SELECT e.nama, m.nama AS atasan FROM pegawai e JOIN pegawai m ON e.atasan_id = m.id;',
+    unit: 4,
+    seeAlso: ['JOIN'],
+  },
+
+  // ── SUBQUERY & LANJUTAN (Unit 5) ─────────────────────────────
+  {
+    term: 'Subquery',
+    termEn: 'Subquery / Nested Query',
+    category: 'lanjutan',
+    definition: {
+      id: 'Query SELECT yang ditulis di dalam query SELECT lain — hasilnya dipakai sebagai bagian dari kondisi atau nilai query luar.',
+      en: 'A SELECT query written inside another SELECT query — its result is used as part of the outer query\'s condition or value.',
+    },
+    example: 'SELECT judul FROM buku WHERE harga > (SELECT AVG(harga) FROM buku);',
+    unit: 5,
+  },
+  {
+    term: 'CTE',
+    termEn: 'Common Table Expression',
+    category: 'lanjutan',
+    definition: {
+      id: 'Query sementara yang diberi nama dengan `WITH ... AS (...)`, bisa dipakai layaknya tabel biasa di query utama — membuat query bertingkat lebih mudah dibaca.',
+      en: 'A named, temporary query defined with `WITH ... AS (...)`, usable like a regular table in the main query — makes nested queries easier to read.',
+    },
+    example: 'WITH buku_mahal AS (SELECT * FROM buku WHERE harga > 90000) SELECT * FROM buku_mahal;',
+    unit: 5,
+    seeAlso: ['Subquery'],
+  },
+  {
+    term: 'UNION',
+    category: 'lanjutan',
+    definition: {
+      id: 'Menggabungkan hasil dua query SELECT menjadi satu result set, menghilangkan baris duplikat secara otomatis (pakai `UNION ALL` untuk menyimpan duplikat).',
+      en: 'Combines the results of two SELECT queries into one result set, automatically removing duplicate rows (use `UNION ALL` to keep duplicates).',
+    },
+    unit: 5,
+  },
+  {
+    term: 'EXISTS',
+    category: 'lanjutan',
+    definition: {
+      id: 'Operator yang mengecek apakah sebuah subquery mengembalikan setidaknya satu baris — bernilai true/false, tidak peduli isi barisnya.',
+      en: 'An operator that checks whether a subquery returns at least one row — evaluates to true/false, regardless of the row contents.',
+    },
+    example: 'SELECT nama FROM anggota a WHERE EXISTS (SELECT 1 FROM peminjaman p WHERE p.anggota_id = a.id);',
+    unit: 5,
+    seeAlso: ['Subquery'],
   },
 
   // ── SKEMA ────────────────────────────────────────────────────
@@ -337,5 +405,57 @@ export const GLOSSARY: GlossaryTerm[] = [
       en: 'SQL statements that change data contents, such as `INSERT`, `UPDATE`, `DELETE`.',
     },
     unit: 6,
+  },
+  {
+    term: 'NOT NULL',
+    category: 'skema',
+    definition: {
+      id: 'Constraint yang mewajibkan sebuah kolom selalu diisi nilai — mencegah baris disimpan dengan kolom itu kosong (NULL).',
+      en: 'A constraint requiring a column to always have a value — prevents a row from being saved with that column empty (NULL).',
+    },
+    example: 'CREATE TABLE buku (judul TEXT NOT NULL, ...);',
+    unit: 6,
+    seeAlso: ['NULL'],
+  },
+  {
+    term: 'UNIQUE',
+    category: 'skema',
+    definition: {
+      id: 'Constraint yang memastikan setiap nilai di kolom itu tidak boleh sama dengan baris lain — mirip Primary Key, tapi sebuah tabel bisa punya lebih dari satu kolom UNIQUE.',
+      en: 'A constraint ensuring every value in a column differs from other rows — similar to Primary Key, but a table can have more than one UNIQUE column.',
+    },
+    unit: 6,
+    seeAlso: ['Primary Key'],
+  },
+  {
+    term: 'DEFAULT',
+    category: 'skema',
+    definition: {
+      id: 'Constraint yang menentukan nilai otomatis untuk sebuah kolom jika tidak diisi secara eksplisit saat INSERT.',
+      en: 'A constraint that sets an automatic value for a column when it isn\'t explicitly supplied during INSERT.',
+    },
+    example: "CREATE TABLE buku (stok INTEGER DEFAULT 0, ...);",
+    unit: 6,
+  },
+  {
+    term: 'CHECK',
+    category: 'skema',
+    definition: {
+      id: 'Constraint yang membatasi nilai kolom harus memenuhi kondisi tertentu, misalnya harga tidak boleh negatif.',
+      en: 'A constraint restricting a column\'s values to satisfy a given condition, e.g. a price can never be negative.',
+    },
+    example: 'CREATE TABLE buku (harga INTEGER CHECK (harga >= 0), ...);',
+    unit: 6,
+  },
+  {
+    term: 'ALTER TABLE',
+    category: 'skema',
+    definition: {
+      id: 'Perintah untuk mengubah struktur tabel yang sudah ada — menambah kolom, mengganti nama, atau menghapus kolom (tergantung dukungan RDBMS).',
+      en: 'A statement that modifies an existing table\'s structure — adding a column, renaming, or dropping a column (depending on RDBMS support).',
+    },
+    example: 'ALTER TABLE buku ADD COLUMN rating REAL;',
+    unit: 6,
+    seeAlso: ['DDL'],
   },
 ]

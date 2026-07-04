@@ -1,0 +1,122 @@
+---
+title: "SUM & AVG"
+unit: 3
+lesson: 1
+description: "Menjumlahkan dan merata-ratakan nilai kolom angka dengan SUM dan AVG"
+objectives:
+  - "Menjumlahkan nilai kolom dengan SUM"
+  - "Menghitung rata-rata dengan AVG"
+  - "Menggabungkan SUM/AVG dengan WHERE dan ROUND"
+estimatedTime: 20
+prerequisites: ["unit-3/00-count"]
+difficulty: "beginner"
+tags: ["sum", "avg", "fungsi-agregat"]
+database: "toko_buku"
+---
+
+# SUM & AVG
+
+Setelah `COUNT`, dua fungsi agregat paling sering dipakai adalah `SUM` (menjumlahkan) dan `AVG` (rata-rata). Keduanya hanya bekerja pada kolom **angka**.
+
+## SUM — Menjumlahkan
+
+```sql
+-- Total nilai seluruh stok buku (dalam satuan buku, bukan rupiah)
+SELECT SUM(stok) FROM buku;
+```
+
+```sql
+-- Total nilai inventaris (harga x stok, dijumlahkan semua baris)
+SELECT SUM(harga * stok) AS total_nilai_inventaris FROM buku;
+```
+
+## AVG — Rata-Rata
+
+```sql
+SELECT AVG(harga) FROM buku;
+```
+
+Output akan berupa angka desimal (misalnya `81416.666...`) karena rata-rata jarang berupa bilangan bulat.
+
+## Membulatkan dengan ROUND
+
+Fungsi `ROUND(nilai, jumlah_desimal)` membulatkan angka supaya lebih rapi ditampilkan:
+
+```sql
+SELECT ROUND(AVG(harga), 0) AS rata_rata_harga FROM buku;
+```
+
+## SUM/AVG dengan WHERE
+
+Sama seperti `COUNT`, `SUM`/`AVG` bisa digabung `WHERE` — filter dulu, baru dihitung:
+
+```sql
+-- Rata-rata harga buku kategori Fiksi saja
+SELECT ROUND(AVG(harga), 0) AS rata_rata_fiksi
+FROM buku
+WHERE kategori = 'Fiksi';
+```
+
+:::note
+`SUM` dan `AVG` **mengabaikan baris NULL** secara otomatis. Kalau ada 10 baris tapi 2 di antaranya NULL pada kolom yang dijumlahkan, `AVG` akan membagi total dengan 8 (bukan 10) — hanya baris yang punya nilai yang dihitung.
+:::
+
+:::warning
+`SUM`/`AVG` hanya masuk akal untuk kolom angka. `SUM(judul)` pada kolom teks akan menghasilkan error atau nilai yang tidak berguna, tergantung RDBMS-nya.
+:::
+
+## Latihan
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u3l1-ex1"
+  title="Total Nilai Inventaris"
+  description="Hitung total nilai inventaris (harga dikali stok, dijumlahkan semua baris), beri alias total_nilai."
+  type="code-output"
+  starterCode="SELECT SUM(stok) FROM buku;"
+  expectedQuery="SELECT SUM(harga * stok) AS total_nilai FROM buku;"
+  hints={["Kalikan harga dan stok dulu di dalam SUM()"]}
+  explanation="SUM(harga * stok) menghitung nilai tiap baris lalu menjumlahkan semuanya menjadi satu total."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u3l1-ex2"
+  title="Rata-Rata Harga Kategori Pengembangan Diri"
+  description="Hitung rata-rata harga buku kategori 'Pengembangan Diri', bulatkan ke bilangan bulat, beri alias rata_rata."
+  type="code-output"
+  starterCode="SELECT ROUND(AVG(harga), 0) AS rata_rata FROM buku;"
+  expectedQuery="SELECT ROUND(AVG(harga), 0) AS rata_rata FROM buku WHERE kategori = 'Pengembangan Diri';"
+  hints={["Tambahkan WHERE kategori = 'Pengembangan Diri'"]}
+  explanation="WHERE menyaring dulu ke kategori Pengembangan Diri, baru AVG(harga) dihitung dari baris yang tersisa."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u3l1-ex3"
+  title="Perilaku SUM/AVG pada NULL"
+  description="Jika sebuah kolom angka punya beberapa nilai NULL, bagaimana SUM dan AVG memperlakukannya?"
+  type="multiple-choice"
+  options={[
+    "NULL dianggap sebagai 0",
+    "Baris dengan NULL diabaikan sepenuhnya dari perhitungan",
+    "Query akan selalu error",
+    "NULL dianggap sebagai nilai tertinggi"
+  ]}
+  correctIndex={1}
+  hints={["SUM dan AVG hanya memperhitungkan baris yang punya nilai"]}
+  explanation="SUM dan AVG mengabaikan baris NULL — tidak dihitung sebagai 0, tapi benar-benar dikeluarkan dari perhitungan (termasuk dari pembagi pada AVG)."
+  lang="id"
+/>
+
+## Ringkasan
+
+| Fungsi | Kegunaan |
+|--------|----------|
+| `SUM(kolom)` | Menjumlahkan semua nilai |
+| `AVG(kolom)` | Menghitung rata-rata |
+| `ROUND(nilai, n)` | Membulatkan ke n desimal |
+| Perilaku NULL | Diabaikan dari perhitungan |
+
+Selanjutnya: mencari nilai terkecil dan terbesar dengan **MIN** dan **MAX**.

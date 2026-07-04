@@ -1,0 +1,111 @@
+---
+title: "Mini Project: Data Analysis"
+unit: 5
+lesson: 5
+description: "Combining subqueries, IN, EXISTS, CTEs, and UNION for advanced data analysis"
+objectives:
+  - "Choose the right subquery technique for a given analysis question"
+  - "Compose an advanced analysis query using a CTE"
+  - "Review every concept from Unit 5"
+estimatedTime: 35
+prerequisites: ["unit-5/04-cte-union"]
+difficulty: "intermediate"
+tags: ["project", "review"]
+database: "toko_buku"
+translationStatus: "complete"
+---
+
+# Mini Project: Data Analysis
+
+Congratulations on reaching the end of Unit 5! You now have a new way of thinking to answer complex questions: **breaking them into nested queries**, not just combining tables.
+
+## The Toolkit You've Mastered
+
+| Technique | Use |
+|-----------|-----|
+| Subquery in WHERE | Compare a row against an aggregate result |
+| Subquery in SELECT/FROM | Show a comparison value, or process another query's result |
+| `IN` + subquery | Match against another query's result list |
+| `EXISTS`/`NOT EXISTS` | Check for related data existence (correlated subquery) |
+| CTE (`WITH`) | Name a subquery for readability |
+| `UNION`/`UNION ALL` | Combine two queries' results into one list |
+
+## Case Study: Featured Categories Report
+
+**"Which categories have an average price above the STORE'S OVERALL average, and what books are in those categories?"**
+
+```sql
+WITH rata_rata_toko AS (
+  SELECT AVG(harga) AS nilai FROM buku
+),
+kategori_unggulan AS (
+  SELECT kategori
+  FROM buku
+  GROUP BY kategori
+  HAVING AVG(harga) > (SELECT nilai FROM rata_rata_toko)
+)
+SELECT judul, kategori, harga
+FROM buku
+WHERE kategori IN (SELECT kategori FROM kategori_unggulan)
+ORDER BY kategori, harga DESC;
+```
+
+Notice how the CTE keeps this nested query readable step by step, instead of one giant deeply-nested subquery.
+
+## Project Exercises
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u5l5-ex1"
+  title="Books Above the Store-Wide Average"
+  description="Show the title and price for books priced above the WHOLE STORE's average (use an AVG subquery)."
+  type="code-output"
+  starterCode="SELECT judul, harga FROM buku;"
+  expectedQuery="SELECT judul, harga FROM buku WHERE harga > (SELECT AVG(harga) FROM buku);"
+  hints={["Use the subquery (SELECT AVG(harga) FROM buku) in WHERE"]}
+  explanation="The subquery computes the overall average once, then every book row is compared against that number."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u5l5-ex2"
+  title="Categories With More Than One Book"
+  description="Using a CTE named jumlah_per_kategori (columns: kategori, jumlah = COUNT(*) per category), show categories with more than 1 book."
+  type="code-output"
+  starterCode="WITH jumlah_per_kategori AS (SELECT kategori, COUNT(*) AS jumlah FROM buku GROUP BY kategori) SELECT kategori, jumlah FROM jumlah_per_kategori;"
+  expectedQuery="WITH jumlah_per_kategori AS (SELECT kategori, COUNT(*) AS jumlah FROM buku GROUP BY kategori) SELECT kategori, jumlah FROM jumlah_per_kategori WHERE jumlah > 1;"
+  hints={["Add WHERE jumlah > 1 in the main query (after the CTE)"]}
+  explanation="The main query treats the jumlah_per_kategori CTE like a regular table, so it can be filtered with WHERE as usual."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u5l5-ex3"
+  title="Choosing the Right Technique"
+  description="You want to know 'is there any Keuangan (Finance) category book with stock under 5', and only need a yes/no answer, not the data itself. Which technique is most appropriate?"
+  type="multiple-choice"
+  options={[
+    "UNION of two SELECT queries",
+    "EXISTS with a correlated subquery",
+    "A CTE with multiple definitions",
+    "A three-table JOIN"
+  ]}
+  correctIndex={1}
+  hints={["This question only needs an 'exists or not' answer, not a list of data"]}
+  explanation="EXISTS is specifically designed for 'does data satisfying this condition exist' questions, without needing to retrieve the actual data — the most efficient and clearest choice for this case."
+  lang="en"
+/>
+
+## Reflection: What You've Mastered
+
+| Concept | When to Use |
+|---------|--------------|
+| Scalar subquery (WHERE/SELECT) | Compare against a single aggregate value |
+| FROM subquery (derived table) | Further process another query's result |
+| `IN`/`NOT IN` + subquery | Match against a list from another table |
+| `EXISTS`/`NOT EXISTS` | Efficiently check for related data existence |
+| CTE (`WITH`) | Name a complex subquery for readability |
+| `UNION`/`UNION ALL` | Combine several queries' results into one list |
+
+You now have a very complete SQL toolkit! In **Unit 6 (Data Modification & Schema)**, we close out this course with SQL's other side: changing data (`INSERT`/`UPDATE`/`DELETE`) and designing your own table schema from scratch with `CREATE TABLE` and constraints.

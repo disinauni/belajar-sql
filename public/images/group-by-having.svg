@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 240" width="680" height="240" font-family="'Segoe UI', system-ui, sans-serif">
+  <defs>
+    <style>
+      :root {
+        --bg: #f8fafc; --border: #e2e8f0; --card-bg: #ffffff; --card-border: #e2e8f0;
+        --value-text: #1e293b; --text-sub: #64748b; --arrow: #94a3b8; --shadow: rgba(0,0,0,0.07);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #0f172a; --border: #1e293b; --card-bg: #1e293b; --card-border: #334155;
+          --value-text: #f1f5f9; --text-sub: #94a3b8; --arrow: #64748b; --shadow: rgba(0,0,0,0.4);
+        }
+      }
+    </style>
+    <filter id="gh-shadow"><feDropShadow dx="0" dy="2" stdDeviation="5" flood-color="var(--shadow)"/></filter>
+    <marker id="gh-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="var(--arrow)"/>
+    </marker>
+  </defs>
+
+  <rect width="680" height="240" rx="14" fill="var(--bg)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="340" y="24" text-anchor="middle" fill="var(--text-sub)" font-size="11" font-weight="600" letter-spacing="0.5">GROUP BY kategori HAVING COUNT(*) &gt; 1</text>
+
+  <!-- raw rows -->
+  <text x="90" y="50" text-anchor="middle" fill="var(--text-sub)" font-size="9" font-weight="700">BARIS MENTAH</text>
+  <g font-family="'JetBrains Mono', monospace" font-size="9">
+    <rect x="30" y="58" width="120" height="20" fill="#3b82f6" fill-opacity="0.15"/><text x="90" y="72" text-anchor="middle" fill="var(--value-text)">Fiksi</text>
+    <rect x="30" y="80" width="120" height="20" fill="#3b82f6" fill-opacity="0.15"/><text x="90" y="94" text-anchor="middle" fill="var(--value-text)">Fiksi</text>
+    <rect x="30" y="102" width="120" height="20" fill="#10b981" fill-opacity="0.15"/><text x="90" y="116" text-anchor="middle" fill="var(--value-text)">Non-Fiksi</text>
+    <rect x="30" y="124" width="120" height="20" fill="#f59e0b" fill-opacity="0.15"/><text x="90" y="138" text-anchor="middle" fill="var(--value-text)">Teknologi</text>
+    <rect x="30" y="146" width="120" height="20" fill="#3b82f6" fill-opacity="0.15"/><text x="90" y="160" text-anchor="middle" fill="var(--value-text)">Fiksi</text>
+    <rect x="30" y="168" width="120" height="20" fill="#f59e0b" fill-opacity="0.15"/><text x="90" y="182" text-anchor="middle" fill="var(--value-text)">Teknologi</text>
+  </g>
+
+  <line x1="160" y1="118" x2="205" y2="118" stroke="var(--arrow)" stroke-width="2" marker-end="url(#gh-arrow)"/>
+  <text x="182" y="108" text-anchor="middle" fill="var(--text-sub)" font-size="8">GROUP BY</text>
+
+  <!-- grouped -->
+  <text x="290" y="50" text-anchor="middle" fill="var(--text-sub)" font-size="9" font-weight="700">DIKELOMPOKKAN</text>
+  <g filter="url(#gh-shadow)" font-family="'JetBrains Mono', monospace" font-size="10">
+    <rect x="215" y="58" width="150" height="30" rx="6" fill="#3b82f6" fill-opacity="0.15" stroke="#3b82f6"/>
+    <text x="225" y="77" fill="var(--value-text)">Fiksi: COUNT=3</text>
+    <rect x="215" y="96" width="150" height="30" rx="6" fill="#10b981" fill-opacity="0.15" stroke="#10b981"/>
+    <text x="225" y="115" fill="var(--value-text)">Non-Fiksi: COUNT=1</text>
+    <rect x="215" y="134" width="150" height="30" rx="6" fill="#f59e0b" fill-opacity="0.15" stroke="#f59e0b"/>
+    <text x="225" y="153" fill="var(--value-text)">Teknologi: COUNT=2</text>
+  </g>
+
+  <line x1="375" y1="118" x2="420" y2="118" stroke="var(--arrow)" stroke-width="2" marker-end="url(#gh-arrow)"/>
+  <text x="397" y="108" text-anchor="middle" fill="var(--text-sub)" font-size="8">HAVING</text>
+  <text x="397" y="130" text-anchor="middle" fill="var(--text-sub)" font-size="8">COUNT(*)&gt;1</text>
+
+  <!-- final -->
+  <text x="540" y="50" text-anchor="middle" fill="var(--text-sub)" font-size="9" font-weight="700">HASIL AKHIR</text>
+  <g filter="url(#gh-shadow)" font-family="'JetBrains Mono', monospace" font-size="10">
+    <rect x="430" y="70" width="150" height="30" rx="6" fill="#3b82f6" fill-opacity="0.22" stroke="#3b82f6" stroke-width="2"/>
+    <text x="440" y="89" fill="var(--value-text)" font-weight="700">Fiksi: 3</text>
+    <rect x="430" y="108" width="150" height="30" rx="6" fill="#f59e0b" fill-opacity="0.22" stroke="#f59e0b" stroke-width="2"/>
+    <text x="440" y="127" fill="var(--value-text)" font-weight="700">Teknologi: 2</text>
+  </g>
+  <text x="505" y="160" text-anchor="middle" fill="#dc2626" font-size="9">(Non-Fiksi tersaring keluar — COUNT=1)</text>
+</svg>

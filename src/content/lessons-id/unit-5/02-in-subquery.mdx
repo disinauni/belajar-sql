@@ -1,0 +1,133 @@
+---
+title: "IN dengan Subquery"
+unit: 5
+lesson: 2
+description: "Mencocokkan nilai dengan daftar hasil subquery menggunakan IN, sebagai alternatif JOIN"
+objectives:
+  - "Menggabungkan IN dengan subquery yang mengembalikan banyak baris"
+  - "Membandingkan pendekatan IN+subquery dengan JOIN untuk pertanyaan yang sama"
+  - "Menggunakan NOT IN dengan subquery"
+estimatedTime: 20
+prerequisites: ["unit-5/01-subquery-select-from"]
+difficulty: "intermediate"
+tags: ["in", "subquery"]
+database: "perpustakaan"
+---
+
+# IN dengan Subquery
+
+Subquery di Unit 5 sejauh ini selalu mengembalikan **satu nilai** (scalar). Tapi subquery juga bisa mengembalikan **banyak baris** — dan `IN` adalah cara memakainya.
+
+## IN + Subquery Dasar
+
+Ingat pertanyaan dari Unit 4: "anggota mana saja yang pernah meminjam buku?" Kita sudah menjawabnya dengan `JOIN`. Sekarang mari jawab dengan **subquery**:
+
+```sql
+SELECT nama
+FROM anggota
+WHERE id IN (SELECT anggota_id FROM peminjaman);
+```
+
+Subquery `(SELECT anggota_id FROM peminjaman)` menghasilkan daftar semua `anggota_id` yang pernah muncul di tabel peminjaman. `IN` lalu mencocokkan `id` di `anggota` dengan salah satu nilai dalam daftar itu.
+
+## IN+Subquery vs JOIN — Dua Cara, Satu Tujuan
+
+```sql
+-- Cara 1: dengan JOIN (dari Unit 4)
+SELECT DISTINCT anggota.nama
+FROM anggota
+INNER JOIN peminjaman ON anggota.id = peminjaman.anggota_id;
+
+-- Cara 2: dengan IN + subquery
+SELECT nama
+FROM anggota
+WHERE id IN (SELECT anggota_id FROM peminjaman);
+```
+
+Keduanya menghasilkan daftar nama yang sama. `JOIN` lebih cocok kalau kamu butuh menampilkan kolom dari **kedua tabel** sekaligus (misalnya nama anggota DAN judul buku). `IN` + subquery lebih ringkas kalau kamu hanya butuh menyaring satu tabel berdasarkan keberadaannya di tabel lain, tanpa perlu kolom tabel kedua di hasil akhir.
+
+## NOT IN dengan Subquery
+
+```sql
+-- Anggota yang BELUM PERNAH meminjam (alternatif dari LEFT JOIN + IS NULL)
+SELECT nama
+FROM anggota
+WHERE id NOT IN (SELECT anggota_id FROM peminjaman);
+```
+
+:::warning
+Ingat peringatan dari Unit 2: `NOT IN` berbahaya kalau subquery-nya bisa menghasilkan `NULL`. Untungnya, `peminjaman.anggota_id` di skema kita selalu `NOT NULL`, jadi aman di sini. Tapi selalu waspada — kalau kolom di dalam subquery `NOT IN` bisa NULL, hasilnya bisa kosong secara tak terduga. `NOT EXISTS` (lesson berikutnya) adalah alternatif yang lebih aman.
+:::
+
+## IN + Subquery dengan Kondisi Tambahan
+
+Subquery-nya sendiri bisa punya `WHERE`:
+
+```sql
+-- Judul buku yang PERNAH dipinjam oleh anggota kelas '10A'
+SELECT judul
+FROM buku
+WHERE id IN (
+  SELECT peminjaman.buku_id
+  FROM peminjaman
+  INNER JOIN anggota ON peminjaman.anggota_id = anggota.id
+  WHERE anggota.kelas = '10A'
+);
+```
+
+## Latihan
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u5l2-ex1"
+  title="Anggota yang Pernah Meminjam"
+  description="Tampilkan nama anggota yang PERNAH meminjam buku, menggunakan IN dengan subquery (bukan JOIN)."
+  type="code-output"
+  database="perpustakaan"
+  starterCode="SELECT nama FROM anggota;"
+  expectedQuery="SELECT nama FROM anggota WHERE id IN (SELECT anggota_id FROM peminjaman);"
+  hints={["Subquery: SELECT anggota_id FROM peminjaman", "Gunakan WHERE id IN (...)"]}
+  explanation="IN (SELECT anggota_id FROM peminjaman) menyaring anggota yang id-nya muncul di daftar anggota_id pada tabel peminjaman."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u5l2-ex2"
+  title="Buku yang Belum Pernah Dipinjam (via NOT IN)"
+  description="Tampilkan judul buku yang belum pernah muncul di catatan peminjaman, menggunakan NOT IN dengan subquery."
+  type="code-output"
+  database="perpustakaan"
+  starterCode="SELECT judul FROM buku WHERE id IN (SELECT buku_id FROM peminjaman);"
+  expectedQuery="SELECT judul FROM buku WHERE id NOT IN (SELECT buku_id FROM peminjaman);"
+  hints={["Ganti IN menjadi NOT IN"]}
+  explanation="NOT IN (SELECT buku_id FROM peminjaman) menyaring buku yang id-nya TIDAK pernah muncul di catatan peminjaman."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u5l2-ex3"
+  title="Kapan IN+Subquery Lebih Cocok dari JOIN"
+  description="Kapan pendekatan IN + subquery biasanya lebih ringkas dipakai dibanding JOIN?"
+  type="multiple-choice"
+  options={[
+    "Saat kamu perlu menampilkan kolom dari kedua tabel sekaligus di hasil akhir",
+    "Saat kamu hanya perlu menyaring satu tabel berdasarkan keberadaannya di tabel lain, tanpa butuh kolom tabel kedua",
+    "IN + subquery selalu lebih baik daripada JOIN dalam semua kasus",
+    "JOIN tidak bisa dipakai bersama WHERE"
+  ]}
+  correctIndex={1}
+  hints={["Pikirkan hasil akhir yang dibutuhkan: satu tabel saja, atau gabungan kolom dari dua tabel?"]}
+  explanation="IN + subquery cocok ketika kamu hanya perlu menyaring satu tabel berdasarkan keberadaan datanya di tabel lain. Kalau butuh kolom dari kedua tabel di hasil akhir, JOIN lebih tepat."
+  lang="id"
+/>
+
+## Ringkasan
+
+| Konsep | Contoh |
+|--------|--------|
+| IN + subquery | `WHERE id IN (SELECT anggota_id FROM peminjaman)` |
+| NOT IN + subquery | `WHERE id NOT IN (SELECT anggota_id FROM peminjaman)` |
+| Alternatif dari | `JOIN` (ketika tidak butuh kolom tabel kedua) |
+
+Selanjutnya: **EXISTS**, alternatif yang lebih aman dan efisien daripada `IN`/`NOT IN` untuk memeriksa keberadaan data.

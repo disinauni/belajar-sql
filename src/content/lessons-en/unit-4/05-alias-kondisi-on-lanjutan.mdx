@@ -1,0 +1,134 @@
+---
+title: "Aliases & Advanced ON Conditions"
+unit: 4
+lesson: 5
+description: "Multi-condition ON clauses, and the crucial difference between putting a condition in ON vs WHERE on a LEFT JOIN"
+objectives:
+  - "Write an ON condition with more than one requirement (AND)"
+  - "Understand the difference between placing an extra condition in ON vs WHERE on a LEFT JOIN"
+  - "Avoid a common trap that turns a LEFT JOIN into something like an INNER JOIN"
+estimatedTime: 20
+prerequisites: ["unit-4/04-self-join"]
+difficulty: "intermediate"
+tags: ["join", "alias", "on"]
+database: "perpustakaan"
+translationStatus: "complete"
+---
+
+# Aliases & Advanced ON Conditions
+
+You can already write basic `INNER JOIN`, `LEFT JOIN`, and `Self JOIN`. Now let's go deeper into a detail that often traps beginners: **where should an extra condition go — in `ON` or in `WHERE`?**
+
+## ON Conditions With Multiple Requirements
+
+`ON` doesn't have to contain exactly one equality condition — you can combine more than one requirement with `AND`:
+
+```sql
+-- Only join to loans that are STILL ACTIVE (not yet returned)
+SELECT anggota.nama, peminjaman.tanggal_pinjam
+FROM anggota
+LEFT JOIN peminjaman
+  ON anggota.id = peminjaman.anggota_id
+  AND peminjaman.tanggal_kembali IS NULL;
+```
+
+## The Trap: ON vs WHERE on a LEFT JOIN
+
+This is the important part. Compare the following two queries — they look similar at a glance, but produce **different** results:
+
+```sql
+-- Version A: the tanggal_kembali condition is in ON
+SELECT anggota.nama, peminjaman.tanggal_pinjam
+FROM anggota
+LEFT JOIN peminjaman
+  ON anggota.id = peminjaman.anggota_id AND peminjaman.tanggal_kembali IS NULL;
+```
+
+```sql
+-- Version B: the tanggal_kembali condition moved to WHERE
+SELECT anggota.nama, peminjaman.tanggal_pinjam
+FROM anggota
+LEFT JOIN peminjaman ON anggota.id = peminjaman.anggota_id
+WHERE peminjaman.tanggal_kembali IS NULL;
+```
+
+Take Citra as an example: she borrowed one book once, but already returned it (so she has no active loan).
+
+- **Version A** shows Citra with the loan columns as `NULL` — correct, since she genuinely has nothing borrowed **right now**.
+- **Version B** loses Citra entirely from the result! Because `WHERE` is evaluated **after** the LEFT JOIN completes, Citra's row (whose tanggal_kembali holds an actual date, not NULL) gets filtered out by `WHERE peminjaman.tanggal_kembali IS NULL` — even though the original intent was to show ALL members.
+
+<img src="/images/inner-vs-left-join.svg" alt="A condition in ON vs WHERE has a different effect on a LEFT JOIN" width="100%" />
+
+:::warning
+Placing a condition about the right table in `WHERE` (instead of `ON`) on a `LEFT JOIN` **accidentally turns it into something like an INNER JOIN** — because `WHERE` discards rows whose right-side columns are NULL, but that NULL is exactly what you wanted to preserve from the LEFT JOIN. Rule of thumb: a condition about "does this pair match" belongs in `ON`; a condition filtering the final result belongs in `WHERE`.
+:::
+
+## When WHERE Is Still Safe
+
+If the condition is about the **left** table (not the right one), putting it in `WHERE` is fine, since the left table always appears in full anyway:
+
+```sql
+-- Safe: kelas is in the left table (anggota), doesn't affect LEFT JOIN's behavior
+SELECT anggota.nama, peminjaman.tanggal_pinjam
+FROM anggota
+LEFT JOIN peminjaman ON anggota.id = peminjaman.anggota_id
+WHERE anggota.kelas = '10A';
+```
+
+## Exercise
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u4l5-ex1"
+  title="Active Loan per Member (Including None)"
+  description="Show every member's name and tanggal_pinjam for ACTIVE (not yet returned) loans only — members without an active loan should still appear with NULL."
+  type="code-output"
+  database="perpustakaan"
+  starterCode="SELECT anggota.nama, peminjaman.tanggal_pinjam FROM anggota LEFT JOIN peminjaman ON anggota.id = peminjaman.anggota_id;"
+  expectedQuery="SELECT anggota.nama, peminjaman.tanggal_pinjam FROM anggota LEFT JOIN peminjaman ON anggota.id = peminjaman.anggota_id AND peminjaman.tanggal_kembali IS NULL;"
+  hints={["Add AND peminjaman.tanggal_kembali IS NULL inside ON, not WHERE"]}
+  explanation="Placing the tanggal_kembali IS NULL condition inside ON keeps every member in the result, while only joining to loans that are still active."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u4l5-ex2"
+  title="Proving Citra Disappears"
+  description="Run the query with the tanggal_kembali IS NULL condition in WHERE (not ON) to see for yourself why Citra disappears from the result."
+  type="code-output"
+  database="perpustakaan"
+  starterCode="SELECT anggota.nama, peminjaman.tanggal_pinjam FROM anggota LEFT JOIN peminjaman ON anggota.id = peminjaman.anggota_id AND peminjaman.tanggal_kembali IS NULL;"
+  expectedQuery="SELECT anggota.nama, peminjaman.tanggal_pinjam FROM anggota LEFT JOIN peminjaman ON anggota.id = peminjaman.anggota_id WHERE peminjaman.tanggal_kembali IS NULL;"
+  hints={["Move the tanggal_kembali IS NULL condition from ON to WHERE"]}
+  explanation="With the condition in WHERE, Citra (who already returned the only book she borrowed) disappears completely from the result — unlike the ON version, which still shows her with NULL."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u4l5-ex3"
+  title="Rule of Thumb: ON vs WHERE"
+  description="When should a condition about the RIGHT table go in ON instead of WHERE on a LEFT JOIN?"
+  type="multiple-choice"
+  options={[
+    "There's never a difference, they're always identical",
+    "When you want to keep every left-table row, even if no match satisfies that condition",
+    "Only when using INNER JOIN",
+    "ON can only ever contain one equality condition, nothing else"
+  ]}
+  correctIndex={1}
+  hints={["Think back to Citra disappearing from the result above"]}
+  explanation="A condition about the right table placed in WHERE will discard left-table rows that have no matching pair satisfying it — defeating the purpose of the LEFT JOIN. Put that condition in ON to keep the left-table rows intact."
+  lang="en"
+/>
+
+## Summary
+
+| Concept | Example |
+|---------|---------|
+| ON with multiple conditions | `ON a.id = b.a_id AND b.column IS NULL` |
+| Condition in ON (LEFT JOIN) | Preserves every left-table row |
+| Condition in WHERE (LEFT JOIN) | Can accidentally discard left rows — like an INNER JOIN |
+| Safe in WHERE | A condition only about the left table |
+
+You've now mastered every JOIN technique! Time to combine it all in the **Mini Project: Library System**.

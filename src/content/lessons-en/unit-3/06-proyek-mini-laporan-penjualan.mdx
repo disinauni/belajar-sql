@@ -1,0 +1,106 @@
+---
+title: "Mini Project: Sales Report"
+unit: 3
+lesson: 6
+description: "Building a complete aggregate report for a bookstore using every Unit 3 technique"
+objectives:
+  - "Build a business summary report using aggregate functions and GROUP BY"
+  - "Choose the right combination of clauses for real business questions"
+  - "Review every aggregation concept from Unit 3"
+estimatedTime: 35
+prerequisites: ["unit-3/05-menggabungkan-klausa"]
+difficulty: "beginner"
+tags: ["project", "review"]
+database: "toko_buku"
+translationStatus: "complete"
+---
+
+# Mini Project: Sales Report
+
+Congratulations on reaching the end of Unit 3! You can now turn raw data into **summary reports** — exactly what a bookstore admin needs to make business decisions.
+
+## The Toolkit You've Mastered
+
+| Function/Clause | Use |
+|-------------------|-----|
+| `COUNT(*)` | Count the number of rows |
+| `SUM(column)` | Add up values |
+| `AVG(column)` | Compute an average |
+| `MIN`/`MAX(column)` | Smallest/largest value |
+| `GROUP BY` | Group rows to compute per group |
+| `HAVING` | Filter group results by aggregate value |
+
+## Case Study: Category Report
+
+**"For each category, show the number of titles, total stock value, and average price — only categories with at least 2 titles, sorted by highest total stock value"**
+
+```sql
+SELECT
+  kategori,
+  COUNT(*) AS jumlah_judul,
+  SUM(harga * stok) AS total_nilai_stok,
+  ROUND(AVG(harga), 0) AS rata_rata_harga
+FROM buku
+GROUP BY kategori
+HAVING COUNT(*) >= 2
+ORDER BY total_nilai_stok DESC;
+```
+
+This single query answers a question that could take hours to work out manually in a spreadsheet.
+
+## Project Exercises
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u3l6-ex1"
+  title="Full Category Report"
+  description="Show the category, number of titles (aliased jumlah_judul), and total stock (aliased total_stok), for ALL categories, sorted by highest total stock."
+  type="code-output"
+  strictOrder
+  starterCode="SELECT kategori, COUNT(*) AS jumlah_judul, SUM(stok) AS total_stok FROM buku GROUP BY kategori;"
+  expectedQuery="SELECT kategori, COUNT(*) AS jumlah_judul, SUM(stok) AS total_stok FROM buku GROUP BY kategori ORDER BY total_stok DESC;"
+  hints={["Add ORDER BY total_stok DESC at the end"]}
+  explanation="GROUP BY groups by category, then ORDER BY total_stok DESC sorts the report from the highest stock down."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u3l6-ex2"
+  title="High-Value Categories Only"
+  description="Show the category and average price (aliased rata_rata, rounded), only for categories with at least 2 titles AND an average price above 80000."
+  type="code-output"
+  starterCode="SELECT kategori, ROUND(AVG(harga), 0) AS rata_rata FROM buku GROUP BY kategori;"
+  expectedQuery="SELECT kategori, ROUND(AVG(harga), 0) AS rata_rata FROM buku GROUP BY kategori HAVING COUNT(*) >= 2 AND AVG(harga) > 80000;"
+  hints={["HAVING can combine more than one condition with AND", "COUNT(*) >= 2 AND AVG(harga) > 80000"]}
+  explanation="HAVING supports combining multiple aggregate conditions with AND, just like WHERE."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u3l6-ex3"
+  title="Why Not WHERE"
+  description="Why must the condition 'average price above 80000' be written in HAVING, not WHERE?"
+  type="multiple-choice"
+  options={[
+    "Because WHERE doesn't support decimal numbers",
+    "Because an average (AVG) can only be computed after rows are grouped by GROUP BY, while WHERE runs before that",
+    "Because HAVING executes faster",
+    "Actually both work fine, the result is always the same"
+  ]}
+  correctIndex={1}
+  hints={["Recall the evaluation order: WHERE before GROUP BY, HAVING after it"]}
+  explanation="AVG(harga) per group can only be computed after GROUP BY finishes grouping the rows. WHERE is evaluated before grouping happens, so it can't access the aggregate result."
+  lang="en"
+/>
+
+## Reflection: What You've Mastered
+
+| Concept | Function |
+|---------|----------|
+| `COUNT`, `SUM`, `AVG`, `MIN`, `MAX` | Summarizing many rows into a single value |
+| `GROUP BY` | Computing aggregates per group, not per whole table |
+| `HAVING` | Filtering group results based on an aggregate value |
+| F-W-G-H-O-L order | `FROM → WHERE → GROUP BY → HAVING → ORDER BY → LIMIT` |
+
+You can now build real business reports from raw data! In **Unit 4 (JOIN)**, we level up again: combining data from **more than one table** at once — the foundation for working with real-world databases, which always consist of many interrelated tables.

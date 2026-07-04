@@ -1,0 +1,156 @@
+---
+title: "Grouping with GROUP BY"
+unit: 3
+lesson: 3
+description: "Grouping rows by a column's value so they can be counted per group with GROUP BY"
+objectives:
+  - "Group rows with GROUP BY"
+  - "Combine GROUP BY with aggregate functions"
+  - "Understand the rule: SELECT columns must be in GROUP BY or wrapped in an aggregate function"
+estimatedTime: 30
+prerequisites: ["unit-3/02-min-max"]
+difficulty: "beginner"
+tags: ["group-by", "aggregation"]
+database: "toko_buku"
+translationStatus: "complete"
+---
+
+# Grouping with GROUP BY
+
+In the previous lessons, aggregate functions always summarized the **entire table** into one number. But a more useful question is usually per group: "how many books **per category**?", not "how many books total?". `GROUP BY` makes this possible.
+
+## Basic GROUP BY
+
+```sql
+SELECT kategori, COUNT(*) AS jumlah
+FROM buku
+GROUP BY kategori;
+```
+
+Output:
+```
+kategori           | jumlah
+-------------------+-------
+Fiksi              | 6
+Non-Fiksi          | 1
+Pengembangan Diri  | 2
+Teknologi          | 2
+Keuangan           | 1
+```
+
+<img src="/images/group-by-having.svg" alt="GROUP BY groups rows before aggregate functions are computed" width="100%" />
+
+SQLite groups all rows sharing the same `kategori`, then runs `COUNT(*)` **per group** — not one number for the entire table.
+
+## GROUP BY with Other Aggregate Functions
+
+```sql
+-- Average price per category
+SELECT kategori, ROUND(AVG(harga), 0) AS rata_rata_harga
+FROM buku
+GROUP BY kategori;
+```
+
+```sql
+-- Total stock value per category
+SELECT kategori, SUM(harga * stok) AS total_nilai
+FROM buku
+GROUP BY kategori;
+```
+
+## Important Rule: SELECT Columns
+
+When using `GROUP BY`, every column in `SELECT` must be one of:
+1. A column present in `GROUP BY`, or
+2. Wrapped in an aggregate function (`COUNT`, `SUM`, `AVG`, `MIN`, `MAX`)
+
+```sql
+-- CORRECT-looking, but WRONG: kategori is in GROUP BY, judul is NOT — undefined/ambiguous
+SELECT kategori, judul, COUNT(*) FROM buku GROUP BY kategori;  -- ⚠️ judul is ambiguous!
+```
+
+```sql
+-- CORRECT: only kategori (in GROUP BY) and COUNT(*) (an aggregate function)
+SELECT kategori, COUNT(*) FROM buku GROUP BY kategori;
+```
+
+:::warning
+SQLite tends to be more permissive than PostgreSQL/MySQL about this rule — it may still run a query with an "ambiguous" column without erroring, but the result may pick an arbitrary row from each group. Don't rely on this behavior — always follow the rule above.
+:::
+
+## GROUP BY with Multiple Columns
+
+```sql
+-- Group by the combination of category AND publication year
+SELECT kategori, tahun_terbit, COUNT(*) AS jumlah
+FROM buku
+GROUP BY kategori, tahun_terbit;
+```
+
+## GROUP BY with WHERE
+
+`WHERE` filters rows **before** they're grouped:
+
+```sql
+-- Only books with stock > 0, grouped by category
+SELECT kategori, COUNT(*) AS jumlah
+FROM buku
+WHERE stok > 0
+GROUP BY kategori;
+```
+
+## Exercise
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u3l3-ex1"
+  title="Total Stock per Category"
+  description="Show the category and total stock (aliased total_stok) per category."
+  type="code-output"
+  starterCode="SELECT kategori, COUNT(*) FROM buku GROUP BY kategori;"
+  expectedQuery="SELECT kategori, SUM(stok) AS total_stok FROM buku GROUP BY kategori;"
+  hints={["Replace COUNT(*) with SUM(stok)"]}
+  explanation="GROUP BY kategori groups rows per category, then SUM(stok) is computed for each group separately."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u3l3-ex2"
+  title="Most Expensive Price per Category"
+  description="Show the category and its most expensive price (aliased harga_termahal) in each category."
+  type="code-output"
+  starterCode="SELECT kategori, AVG(harga) FROM buku GROUP BY kategori;"
+  expectedQuery="SELECT kategori, MAX(harga) AS harga_termahal FROM buku GROUP BY kategori;"
+  hints={["Use MAX(harga) instead of AVG(harga)"]}
+  explanation="MAX(harga) is computed per category group thanks to GROUP BY, producing each category's most expensive price."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u3l3-ex3"
+  title="Which Columns Are Safe in SELECT"
+  description="If a query uses GROUP BY kategori, which columns are safe to write in SELECT?"
+  type="multiple-choice"
+  options={[
+    "All columns in the table, no exceptions",
+    "Only the kategori column and columns wrapped in an aggregate function",
+    "Only numeric columns",
+    "Only columns that appear in WHERE"
+  ]}
+  correctIndex={1}
+  hints={["Think: which column has ONE clear value per group?"]}
+  explanation="With GROUP BY kategori, only the kategori column (whose value is the same for a whole group) and columns wrapped in an aggregate function (COUNT/SUM/AVG/MIN/MAX) have a clear meaning per group."
+  lang="en"
+/>
+
+## Summary
+
+| Concept | Example |
+|---------|---------|
+| Group + count | `SELECT kategori, COUNT(*) FROM buku GROUP BY kategori;` |
+| Multiple grouping columns | `GROUP BY kategori, tahun_terbit` |
+| Clause order | `SELECT ... FROM ... WHERE ... GROUP BY ...` |
+| SELECT rule | Grouping column OR an aggregate function only |
+
+Next: filtering the RESULT of grouping (not raw rows) with **HAVING**.

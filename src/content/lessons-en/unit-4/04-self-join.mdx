@@ -1,0 +1,137 @@
+---
+title: "Self JOIN"
+unit: 4
+lesson: 4
+description: "Joining a table with itself for data that references other rows in the same table"
+objectives:
+  - "Understand when a table needs to be JOINed with itself"
+  - "Write a Self JOIN using two different aliases for the same table"
+  - "Distinguish a Self JOIN from a JOIN between different tables"
+estimatedTime: 25
+prerequisites: ["unit-4/03-join-banyak-tabel"]
+difficulty: "intermediate"
+tags: ["self-join", "join"]
+translationStatus: "complete"
+---
+
+# Self JOIN
+
+Every JOIN we've learned so far combines **two different tables** (`anggota` with `peminjaman`, etc.). But sometimes a single table has a column that references **another row in that same table** — the classic case: an employee organizational structure and their manager.
+
+## Example Schema: Employee & Manager
+
+This lesson uses a new table dedicated to this topic:
+
+```sql
+CREATE TABLE pegawai (
+  id INTEGER PRIMARY KEY,
+  nama TEXT NOT NULL,
+  atasan_id INTEGER REFERENCES pegawai(id)
+);
+```
+
+| id | nama | atasan_id |
+|----|------|-----------|
+| 1 | Andi (Director) | *(NULL — no manager)* |
+| 2 | Budi (Manager) | 1 |
+| 3 | Citra (Manager) | 1 |
+| 4 | Dedi (Staff) | 2 |
+| 5 | Eka (Staff) | 2 |
+| 6 | Fira (Staff) | 3 |
+
+The `atasan_id` (manager_id) column references `id` in the **same** table — Budi (id 2) has a manager with id 1, i.e. Andi.
+
+## Why We Need a Self JOIN
+
+Without a JOIN, you can only see numbers: "employee id 2 has manager id 1" — meaningless. To display the **manager's name**, you need to join the `pegawai` table with itself.
+
+## Self JOIN with Two Aliases
+
+Since it's the same table, you **must** give each copy a different alias to distinguish their "role":
+
+```sql
+SELECT e.nama AS pegawai, m.nama AS atasan
+FROM pegawai AS e
+LEFT JOIN pegawai AS m ON e.atasan_id = m.id;
+```
+
+- `e` (employee) — the table copy for the "employee" role
+- `m` (manager) — the table copy for the "manager" role
+- `ON e.atasan_id = m.id` — links the employee's atasan_id with the id in the "manager" copy
+
+`LEFT JOIN` is used (not `INNER JOIN`) so Andi (whose `atasan_id` is NULL, no manager) still appears in the result.
+
+:::note
+Without aliases, `SELECT pegawai.nama FROM pegawai JOIN pegawai ON ...` would confuse SQLite — it wouldn't know which `pegawai.nama` you mean, since there are two copies of the `pegawai` table in the same query. The `AS e` and `AS m` aliases remove this ambiguity.
+:::
+
+## Finding All Reports of a Manager
+
+```sql
+-- All staff whose manager is Budi
+SELECT e.nama AS bawahan
+FROM pegawai AS e
+INNER JOIN pegawai AS m ON e.atasan_id = m.id
+WHERE m.nama = 'Budi (Manajer)';
+```
+
+:::tip
+A Self JOIN always follows the same pattern: one table, two aliases, one `ON` linking the "child" column with the "parent" column on a different row of the same table.
+:::
+
+## Exercise
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u4l4-ex1"
+  title="Employee and Their Manager's Name"
+  description="Show each employee's name (aliased pegawai) and their manager's name (aliased atasan) for every employee."
+  type="code-output"
+  schema={`CREATE TABLE pegawai (id INTEGER PRIMARY KEY, nama TEXT NOT NULL, atasan_id INTEGER REFERENCES pegawai(id)); INSERT INTO pegawai (id, nama, atasan_id) VALUES (1,'Andi (Direktur)',NULL),(2,'Budi (Manajer)',1),(3,'Citra (Manajer)',1),(4,'Dedi (Staf)',2),(5,'Eka (Staf)',2),(6,'Fira (Staf)',3);`}
+  starterCode="SELECT nama FROM pegawai;"
+  expectedQuery="SELECT e.nama AS pegawai, m.nama AS atasan FROM pegawai AS e LEFT JOIN pegawai AS m ON e.atasan_id = m.id;"
+  hints={["Create two aliases for the pegawai table: e and m", "Use LEFT JOIN so Andi (no manager) still appears"]}
+  explanation="A Self JOIN with aliases e (employee) and m (manager) links e's atasan_id with m's id."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u4l4-ex2"
+  title="Budi's Direct Reports"
+  description="Show the names of all employees whose direct manager is 'Budi (Manajer)'."
+  type="code-output"
+  schema={`CREATE TABLE pegawai (id INTEGER PRIMARY KEY, nama TEXT NOT NULL, atasan_id INTEGER REFERENCES pegawai(id)); INSERT INTO pegawai (id, nama, atasan_id) VALUES (1,'Andi (Direktur)',NULL),(2,'Budi (Manajer)',1),(3,'Citra (Manajer)',1),(4,'Dedi (Staf)',2),(5,'Eka (Staf)',2),(6,'Fira (Staf)',3);`}
+  starterCode="SELECT e.nama AS pegawai, m.nama AS atasan FROM pegawai AS e INNER JOIN pegawai AS m ON e.atasan_id = m.id;"
+  expectedQuery="SELECT e.nama AS pegawai FROM pegawai AS e INNER JOIN pegawai AS m ON e.atasan_id = m.id WHERE m.nama = 'Budi (Manajer)';"
+  hints={["Add WHERE m.nama = 'Budi (Manajer)'", "m is the alias for 'manager'"]}
+  explanation="WHERE m.nama = 'Budi (Manajer)' filters the Self JOIN result down to rows where the 'manager' (alias m) is Budi."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u4l4-ex3"
+  title="Why Aliases Are Required in a Self JOIN"
+  description="Why does a Self JOIN require giving different aliases to the same table?"
+  type="multiple-choice"
+  options={[
+    "Because SQLite doesn't allow JOINs without aliases at all",
+    "Because without aliases, SQLite can't tell apart two different roles of the same table within one query",
+    "Aliases are just cosmetic, not technically required",
+    "Because Self JOIN always uses LEFT JOIN"
+  ]}
+  correctIndex={1}
+  hints={["Without aliases, which 'pegawai.nama' is meant if there are two copies of the table?"]}
+  explanation="Since the same table appears twice in one query (for two different 'roles'), aliases are required so SQLite and the reader both know which column refers to which role."
+  lang="en"
+/>
+
+## Summary
+
+| Concept | Example |
+|---------|---------|
+| Self JOIN | `FROM pegawai AS e JOIN pegawai AS m ON e.atasan_id = m.id` |
+| When to use it | Data referencing other rows in the same table |
+| Aliases required | To distinguish two "roles" of the same table |
+
+Next: aliases and advanced `ON` conditions for JOINs.

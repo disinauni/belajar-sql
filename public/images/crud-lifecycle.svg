@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 220" width="680" height="220" font-family="'Segoe UI', system-ui, sans-serif">
+  <defs>
+    <style>
+      :root {
+        --bg: #f8fafc; --border: #e2e8f0; --card-bg: #ffffff; --card-border: #e2e8f0;
+        --value-text: #1e293b; --text-sub: #64748b; --arrow: #94a3b8; --shadow: rgba(0,0,0,0.07);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #0f172a; --border: #1e293b; --card-bg: #1e293b; --card-border: #334155;
+          --value-text: #f1f5f9; --text-sub: #94a3b8; --arrow: #64748b; --shadow: rgba(0,0,0,0.4);
+        }
+      }
+    </style>
+    <filter id="cl-shadow"><feDropShadow dx="0" dy="2" stdDeviation="5" flood-color="var(--shadow)"/></filter>
+    <marker id="cl-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="var(--arrow)"/>
+    </marker>
+  </defs>
+
+  <rect width="680" height="220" rx="14" fill="var(--bg)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="340" y="24" text-anchor="middle" fill="var(--text-sub)" font-size="11" font-weight="600" letter-spacing="0.5">SIKLUS DATA: INSERT &#8594; UPDATE &#8594; DELETE (DML)</text>
+
+  <!-- INSERT -->
+  <g filter="url(#cl-shadow)">
+    <circle cx="120" cy="120" r="60" fill="var(--card-bg)" stroke="#10b981" stroke-width="2"/>
+  </g>
+  <text x="120" y="112" text-anchor="middle" fill="#059669" font-size="13" font-weight="700" font-family="'JetBrains Mono', monospace">INSERT</text>
+  <text x="120" y="132" text-anchor="middle" fill="var(--text-sub)" font-size="9">baris baru</text>
+  <text x="120" y="146" text-anchor="middle" fill="var(--text-sub)" font-size="9">ditambahkan</text>
+
+  <path d="M180 100 A 200 200 0 0 1 280 80" fill="none" stroke="var(--arrow)" stroke-width="2" marker-end="url(#cl-arrow)"/>
+
+  <!-- UPDATE -->
+  <g filter="url(#cl-shadow)">
+    <circle cx="340" cy="120" r="60" fill="var(--card-bg)" stroke="#3b82f6" stroke-width="2"/>
+  </g>
+  <text x="340" y="112" text-anchor="middle" fill="#2563eb" font-size="13" font-weight="700" font-family="'JetBrains Mono', monospace">UPDATE</text>
+  <text x="340" y="132" text-anchor="middle" fill="var(--text-sub)" font-size="9">baris yang ada</text>
+  <text x="340" y="146" text-anchor="middle" fill="var(--text-sub)" font-size="9">diubah nilainya</text>
+
+  <path d="M400 100 A 200 200 0 0 1 500 80" fill="none" stroke="var(--arrow)" stroke-width="2" marker-end="url(#cl-arrow)"/>
+
+  <!-- DELETE -->
+  <g filter="url(#cl-shadow)">
+    <circle cx="560" cy="120" r="60" fill="var(--card-bg)" stroke="#ef4444" stroke-width="2"/>
+  </g>
+  <text x="560" y="112" text-anchor="middle" fill="#dc2626" font-size="13" font-weight="700" font-family="'JetBrains Mono', monospace">DELETE</text>
+  <text x="560" y="132" text-anchor="middle" fill="var(--text-sub)" font-size="9">baris dihapus</text>
+  <text x="560" y="146" text-anchor="middle" fill="var(--text-sub)" font-size="9">permanen</text>
+
+  <text x="340" y="200" text-anchor="middle" fill="#dc2626" font-size="10" font-weight="600">&#9888; UPDATE dan DELETE tanpa WHERE memengaruhi SEMUA baris</text>
+</svg>

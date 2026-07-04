@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 220" width="680" height="220" font-family="'Segoe UI', system-ui, sans-serif">
+  <defs>
+    <style>
+      :root {
+        --bg: #f8fafc; --border: #e2e8f0; --card-bg: #ffffff; --card-border: #e2e8f0;
+        --value-text: #1e293b; --text-sub: #64748b; --shadow: rgba(0,0,0,0.07);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #0f172a; --border: #1e293b; --card-bg: #1e293b; --card-border: #334155;
+          --value-text: #f1f5f9; --text-sub: #94a3b8; --shadow: rgba(0,0,0,0.4);
+        }
+      }
+    </style>
+    <filter id="lo-shadow"><feDropShadow dx="0" dy="2" stdDeviation="5" flood-color="var(--shadow)"/></filter>
+  </defs>
+
+  <rect width="680" height="220" rx="14" fill="var(--bg)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="340" y="24" text-anchor="middle" fill="var(--text-sub)" font-size="11" font-weight="600" letter-spacing="0.5">AND / OR / NOT — TABEL KEBENARAN</text>
+
+  <!-- AND table -->
+  <g filter="url(#lo-shadow)">
+    <rect x="30" y="44" width="190" height="150" rx="12" fill="var(--card-bg)" stroke="#3b82f6" stroke-width="1.5"/>
+  </g>
+  <text x="125" y="66" text-anchor="middle" fill="#2563eb" font-size="13" font-weight="700" font-family="'JetBrains Mono', monospace">AND</text>
+  <g font-family="'JetBrains Mono', monospace" font-size="10">
+    <text x="50" y="86" fill="var(--text-sub)">A</text><text x="80" y="86" fill="var(--text-sub)">B</text><text x="150" y="86" fill="var(--text-sub)">A AND B</text>
+    <text x="50" y="106" fill="var(--value-text)">T</text><text x="80" y="106" fill="var(--value-text)">T</text><text x="160" y="106" fill="#059669">T</text>
+    <text x="50" y="126" fill="var(--value-text)">T</text><text x="80" y="126" fill="var(--value-text)">F</text><text x="160" y="126" fill="#dc2626">F</text>
+    <text x="50" y="146" fill="var(--value-text)">F</text><text x="80" y="146" fill="var(--value-text)">T</text><text x="160" y="146" fill="#dc2626">F</text>
+    <text x="50" y="166" fill="var(--value-text)">F</text><text x="80" y="166" fill="var(--value-text)">F</text><text x="160" y="166" fill="#dc2626">F</text>
+  </g>
+  <text x="125" y="184" text-anchor="middle" fill="var(--text-sub)" font-size="9">Butuh KEDUANYA benar</text>
+
+  <!-- OR table -->
+  <g filter="url(#lo-shadow)">
+    <rect x="245" y="44" width="190" height="150" rx="12" fill="var(--card-bg)" stroke="#10b981" stroke-width="1.5"/>
+  </g>
+  <text x="340" y="66" text-anchor="middle" fill="#059669" font-size="13" font-weight="700" font-family="'JetBrains Mono', monospace">OR</text>
+  <g font-family="'JetBrains Mono', monospace" font-size="10">
+    <text x="265" y="86" fill="var(--text-sub)">A</text><text x="295" y="86" fill="var(--text-sub)">B</text><text x="365" y="86" fill="var(--text-sub)">A OR B</text>
+    <text x="265" y="106" fill="var(--value-text)">T</text><text x="295" y="106" fill="var(--value-text)">T</text><text x="375" y="106" fill="#059669">T</text>
+    <text x="265" y="126" fill="var(--value-text)">T</text><text x="295" y="126" fill="var(--value-text)">F</text><text x="375" y="126" fill="#059669">T</text>
+    <text x="265" y="146" fill="var(--value-text)">F</text><text x="295" y="146" fill="var(--value-text)">T</text><text x="375" y="146" fill="#059669">T</text>
+    <text x="265" y="166" fill="var(--value-text)">F</text><text x="295" y="166" fill="var(--value-text)">F</text><text x="375" y="166" fill="#dc2626">F</text>
+  </g>
+  <text x="340" y="184" text-anchor="middle" fill="var(--text-sub)" font-size="9">Cukup SALAH SATU benar</text>
+
+  <!-- NOT table -->
+  <g filter="url(#lo-shadow)">
+    <rect x="460" y="44" width="190" height="150" rx="12" fill="var(--card-bg)" stroke="#f59e0b" stroke-width="1.5"/>
+  </g>
+  <text x="555" y="66" text-anchor="middle" fill="#d97706" font-size="13" font-weight="700" font-family="'JetBrains Mono', monospace">NOT</text>
+  <g font-family="'JetBrains Mono', monospace" font-size="10">
+    <text x="490" y="96" fill="var(--text-sub)">A</text><text x="560" y="96" fill="var(--text-sub)">NOT A</text>
+    <text x="490" y="126" fill="var(--value-text)">T</text><text x="570" y="126" fill="#dc2626">F</text>
+    <text x="490" y="156" fill="var(--value-text)">F</text><text x="570" y="156" fill="#059669">T</text>
+  </g>
+  <text x="555" y="184" text-anchor="middle" fill="var(--text-sub)" font-size="9">Membalik nilai kebenaran</text>
+</svg>

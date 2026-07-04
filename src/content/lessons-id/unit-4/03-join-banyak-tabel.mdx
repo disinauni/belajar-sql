@@ -1,0 +1,131 @@
+---
+title: "JOIN Banyak Tabel"
+unit: 4
+lesson: 3
+description: "Menggabungkan tiga tabel atau lebih dalam satu query"
+objectives:
+  - "Menggabungkan tiga tabel dengan dua klausa JOIN berturut-turut"
+  - "Memahami urutan evaluasi JOIN dari kiri ke kanan"
+  - "Menggabungkan JOIN banyak tabel dengan GROUP BY dan fungsi agregat"
+estimatedTime: 30
+prerequisites: ["unit-4/02-left-join"]
+difficulty: "intermediate"
+tags: ["join", "multi-table"]
+database: "perpustakaan"
+---
+
+# JOIN Banyak Tabel
+
+Database `perpustakaan` punya 3 tabel, dan pertanyaan paling berguna biasanya butuh **ketiganya sekaligus**: "siapa meminjam buku apa, kapan?". Kita sudah menyentuh ini sekilas — sekarang mari bedah lebih detail.
+
+## Menggabungkan Tiga Tabel
+
+```sql
+SELECT anggota.nama, buku.judul, peminjaman.tanggal_pinjam, peminjaman.tanggal_kembali
+FROM peminjaman
+INNER JOIN anggota ON peminjaman.anggota_id = anggota.id
+INNER JOIN buku ON peminjaman.buku_id = buku.id;
+```
+
+Perhatikan strukturnya: mulai dari tabel "tengah" (`peminjaman`, yang menyimpan kedua Foreign Key), lalu JOIN ke `anggota`, lalu JOIN lagi ke `buku`. Setiap klausa `JOIN` menambah satu tabel baru ke hasil gabungan yang sudah ada.
+
+## Urutan Evaluasi: Kiri ke Kanan
+
+SQLite memproses JOIN berurutan dari atas ke bawah:
+1. Mulai dengan `peminjaman`
+2. Gabungkan dengan `anggota` → hasil sementara: peminjaman + info anggota
+3. Gabungkan hasil sementara itu dengan `buku` → hasil akhir: peminjaman + info anggota + info buku
+
+```sql
+-- Urutan tabel dalam FROM/JOIN tidak harus sama dengan urutan di database,
+-- tapi harus logis: setiap JOIN butuh kolom dari tabel yang SUDAH digabung sebelumnya
+SELECT anggota.nama, buku.judul
+FROM anggota
+INNER JOIN peminjaman ON anggota.id = peminjaman.anggota_id
+INNER JOIN buku ON peminjaman.buku_id = buku.id;
+```
+
+## Kombinasi dengan WHERE, GROUP BY, ORDER BY
+
+Setelah semua tabel digabung, seluruh klausa yang sudah kamu kuasai tetap berfungsi normal — seolah-olah hasil gabungan itu satu tabel besar:
+
+```sql
+-- Berapa kali tiap anggota meminjam buku?
+SELECT anggota.nama, COUNT(*) AS jumlah_peminjaman
+FROM peminjaman
+INNER JOIN anggota ON peminjaman.anggota_id = anggota.id
+GROUP BY anggota.nama
+ORDER BY jumlah_peminjaman DESC;
+```
+
+```sql
+-- Judul buku yang dipinjam oleh anggota kelas 11B, urutkan berdasarkan tanggal pinjam
+SELECT anggota.nama, buku.judul, peminjaman.tanggal_pinjam
+FROM peminjaman
+INNER JOIN anggota ON peminjaman.anggota_id = anggota.id
+INNER JOIN buku ON peminjaman.buku_id = buku.id
+WHERE anggota.kelas = '11B'
+ORDER BY peminjaman.tanggal_pinjam ASC;
+```
+
+:::tip
+Kalau query JOIN-mu mulai terasa panjang, tulis satu klausa `JOIN` per baris seperti contoh di atas — jauh lebih mudah dibaca dibanding menjejalkan semua dalam satu baris panjang.
+:::
+
+## Latihan
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u4l3-ex1"
+  title="Detail Lengkap Semua Peminjaman"
+  description="Tampilkan nama anggota, judul buku, dan tanggal_pinjam untuk SEMUA transaksi peminjaman, gabungkan ketiga tabel."
+  type="code-output"
+  database="perpustakaan"
+  starterCode="SELECT anggota.nama, peminjaman.tanggal_pinjam FROM peminjaman INNER JOIN anggota ON peminjaman.anggota_id = anggota.id;"
+  expectedQuery="SELECT anggota.nama, buku.judul, peminjaman.tanggal_pinjam FROM peminjaman INNER JOIN anggota ON peminjaman.anggota_id = anggota.id INNER JOIN buku ON peminjaman.buku_id = buku.id;"
+  hints={["Tambahkan satu INNER JOIN lagi ke tabel buku", "ON peminjaman.buku_id = buku.id"]}
+  explanation="Menambahkan JOIN kedua ke tabel buku memungkinkan kita menampilkan judul buku, bukan hanya buku_id."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u4l3-ex2"
+  title="Jumlah Peminjaman per Anggota"
+  description="Tampilkan nama anggota dan jumlah peminjaman mereka (alias jumlah_peminjaman), urutkan dari yang paling banyak meminjam."
+  type="code-output"
+  database="perpustakaan"
+  strictOrder
+  starterCode="SELECT anggota.nama, COUNT(*) AS jumlah_peminjaman FROM peminjaman INNER JOIN anggota ON peminjaman.anggota_id = anggota.id GROUP BY anggota.nama;"
+  expectedQuery="SELECT anggota.nama, COUNT(*) AS jumlah_peminjaman FROM peminjaman INNER JOIN anggota ON peminjaman.anggota_id = anggota.id GROUP BY anggota.nama ORDER BY jumlah_peminjaman DESC;"
+  hints={["Tambahkan ORDER BY jumlah_peminjaman DESC di akhir"]}
+  explanation="GROUP BY + JOIN bekerja sama seperti biasa — GROUP BY mengelompokkan hasil gabungan, ORDER BY mengurutkan hasil akhirnya."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u4l3-ex3"
+  title="Urutan Evaluasi JOIN"
+  description="Dalam query dengan dua klausa JOIN berturut-turut, bagaimana SQLite memprosesnya?"
+  type="multiple-choice"
+  options={[
+    "Kedua JOIN diproses bersamaan tanpa urutan",
+    "Dari atas ke bawah: JOIN pertama digabungkan dulu, hasilnya baru digabungkan dengan JOIN kedua",
+    "JOIN terakhir selalu diproses lebih dulu",
+    "Urutan JOIN tidak memengaruhi hasil sama sekali dalam kondisi apapun"
+  ]}
+  correctIndex={1}
+  hints={["Pikirkan seperti menambah kolom informasi selangkah demi selangkah"]}
+  explanation="SQLite memproses klausa JOIN secara berurutan dari atas ke bawah — setiap JOIN menggabungkan tabel baru ke hasil gabungan yang sudah terbentuk dari JOIN sebelumnya."
+  lang="id"
+/>
+
+## Ringkasan
+
+| Konsep | Contoh |
+|--------|--------|
+| JOIN 3 tabel | Dua klausa `INNER JOIN` berturut-turut |
+| Urutan proses | Kiri ke kanan / atas ke bawah |
+| JOIN + GROUP BY | Bekerja normal, seolah hasil gabungan adalah satu tabel |
+
+Selanjutnya: menggabungkan tabel dengan **dirinya sendiri** lewat **Self JOIN**.

@@ -1,0 +1,155 @@
+---
+title: "Mengelompokkan dengan GROUP BY"
+unit: 3
+lesson: 3
+description: "Mengelompokkan baris berdasarkan nilai kolom untuk dihitung per kelompok dengan GROUP BY"
+objectives:
+  - "Mengelompokkan baris dengan GROUP BY"
+  - "Menggabungkan GROUP BY dengan fungsi agregat"
+  - "Memahami aturan: kolom di SELECT harus ada di GROUP BY atau di dalam fungsi agregat"
+estimatedTime: 30
+prerequisites: ["unit-3/02-min-max"]
+difficulty: "beginner"
+tags: ["group-by", "agregasi"]
+database: "toko_buku"
+---
+
+# Mengelompokkan dengan GROUP BY
+
+Di lesson sebelumnya, fungsi agregat selalu meringkas **seluruh tabel** menjadi satu angka. Tapi pertanyaan yang lebih berguna biasanya per kelompok: "berapa banyak buku **di tiap kategori**?", bukan "berapa total buku semuanya?". `GROUP BY` membuat ini mungkin.
+
+## GROUP BY Dasar
+
+```sql
+SELECT kategori, COUNT(*) AS jumlah
+FROM buku
+GROUP BY kategori;
+```
+
+Output:
+```
+kategori           | jumlah
+-------------------+-------
+Fiksi              | 6
+Non-Fiksi          | 1
+Pengembangan Diri  | 2
+Teknologi          | 2
+Keuangan           | 1
+```
+
+<img src="/images/group-by-having.svg" alt="GROUP BY mengelompokkan baris sebelum fungsi agregat dihitung" width="100%" />
+
+SQLite mengelompokkan semua baris dengan `kategori` yang sama, lalu menjalankan `COUNT(*)` **per kelompok** — bukan satu angka untuk seluruh tabel.
+
+## GROUP BY dengan Fungsi Agregat Lain
+
+```sql
+-- Rata-rata harga per kategori
+SELECT kategori, ROUND(AVG(harga), 0) AS rata_rata_harga
+FROM buku
+GROUP BY kategori;
+```
+
+```sql
+-- Total nilai stok per kategori
+SELECT kategori, SUM(harga * stok) AS total_nilai
+FROM buku
+GROUP BY kategori;
+```
+
+## Aturan Penting: Kolom di SELECT
+
+Saat memakai `GROUP BY`, setiap kolom di `SELECT` harus salah satu dari:
+1. Kolom yang ada di `GROUP BY`, atau
+2. Dibungkus fungsi agregat (`COUNT`, `SUM`, `AVG`, `MIN`, `MAX`)
+
+```sql
+-- BENAR: kategori ada di GROUP BY, judul TIDAK ada — ini akan error atau tidak terdefinisi
+SELECT kategori, judul, COUNT(*) FROM buku GROUP BY kategori;  -- ⚠️ judul ambigu!
+```
+
+```sql
+-- BENAR: hanya kategori (di GROUP BY) dan COUNT(*) (fungsi agregat)
+SELECT kategori, COUNT(*) FROM buku GROUP BY kategori;
+```
+
+:::warning
+SQLite cenderung lebih permisif dibanding PostgreSQL/MySQL soal aturan ini — ia mungkin tetap menjalankan query dengan kolom "ambigu" tanpa error, tapi hasilnya bisa memilih baris sembarang dari tiap kelompok. Jangan andalkan perilaku ini — selalu ikuti aturan di atas.
+:::
+
+## GROUP BY dengan Banyak Kolom
+
+```sql
+-- Kelompokkan berdasarkan kombinasi kategori DAN tahun_terbit
+SELECT kategori, tahun_terbit, COUNT(*) AS jumlah
+FROM buku
+GROUP BY kategori, tahun_terbit;
+```
+
+## GROUP BY dengan WHERE
+
+`WHERE` menyaring baris **sebelum** dikelompokkan:
+
+```sql
+-- Hanya buku dengan stok > 0, dikelompokkan per kategori
+SELECT kategori, COUNT(*) AS jumlah
+FROM buku
+WHERE stok > 0
+GROUP BY kategori;
+```
+
+## Latihan
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u3l3-ex1"
+  title="Total Stok per Kategori"
+  description="Tampilkan kategori dan total stok (alias total_stok) per kategori."
+  type="code-output"
+  starterCode="SELECT kategori, COUNT(*) FROM buku GROUP BY kategori;"
+  expectedQuery="SELECT kategori, SUM(stok) AS total_stok FROM buku GROUP BY kategori;"
+  hints={["Ganti COUNT(*) dengan SUM(stok)"]}
+  explanation="GROUP BY kategori mengelompokkan baris per kategori, lalu SUM(stok) dihitung untuk tiap kelompok secara terpisah."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u3l3-ex2"
+  title="Harga Termahal per Kategori"
+  description="Tampilkan kategori dan harga termahal (alias harga_termahal) di tiap kategori."
+  type="code-output"
+  starterCode="SELECT kategori, AVG(harga) FROM buku GROUP BY kategori;"
+  expectedQuery="SELECT kategori, MAX(harga) AS harga_termahal FROM buku GROUP BY kategori;"
+  hints={["Gunakan MAX(harga) sebagai ganti AVG(harga)"]}
+  explanation="MAX(harga) dihitung per kelompok kategori berkat GROUP BY, menghasilkan harga termahal masing-masing kategori."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u3l3-ex3"
+  title="Kolom yang Boleh Ada di SELECT"
+  description="Jika query memakai GROUP BY kategori, kolom apa saja yang aman ditulis di SELECT?"
+  type="multiple-choice"
+  options={[
+    "Semua kolom tabel, tanpa pengecualian",
+    "Hanya kolom kategori dan kolom yang dibungkus fungsi agregat",
+    "Hanya kolom bertipe angka",
+    "Hanya kolom yang ada di WHERE"
+  ]}
+  correctIndex={1}
+  hints={["Pikirkan: kolom mana yang punya SATU nilai jelas per kelompok?"]}
+  explanation="Dengan GROUP BY kategori, hanya kolom kategori (yang nilainya sama untuk satu kelompok) dan kolom yang dibungkus fungsi agregat (COUNT/SUM/AVG/MIN/MAX) yang punya makna jelas per kelompok."
+  lang="id"
+/>
+
+## Ringkasan
+
+| Konsep | Contoh |
+|--------|--------|
+| Kelompokkan + hitung | `SELECT kategori, COUNT(*) FROM buku GROUP BY kategori;` |
+| Banyak kolom grouping | `GROUP BY kategori, tahun_terbit` |
+| Urutan klausa | `SELECT ... FROM ... WHERE ... GROUP BY ...` |
+| Aturan SELECT | Kolom grouping ATAU fungsi agregat saja |
+
+Selanjutnya: menyaring HASIL pengelompokan (bukan baris mentah) dengan **HAVING**.

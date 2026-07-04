@@ -1,0 +1,144 @@
+---
+title: "What is a JOIN & Foreign Key?"
+unit: 4
+lesson: 0
+description: "Understanding why data is split across multiple tables and how a Foreign Key connects them"
+objectives:
+  - "Explain why relational databases split data into multiple tables (normalization)"
+  - "Meet a new database schema: perpustakaan (anggota, buku, peminjaman)"
+  - "Understand Foreign Key as the connector between tables"
+estimatedTime: 25
+prerequisites: ["unit-3/06-proyek-mini-laporan-penjualan"]
+difficulty: "intermediate"
+tags: ["join", "foreign-key", "normalization"]
+database: "perpustakaan"
+translationStatus: "complete"
+---
+
+# What is a JOIN & Foreign Key?
+
+So far we've only worked with **one table**: `buku`. But real-world databases almost always consist of **many interrelated tables**. Starting this unit, we'll use a new sample database: **`perpustakaan`** (a school library book-lending system).
+
+## Why Split Data Into Multiple Tables?
+
+Imagine if all book-lending data were stored in **one giant table**:
+
+| borrower | class | book_title | author | date_borrowed |
+|----------|-------|-----------|--------|-----------------|
+| Dewi | 10A | Laskar Pelangi | Andrea Hirata | 2026-05-01 |
+| Dewi | 10A | Sapiens | Yuval Noah Harari | 2026-05-15 |
+
+The name "Dewi" and her class "10A" get **duplicated** every time she borrows a new book. If Dewi changes class, you'd have to update many rows at once — a recipe for inconsistent data.
+
+**Normalization** is the practice of splitting data like this into separate tables, each storing one type of information, so there's no duplication.
+
+## The `perpustakaan` Schema
+
+<img src="/images/multi-table-join-flow.svg" alt="Three-table schema: anggota, buku, peminjaman" width="100%" />
+
+The `perpustakaan` database has 3 tables:
+
+**`anggota`** (members) — library member data
+| id | nama | kelas |
+|----|------|-------|
+| 1 | Dewi | 10A |
+| 2 | Farhan | 10B |
+| ... | ... | ... |
+
+**`buku`** (books) — the library's book collection (a new table, separate from the `buku` in the earlier `toko_buku` database)
+| id | judul | penulis | stok |
+|----|-------|---------|------|
+| 1 | Laskar Pelangi | Andrea Hirata | 3 |
+| ... | ... | ... | ... |
+
+**`peminjaman`** (loans) — loan transaction records, connecting `anggota` and `buku`
+| id | anggota_id | buku_id | tanggal_pinjam | tanggal_kembali |
+|----|-----------|---------|-----------------|-------------------|
+| 1 | 1 | 1 | 2026-05-01 | 2026-05-10 |
+| 2 | 1 | 3 | 2026-05-15 | *(NULL — not yet returned)* |
+
+## Foreign Key — The Connector Between Tables
+
+The `anggota_id` and `buku_id` columns in the `peminjaman` table are called **Foreign Keys** — columns that reference a Primary Key in another table. `anggota_id = 1` in a loan row means "this borrower is the member with id 1" (i.e. Dewi).
+
+```sql
+CREATE TABLE peminjaman (
+  id INTEGER PRIMARY KEY,
+  anggota_id INTEGER REFERENCES anggota(id),
+  buku_id INTEGER REFERENCES buku(id),
+  tanggal_pinjam TEXT NOT NULL,
+  tanggal_kembali TEXT
+);
+```
+
+The `REFERENCES anggota(id)` keyword explicitly declares this Foreign Key relationship.
+
+:::note
+Without `JOIN`, the `peminjaman` table alone only contains meaningless-to-humans ID numbers (`anggota_id = 1`, `buku_id = 3`). `JOIN` is how we glue these tables back together so you can see "Dewi borrowed Sapiens" instead of just "1 borrowed 3".
+:::
+
+:::tip
+Try running `SELECT * FROM peminjaman;` in this lesson's playground — you'll see why this table alone isn't very useful without a JOIN. We'll fix that in the next lesson!
+:::
+
+## Exercise
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u4l0-ex1"
+  title="Look at the peminjaman Table"
+  description="Show all columns from the peminjaman table to see why this data is hard to read without a JOIN."
+  type="code-output"
+  database="perpustakaan"
+  starterCode="SELECT * FROM anggota;"
+  expectedQuery="SELECT * FROM peminjaman;"
+  hints={["Change the table name to peminjaman"]}
+  explanation="The peminjaman table only contains IDs (anggota_id, buku_id) — not member names or book titles. We'll combine these with a JOIN in the next lesson."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u4l0-ex2"
+  title="Why Normalize?"
+  description="What's the main reason data gets split into multiple tables (anggota, buku, peminjaman) instead of one big table?"
+  type="multiple-choice"
+  options={[
+    "So queries are always faster, no exceptions",
+    "To avoid duplicating data (like a member's name & class repeating in every loan) and keep it consistent",
+    "Because SQLite limits the number of columns per table",
+    "So each table can be created by a different person"
+  ]}
+  correctIndex={1}
+  hints={["Think about what happens when Dewi changes class and her data is duplicated across many rows"]}
+  explanation="Normalization avoids data duplication and keeps it consistent — a change to member data only needs to happen in one place (the anggota table), not in every loan row."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u4l0-ex3"
+  title="Definition of Foreign Key"
+  description="What is a Foreign Key?"
+  type="multiple-choice"
+  options={[
+    "A column whose value is always unique across the whole database",
+    "A column that references a Primary Key in another table, to build a relationship between tables",
+    "A column that cannot be NULL",
+    "Another name for Primary Key"
+  ]}
+  correctIndex={1}
+  hints={["Foreign = referencing something outside, in another table"]}
+  explanation="A Foreign Key is a column whose value references another table's Primary Key, used to build relationships between tables — the basis of the JOIN operation."
+  lang="en"
+/>
+
+## Summary
+
+| Term | Meaning |
+|------|---------|
+| Normalization | Splitting data into multiple tables to avoid duplication |
+| Foreign Key | A column that references another table's Primary Key |
+| `perpustakaan` | New sample database: `anggota`, `buku`, `peminjaman` |
+| `REFERENCES` | Keyword declaring a Foreign Key in CREATE TABLE |
+
+Next: gluing these tables back together with **INNER JOIN**.

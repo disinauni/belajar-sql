@@ -27,12 +27,20 @@ export function createDatabase(SQL: SqlJsStatic, seedSql: string): Database {
   return db
 }
 
+/** True if the last statement in a (possibly multi-statement) SQL script is a query, not a DML/DDL command. */
+function isSelectLikeStatement(sql: string): boolean {
+  const statements = sql.split(';').map((s) => s.trim()).filter(Boolean)
+  const last = statements[statements.length - 1]
+  if (!last) return false
+  return /^(SELECT|WITH)\b/i.test(last)
+}
+
 /** Runs a (possibly multi-statement) SQL script against `db` and normalizes the outcome. */
 export function runQuery(db: Database, sql: string): RunQueryOutcome {
   try {
     const raw = db.exec(sql)
     const results: QueryResultSet[] = raw.map((r: QueryExecResult) => ({ columns: r.columns, values: r.values }))
-    const rowsAffected = results.length === 0 ? db.getRowsModified() : null
+    const rowsAffected = results.length === 0 && !isSelectLikeStatement(sql) ? db.getRowsModified() : null
     return { results, rowsAffected, error: null }
   } catch (err) {
     return {

@@ -1,0 +1,123 @@
+---
+title: "SUM & AVG"
+unit: 3
+lesson: 1
+description: "Summing and averaging numeric column values with SUM and AVG"
+objectives:
+  - "Sum a column's values with SUM"
+  - "Compute an average with AVG"
+  - "Combine SUM/AVG with WHERE and ROUND"
+estimatedTime: 20
+prerequisites: ["unit-3/00-count"]
+difficulty: "beginner"
+tags: ["sum", "avg", "aggregate-function"]
+database: "toko_buku"
+translationStatus: "complete"
+---
+
+# SUM & AVG
+
+After `COUNT`, the two most commonly used aggregate functions are `SUM` (adding up) and `AVG` (average). Both only work on **numeric** columns.
+
+## SUM — Adding Up
+
+```sql
+-- Total stock across all books (in units, not Rupiah)
+SELECT SUM(stok) FROM buku;
+```
+
+```sql
+-- Total inventory value (price x stock, summed across all rows)
+SELECT SUM(harga * stok) AS total_nilai_inventaris FROM buku;
+```
+
+## AVG — Average
+
+```sql
+SELECT AVG(harga) FROM buku;
+```
+
+The output will be a decimal number (e.g. `81416.666...`) since an average is rarely a whole number.
+
+## Rounding with ROUND
+
+The `ROUND(value, decimal_places)` function rounds a number for a cleaner display:
+
+```sql
+SELECT ROUND(AVG(harga), 0) AS rata_rata_harga FROM buku;
+```
+
+## SUM/AVG with WHERE
+
+Just like `COUNT`, `SUM`/`AVG` can be combined with `WHERE` — filter first, then compute:
+
+```sql
+-- Average price of Fiction category books only
+SELECT ROUND(AVG(harga), 0) AS rata_rata_fiksi
+FROM buku
+WHERE kategori = 'Fiksi';
+```
+
+:::note
+`SUM` and `AVG` **automatically ignore NULL rows**. If there are 10 rows but 2 of them are NULL in the column being summed, `AVG` divides the total by 8 (not 10) — only rows with an actual value are counted.
+:::
+
+:::warning
+`SUM`/`AVG` only make sense for numeric columns. `SUM(judul)` on a text column will produce an error or a meaningless value, depending on the RDBMS.
+:::
+
+## Exercise
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u3l1-ex1"
+  title="Total Inventory Value"
+  description="Compute the total inventory value (price times stock, summed across all rows), aliased as total_nilai."
+  type="code-output"
+  starterCode="SELECT SUM(stok) FROM buku;"
+  expectedQuery="SELECT SUM(harga * stok) AS total_nilai FROM buku;"
+  hints={["Multiply harga and stok first inside SUM()"]}
+  explanation="SUM(harga * stok) computes each row's value then adds them all into one total."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u3l1-ex2"
+  title="Average Price for Self-Help Category"
+  description="Compute the average price of 'Pengembangan Diri' (Self-Help) category books, rounded to a whole number, aliased as rata_rata."
+  type="code-output"
+  starterCode="SELECT ROUND(AVG(harga), 0) AS rata_rata FROM buku;"
+  expectedQuery="SELECT ROUND(AVG(harga), 0) AS rata_rata FROM buku WHERE kategori = 'Pengembangan Diri';"
+  hints={["Add WHERE kategori = 'Pengembangan Diri'"]}
+  explanation="WHERE first filters down to the Pengembangan Diri category, then AVG(harga) is computed from the remaining rows."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u3l1-ex3"
+  title="How SUM/AVG Treat NULL"
+  description="If a numeric column has some NULL values, how do SUM and AVG treat them?"
+  type="multiple-choice"
+  options={[
+    "NULL is treated as 0",
+    "Rows with NULL are completely ignored from the calculation",
+    "The query always errors",
+    "NULL is treated as the highest possible value"
+  ]}
+  correctIndex={1}
+  hints={["SUM and AVG only account for rows that have a value"]}
+  explanation="SUM and AVG ignore NULL rows — they aren't counted as 0, but are genuinely excluded from the calculation (including from AVG's divisor)."
+  lang="en"
+/>
+
+## Summary
+
+| Function | Use |
+|----------|-----|
+| `SUM(column)` | Adds up all values |
+| `AVG(column)` | Computes the average |
+| `ROUND(value, n)` | Rounds to n decimal places |
+| NULL behavior | Ignored from the calculation |
+
+Next: finding the smallest and largest values with **MIN** and **MAX**.

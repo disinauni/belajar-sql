@@ -1,0 +1,110 @@
+---
+title: "Proyek Mini: Analisis Data"
+unit: 5
+lesson: 5
+description: "Menggabungkan subquery, IN, EXISTS, CTE, dan UNION untuk analisis data lanjutan"
+objectives:
+  - "Memilih teknik subquery yang tepat untuk pertanyaan analisis tertentu"
+  - "Menyusun query analisis lanjutan menggunakan CTE"
+  - "Mereview seluruh konsep Unit 5"
+estimatedTime: 35
+prerequisites: ["unit-5/04-cte-union"]
+difficulty: "intermediate"
+tags: ["project", "review"]
+database: "toko_buku"
+---
+
+# Proyek Mini: Analisis Data
+
+Selamat sampai di akhir Unit 5! Kamu sekarang punya cara berpikir baru untuk menjawab pertanyaan kompleks: **memecahnya jadi query bertingkat**, bukan cuma menggabungkan tabel.
+
+## Perangkat yang Sudah Kamu Kuasai
+
+| Teknik | Kegunaan |
+|--------|----------|
+| Subquery di WHERE | Bandingkan baris dengan hasil agregat |
+| Subquery di SELECT/FROM | Tampilkan nilai pembanding, atau proses hasil query lain |
+| `IN` + subquery | Cocokkan dengan daftar hasil query lain |
+| `EXISTS`/`NOT EXISTS` | Cek keberadaan data terkait (subquery berkorelasi) |
+| CTE (`WITH`) | Beri nama pada subquery agar lebih mudah dibaca |
+| `UNION`/`UNION ALL` | Gabungkan hasil dua query jadi satu daftar |
+
+## Studi Kasus: Laporan Kategori Unggulan
+
+**"Kategori mana saja yang rata-rata harganya di atas rata-rata KESELURUHAN toko, dan buku apa saja di kategori itu?"**
+
+```sql
+WITH rata_rata_toko AS (
+  SELECT AVG(harga) AS nilai FROM buku
+),
+kategori_unggulan AS (
+  SELECT kategori
+  FROM buku
+  GROUP BY kategori
+  HAVING AVG(harga) > (SELECT nilai FROM rata_rata_toko)
+)
+SELECT judul, kategori, harga
+FROM buku
+WHERE kategori IN (SELECT kategori FROM kategori_unggulan)
+ORDER BY kategori, harga DESC;
+```
+
+Perhatikan bagaimana CTE membuat query bertingkat ini tetap terbaca selangkah demi selangkah, alih-alih satu subquery raksasa yang bersarang.
+
+## Latihan Proyek
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u5l5-ex1"
+  title="Buku di Atas Rata-Rata Kategorinya Sendiri"
+  description="Tampilkan judul dan harga untuk buku dengan harga di atas rata-rata SELURUH toko (gunakan subquery AVG)."
+  type="code-output"
+  starterCode="SELECT judul, harga FROM buku;"
+  expectedQuery="SELECT judul, harga FROM buku WHERE harga > (SELECT AVG(harga) FROM buku);"
+  hints={["Gunakan subquery (SELECT AVG(harga) FROM buku) di WHERE"]}
+  explanation="Subquery menghitung rata-rata keseluruhan sekali, lalu setiap baris buku dibandingkan dengan angka itu."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u5l5-ex2"
+  title="Kategori dengan Lebih dari Satu Buku"
+  description="Menggunakan CTE bernama jumlah_per_kategori (kolom: kategori, jumlah = COUNT(*) per kategori), tampilkan kategori dengan lebih dari 1 buku."
+  type="code-output"
+  starterCode="WITH jumlah_per_kategori AS (SELECT kategori, COUNT(*) AS jumlah FROM buku GROUP BY kategori) SELECT kategori, jumlah FROM jumlah_per_kategori;"
+  expectedQuery="WITH jumlah_per_kategori AS (SELECT kategori, COUNT(*) AS jumlah FROM buku GROUP BY kategori) SELECT kategori, jumlah FROM jumlah_per_kategori WHERE jumlah > 1;"
+  hints={["Tambahkan WHERE jumlah > 1 di query utama (setelah CTE)"]}
+  explanation="Query utama memperlakukan CTE jumlah_per_kategori seperti tabel biasa, sehingga bisa disaring dengan WHERE seperti biasa."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u5l5-ex3"
+  title="Memilih Teknik yang Tepat"
+  description="Kamu ingin tahu 'apakah ada buku kategori Keuangan dengan stok di bawah 5', dan hanya butuh jawaban ya/tidak, bukan datanya. Teknik mana yang paling tepat?"
+  type="multiple-choice"
+  options={[
+    "UNION dua query SELECT",
+    "EXISTS dengan subquery berkorelasi",
+    "CTE dengan banyak definisi",
+    "JOIN tiga tabel sekaligus"
+  ]}
+  correctIndex={1}
+  hints={["Pertanyaan ini hanya butuh jawaban 'ada atau tidak', bukan daftar datanya"]}
+  explanation="EXISTS dirancang khusus untuk pertanyaan 'apakah ada data yang memenuhi syarat ini', tanpa perlu mengambil isi datanya — paling efisien dan jelas maksudnya untuk kasus ini."
+  lang="id"
+/>
+
+## Refleksi: Apa yang Sudah Kamu Kuasai
+
+| Konsep | Kapan Dipakai |
+|--------|-----------------|
+| Subquery scalar (WHERE/SELECT) | Bandingkan dengan satu nilai agregat |
+| Subquery FROM (derived table) | Proses hasil query lain lebih lanjut |
+| `IN`/`NOT IN` + subquery | Cocokkan dengan daftar dari tabel lain |
+| `EXISTS`/`NOT EXISTS` | Cek keberadaan data terkait secara efisien |
+| CTE (`WITH`) | Beri nama subquery kompleks agar terbaca |
+| `UNION`/`UNION ALL` | Gabungkan hasil beberapa query jadi satu daftar |
+
+Kamu sekarang punya perangkat SQL yang sangat lengkap! Di **Unit 6 (Modifikasi Data & Skema)**, kita menutup kursus ini dengan sisi lain SQL: mengubah data (`INSERT`/`UPDATE`/`DELETE`) dan merancang skema tabel sendiri dari nol dengan `CREATE TABLE` dan constraint.

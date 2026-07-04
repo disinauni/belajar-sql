@@ -1,0 +1,136 @@
+---
+title: "Combining All Clauses"
+unit: 3
+lesson: 5
+description: "The full writing order of SELECT, FROM, WHERE, GROUP BY, HAVING, ORDER BY, and LIMIT"
+objectives:
+  - "Write a query using all major SELECT clauses in the correct order"
+  - "Understand the logical evaluation order from FROM to LIMIT"
+  - "Compose a realistic multi-clause aggregate report"
+estimatedTime: 25
+prerequisites: ["unit-3/04-having"]
+difficulty: "beginner"
+tags: ["review", "clause-order"]
+database: "toko_buku"
+translationStatus: "complete"
+---
+
+# Combining All Clauses
+
+You now know every major `SELECT` clause. Time to see the full writing order all at once — and understand SQLite's **evaluation** order underneath, which is actually different.
+
+## Full Writing Order
+
+```sql
+SELECT column, AGGREGATE_FUNCTION(column) AS alias
+FROM table
+WHERE row_condition
+GROUP BY grouping_column
+HAVING aggregate_condition
+ORDER BY column ASC/DESC
+LIMIT n;
+```
+
+Every clause is optional except `SELECT` and `FROM` — but if used, the writing order above is **mandatory**.
+
+## Logical Evaluation Order (Different from the Writing Order!)
+
+<img src="/images/aggregate-functions.svg" alt="Summary of COUNT SUM AVG MIN MAX aggregate functions" width="100%" />
+
+SQLite actually processes clauses in this **logical** order, from the inside out:
+
+1. **FROM** — determine the source table
+2. **WHERE** — filter raw rows
+3. **GROUP BY** — group the remaining rows
+4. **HAVING** — filter the group results
+5. **SELECT** — choose/compute the displayed columns
+6. **ORDER BY** — sort the final result
+7. **LIMIT** — cap the number of final result rows
+
+This explains why `WHERE` can't use `COUNT(*)` (not computed yet when `WHERE` runs) but `HAVING` can (computed after `GROUP BY`).
+
+## Full Example
+
+```sql
+SELECT kategori, COUNT(*) AS jumlah, ROUND(AVG(harga), 0) AS rata_rata
+FROM buku
+WHERE stok > 0
+GROUP BY kategori
+HAVING COUNT(*) >= 2
+ORDER BY rata_rata DESC
+LIMIT 3;
+```
+
+Reading this query step by step:
+1. Take all rows from `buku`
+2. Filter to only `stok > 0`
+3. Group by `kategori`
+4. Compute `COUNT(*)` and `AVG(harga)` per group
+5. Filter: only groups with a book count >= 2
+6. Sort by highest average price
+7. Take only the top 3
+
+:::tip
+If you're unsure which clause comes first, remember the acronym **F-W-G-H-O-L**: **F**ROM, **W**HERE, **G**ROUP BY, **H**AVING, **O**RDER BY, **L**IMIT.
+:::
+
+## Exercise
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u3l5-ex1"
+  title="Full Category Report"
+  description="Show the category, book count (aliased jumlah), and average price (aliased rata_rata, rounded), for categories with more than 1 book, sorted by highest average price."
+  type="code-output"
+  strictOrder
+  starterCode="SELECT kategori, COUNT(*) AS jumlah, ROUND(AVG(harga), 0) AS rata_rata FROM buku GROUP BY kategori;"
+  expectedQuery="SELECT kategori, COUNT(*) AS jumlah, ROUND(AVG(harga), 0) AS rata_rata FROM buku GROUP BY kategori HAVING COUNT(*) > 1 ORDER BY rata_rata DESC;"
+  hints={["Add HAVING COUNT(*) > 1 before ORDER BY", "Order: GROUP BY, then HAVING, then ORDER BY"]}
+  explanation="The correct clause order: GROUP BY first to group, HAVING to filter the group results, then ORDER BY to sort the final result."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u3l5-ex2"
+  title="Top 2 Highest-Stock-Value Categories"
+  description="Show the category and total stock value (harga*stok summed, aliased total_nilai), sorted highest first, taking only the top 2."
+  type="code-output"
+  strictOrder
+  starterCode="SELECT kategori, SUM(harga * stok) AS total_nilai FROM buku GROUP BY kategori;"
+  expectedQuery="SELECT kategori, SUM(harga * stok) AS total_nilai FROM buku GROUP BY kategori ORDER BY total_nilai DESC LIMIT 2;"
+  hints={["Add ORDER BY total_nilai DESC LIMIT 2 at the end"]}
+  explanation="ORDER BY ... DESC LIMIT 2 is always written LAST, after GROUP BY (and HAVING if present)."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u3l5-ex3"
+  title="Full Clause Order"
+  description="Which is the correct WRITING order of SELECT clauses?"
+  type="multiple-choice"
+  options={[
+    "SELECT, FROM, GROUP BY, WHERE, HAVING, ORDER BY, LIMIT",
+    "SELECT, FROM, WHERE, GROUP BY, HAVING, ORDER BY, LIMIT",
+    "SELECT, FROM, HAVING, WHERE, GROUP BY, ORDER BY, LIMIT",
+    "SELECT, FROM, ORDER BY, WHERE, GROUP BY, HAVING, LIMIT"
+  ]}
+  correctIndex={1}
+  hints={["Remember the acronym F-W-G-H-O-L"]}
+  explanation="The correct writing order is SELECT, FROM, WHERE, GROUP BY, HAVING, ORDER BY, LIMIT — WHERE filters rows before grouping, HAVING filters afterward."
+  lang="en"
+/>
+
+## Summary
+
+| Clause | Function | Evaluated at step |
+|--------|----------|---------------------|
+| `FROM` | Source table | 1 |
+| `WHERE` | Filter raw rows | 2 |
+| `GROUP BY` | Group rows | 3 |
+| `HAVING` | Filter group results | 4 |
+| `SELECT` | Choose/compute columns | 5 |
+| `ORDER BY` | Sort the result | 6 |
+| `LIMIT` | Cap the row count | 7 |
+
+Time to apply all of this in the **Mini Project: Bookstore Sales Report**.

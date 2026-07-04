@@ -1,0 +1,131 @@
+---
+title: "Menghitung Baris dengan COUNT"
+unit: 3
+lesson: 0
+description: "Menghitung jumlah baris atau nilai tak-kosong dengan fungsi agregat COUNT"
+objectives:
+  - "Menghitung jumlah baris dengan COUNT(*)"
+  - "Memahami perbedaan COUNT(*), COUNT(kolom), dan COUNT(DISTINCT kolom)"
+  - "Menggabungkan COUNT dengan WHERE"
+estimatedTime: 20
+prerequisites: ["unit-2/05-proyek-mini-filter-lanjutan"]
+difficulty: "beginner"
+tags: ["count", "fungsi-agregat"]
+database: "toko_buku"
+---
+
+# Menghitung Baris dengan COUNT
+
+Sejauh ini, setiap query yang kita tulis mengembalikan **baris demi baris** data mentah. Tapi kadang kamu hanya butuh satu angka ringkasan — "berapa banyak buku yang kita punya?". Di sinilah **fungsi agregat** berperan: fungsi yang meringkas banyak baris menjadi satu nilai.
+
+`COUNT` adalah fungsi agregat paling sederhana: menghitung jumlah baris.
+
+## COUNT(*) — Menghitung Semua Baris
+
+```sql
+SELECT COUNT(*) FROM buku;
+```
+
+Output:
+```
+COUNT(*)
+--------
+12
+```
+
+Hanya satu baris, satu angka — beda total dengan `SELECT * FROM buku;` yang mengembalikan 12 baris data.
+
+## COUNT dengan WHERE
+
+`COUNT(*)` bisa digabung `WHERE` seperti biasa — filter dulu, baru dihitung:
+
+```sql
+-- Berapa banyak buku kategori Fiksi?
+SELECT COUNT(*) FROM buku WHERE kategori = 'Fiksi';
+```
+
+## COUNT(kolom) vs COUNT(*)
+
+`COUNT(nama_kolom)` menghitung baris yang kolom itu **tidak NULL**. Karena tabel `buku` tidak punya kolom NULL, `COUNT(*)` dan `COUNT(judul)` menghasilkan angka yang sama di sini — tapi kalau ada kolom yang boleh kosong (seperti `email` di lesson NULL sebelumnya), keduanya bisa berbeda.
+
+```sql
+-- Sama hasilnya di tabel buku (tidak ada kolom NULL)
+SELECT COUNT(*) FROM buku;
+SELECT COUNT(judul) FROM buku;
+```
+
+## COUNT(DISTINCT kolom) — Menghitung Nilai Unik
+
+```sql
+-- Berapa banyak kategori BERBEDA yang ada?
+SELECT COUNT(DISTINCT kategori) FROM buku;
+```
+
+Ini menghitung jumlah nilai unik, bukan jumlah baris — mirip `SELECT DISTINCT kategori FROM buku;` tapi langsung menghasilkan angkanya saja.
+
+## Memberi Alias pada Hasil COUNT
+
+```sql
+SELECT COUNT(*) AS jumlah_buku FROM buku;
+```
+
+Tanpa alias, nama kolom hasil akan tampil sebagai `COUNT(*)` apa adanya — kurang enak dibaca aplikasi lain. Selalu beri alias yang jelas.
+
+:::tip
+`COUNT(*)` menghitung baris tanpa peduli isi kolom apapun — bahkan kalau semua kolom di sebuah baris NULL, baris itu tetap terhitung. Beda dengan `COUNT(kolom)` yang mengabaikan baris NULL di kolom spesifik itu.
+:::
+
+## Latihan
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u3l0-ex1"
+  title="Jumlah Buku Kategori Teknologi"
+  description="Hitung berapa banyak buku dengan kategori 'Teknologi', beri alias jumlah."
+  type="code-output"
+  starterCode="SELECT COUNT(*) FROM buku;"
+  expectedQuery="SELECT COUNT(*) AS jumlah FROM buku WHERE kategori = 'Teknologi';"
+  hints={["Tambahkan WHERE kategori = 'Teknologi'", "Beri alias dengan AS jumlah"]}
+  explanation="WHERE menyaring dulu baris kategori Teknologi, baru COUNT(*) menghitung berapa banyak yang tersisa."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u3l0-ex2"
+  title="Jumlah Kategori Unik"
+  description="Hitung berapa banyak kategori yang BERBEDA (unik) ada di tabel buku, beri alias total_kategori."
+  type="code-output"
+  starterCode="SELECT COUNT(kategori) FROM buku;"
+  expectedQuery="SELECT COUNT(DISTINCT kategori) AS total_kategori FROM buku;"
+  hints={["Gunakan COUNT(DISTINCT kategori), bukan COUNT(kategori) biasa"]}
+  explanation="COUNT(DISTINCT kategori) menghitung nilai kategori yang unik (5 kategori), berbeda dengan COUNT(kategori) yang menghitung semua baris tak-NULL (12)."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u3l0-ex3"
+  title="COUNT(*) vs COUNT(kolom)"
+  description="Kapan COUNT(*) dan COUNT(nama_kolom) bisa menghasilkan angka BERBEDA?"
+  type="multiple-choice"
+  options={[
+    "Tidak pernah, keduanya selalu sama",
+    "Ketika kolom itu memiliki beberapa nilai NULL — COUNT(kolom) mengabaikan baris NULL, COUNT(*) tidak",
+    "Ketika tabel memiliki lebih dari 100 baris",
+    "COUNT(kolom) selalu lebih besar dari COUNT(*)"
+  ]}
+  correctIndex={1}
+  hints={["Pikirkan bagaimana masing-masing memperlakukan NULL"]}
+  explanation="COUNT(*) menghitung SEMUA baris, sedangkan COUNT(nama_kolom) hanya menghitung baris yang kolom tersebut tidak NULL. Keduanya sama hanya jika kolom itu tidak punya nilai NULL sama sekali."
+  lang="id"
+/>
+
+## Ringkasan
+
+| Fungsi | Menghitung |
+|--------|-----------|
+| `COUNT(*)` | Semua baris, tanpa peduli isi kolom |
+| `COUNT(kolom)` | Baris yang kolom itu tidak NULL |
+| `COUNT(DISTINCT kolom)` | Jumlah nilai unik pada kolom itu |
+
+Selanjutnya: menjumlahkan dan merata-ratakan angka dengan **SUM** dan **AVG**.

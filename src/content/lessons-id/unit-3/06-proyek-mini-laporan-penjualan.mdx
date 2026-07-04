@@ -1,0 +1,105 @@
+---
+title: "Proyek Mini: Laporan Penjualan"
+unit: 3
+lesson: 6
+description: "Menyusun laporan agregat lengkap untuk toko buku menggunakan seluruh teknik Unit 3"
+objectives:
+  - "Menyusun laporan ringkasan bisnis menggunakan fungsi agregat dan GROUP BY"
+  - "Memilih kombinasi klausa yang tepat untuk pertanyaan bisnis nyata"
+  - "Mereview seluruh konsep agregasi dari Unit 3"
+estimatedTime: 35
+prerequisites: ["unit-3/05-menggabungkan-klausa"]
+difficulty: "beginner"
+tags: ["project", "review"]
+database: "toko_buku"
+---
+
+# Proyek Mini: Laporan Penjualan
+
+Selamat sampai di akhir Unit 3! Sekarang kamu bisa mengubah data mentah jadi **laporan ringkasan** — persis seperti yang dibutuhkan admin toko buku untuk mengambil keputusan bisnis.
+
+## Perangkat yang Sudah Kamu Kuasai
+
+| Fungsi/Klausa | Kegunaan |
+|---------------|----------|
+| `COUNT(*)` | Menghitung jumlah baris |
+| `SUM(kolom)` | Menjumlahkan nilai |
+| `AVG(kolom)` | Menghitung rata-rata |
+| `MIN`/`MAX(kolom)` | Nilai terkecil/terbesar |
+| `GROUP BY` | Mengelompokkan baris untuk dihitung per kelompok |
+| `HAVING` | Menyaring hasil kelompok berdasarkan agregat |
+
+## Studi Kasus: Laporan Kategori
+
+**"Untuk tiap kategori, tampilkan jumlah judul, total nilai stok, dan harga rata-rata — hanya kategori dengan minimal 2 judul, urutkan dari total nilai stok tertinggi"**
+
+```sql
+SELECT
+  kategori,
+  COUNT(*) AS jumlah_judul,
+  SUM(harga * stok) AS total_nilai_stok,
+  ROUND(AVG(harga), 0) AS rata_rata_harga
+FROM buku
+GROUP BY kategori
+HAVING COUNT(*) >= 2
+ORDER BY total_nilai_stok DESC;
+```
+
+Satu query ini menjawab pertanyaan yang kalau dikerjakan manual di spreadsheet bisa makan waktu berjam-jam.
+
+## Latihan Proyek
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u3l6-ex1"
+  title="Laporan Lengkap per Kategori"
+  description="Tampilkan kategori, jumlah judul (alias jumlah_judul), dan total stok (alias total_stok), untuk SEMUA kategori, diurutkan dari total stok tertinggi."
+  type="code-output"
+  strictOrder
+  starterCode="SELECT kategori, COUNT(*) AS jumlah_judul, SUM(stok) AS total_stok FROM buku GROUP BY kategori;"
+  expectedQuery="SELECT kategori, COUNT(*) AS jumlah_judul, SUM(stok) AS total_stok FROM buku GROUP BY kategori ORDER BY total_stok DESC;"
+  hints={["Tambahkan ORDER BY total_stok DESC di akhir"]}
+  explanation="GROUP BY mengelompokkan per kategori, lalu ORDER BY total_stok DESC mengurutkan hasil laporan dari yang stoknya paling banyak."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u3l6-ex2"
+  title="Kategori Bernilai Tinggi Saja"
+  description="Tampilkan kategori dan rata-rata harga (alias rata_rata, dibulatkan), hanya untuk kategori dengan setidaknya 2 judul DAN rata-rata harga di atas 80000."
+  type="code-output"
+  starterCode="SELECT kategori, ROUND(AVG(harga), 0) AS rata_rata FROM buku GROUP BY kategori;"
+  expectedQuery="SELECT kategori, ROUND(AVG(harga), 0) AS rata_rata FROM buku GROUP BY kategori HAVING COUNT(*) >= 2 AND AVG(harga) > 80000;"
+  hints={["HAVING bisa menggabungkan lebih dari satu syarat dengan AND", "COUNT(*) >= 2 AND AVG(harga) > 80000"]}
+  explanation="HAVING mendukung penggabungan beberapa kondisi agregat sekaligus dengan AND, sama seperti WHERE."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u3l6-ex3"
+  title="Kenapa Bukan WHERE"
+  description="Kenapa syarat 'rata-rata harga di atas 80000' harus ditulis di HAVING, bukan WHERE?"
+  type="multiple-choice"
+  options={[
+    "Karena WHERE tidak mendukung angka desimal",
+    "Karena rata-rata (AVG) hanya bisa dihitung setelah baris dikelompokkan oleh GROUP BY, sedangkan WHERE berjalan sebelum itu",
+    "Karena HAVING lebih cepat dieksekusi",
+    "Sebenarnya boleh keduanya, hasilnya selalu sama"
+  ]}
+  correctIndex={1}
+  hints={["Ingat urutan evaluasi: WHERE sebelum GROUP BY, HAVING sesudahnya"]}
+  explanation="AVG(harga) per kelompok baru bisa dihitung setelah GROUP BY selesai mengelompokkan baris. WHERE dievaluasi sebelum pengelompokan terjadi, jadi tidak bisa mengakses hasil agregat."
+  lang="id"
+/>
+
+## Refleksi: Apa yang Sudah Kamu Kuasai
+
+| Konsep | Fungsi |
+|--------|--------|
+| `COUNT`, `SUM`, `AVG`, `MIN`, `MAX` | Meringkas banyak baris jadi satu nilai |
+| `GROUP BY` | Menghitung agregat per kelompok, bukan per seluruh tabel |
+| `HAVING` | Menyaring hasil kelompok berdasarkan nilai agregat |
+| Urutan F-W-G-H-O-L | `FROM → WHERE → GROUP BY → HAVING → ORDER BY → LIMIT` |
+
+Kamu sekarang bisa membuat laporan bisnis nyata dari data mentah! Di **Unit 4 (JOIN)**, kita naik level lagi: menggabungkan data dari **lebih dari satu tabel** sekaligus — fondasi untuk bekerja dengan database dunia nyata yang selalu terdiri dari banyak tabel yang saling berhubungan.

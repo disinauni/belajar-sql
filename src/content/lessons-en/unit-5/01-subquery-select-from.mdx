@@ -1,0 +1,128 @@
+---
+title: "Subqueries in SELECT & FROM"
+unit: 5
+lesson: 1
+description: "Placing a subquery as a result column (scalar subquery) or as a source table (derived table)"
+objectives:
+  - "Write a scalar subquery in SELECT to display a comparison value"
+  - "Write a subquery in FROM as a derived table"
+  - "Understand when to use a subquery in SELECT vs FROM vs WHERE"
+estimatedTime: 25
+prerequisites: ["unit-5/00-subquery-where"]
+difficulty: "intermediate"
+tags: ["subquery", "select", "from"]
+database: "toko_buku"
+translationStatus: "complete"
+---
+
+# Subqueries in SELECT & FROM
+
+A subquery isn't limited to `WHERE` — it can also appear in `SELECT` (as an extra column) and in `FROM` (as a "table" produced by another query).
+
+## Subquery in SELECT — Displaying a Comparison Value
+
+```sql
+SELECT
+  judul,
+  harga,
+  (SELECT AVG(harga) FROM buku) AS rata_rata_semua
+FROM buku;
+```
+
+Every result row now shows its own price **side by side** with the overall average — useful for comparison without running two separate queries.
+
+```sql
+-- Each book's price difference from the overall average
+SELECT
+  judul,
+  harga,
+  harga - (SELECT AVG(harga) FROM buku) AS selisih_dari_rata_rata
+FROM buku;
+```
+
+:::note
+A subquery in `SELECT` is conceptually run **once per result row** — though for a non-correlated subquery like this, SQLite is smart enough to compute it just once since the result never changes.
+:::
+
+## Subquery in FROM — Derived Table
+
+You can use a query's result as a "temporary table" to query further:
+
+```sql
+SELECT kategori, rata_rata
+FROM (
+  SELECT kategori, AVG(harga) AS rata_rata
+  FROM buku
+  GROUP BY kategori
+) AS ringkasan_kategori
+WHERE rata_rata > 80000;
+```
+
+The query in parentheses produces a temporary table named `ringkasan_kategori` (via its alias), and the outer query `SELECT`s/`WHERE`s from that temporary table — just like an ordinary table.
+
+:::tip
+This pattern is useful when you need to filter based on a `GROUP BY` result in a more flexible way than `HAVING`, or when you want to further process an aggregate result (e.g. computing an aggregate of an aggregate).
+:::
+
+## Which One to Use When?
+
+| Need | Put the Subquery in |
+|------|------------------------|
+| Filter rows by comparison | `WHERE` |
+| Show a comparison value as a column | `SELECT` |
+| Further process another query's result as a "table" | `FROM` |
+
+## Exercise
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u5l1-ex1"
+  title="Compare Against the Most Expensive Price"
+  description="Show the title, price, and the overall most expensive price (aliased harga_termahal) as a column on every row."
+  type="code-output"
+  starterCode="SELECT judul, harga, (SELECT AVG(harga) FROM buku) AS rata_rata_semua FROM buku;"
+  expectedQuery="SELECT judul, harga, (SELECT MAX(harga) FROM buku) AS harga_termahal FROM buku;"
+  hints={["Change the AVG subquery to MAX, and its alias to harga_termahal"]}
+  explanation="A scalar subquery in SELECT displays the same value (the overall most expensive price) on every row, alongside each book's own price."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u5l1-ex2"
+  title="High-Value Categories"
+  description="From a summary result (kategori and total_nilai = SUM(harga*stok) per category), show only categories with total_nilai above 2000000."
+  type="code-output"
+  starterCode="SELECT kategori, total_nilai FROM (SELECT kategori, SUM(harga * stok) AS total_nilai FROM buku GROUP BY kategori) AS ringkasan;"
+  expectedQuery="SELECT kategori, total_nilai FROM (SELECT kategori, SUM(harga * stok) AS total_nilai FROM buku GROUP BY kategori) AS ringkasan WHERE total_nilai > 2000000;"
+  hints={["Add WHERE total_nilai > 2000000 at the end, in the OUTER query"]}
+  explanation="The outer query treats the FROM subquery's result as a regular table — filterable with WHERE like any table."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u5l1-ex3"
+  title="A FROM Subquery as a Table"
+  description="What is a subquery placed in the FROM clause usually called?"
+  type="multiple-choice"
+  options={[
+    "A scalar subquery",
+    "A derived table",
+    "A correlated subquery",
+    "A Foreign Key"
+  ]}
+  correctIndex={1}
+  hints={["The query 'derives' its result into something that can be queried again, like a table"]}
+  explanation="A subquery in FROM is called a derived table — its result is treated like a regular table by the outer query, complete with a required alias."
+  lang="en"
+/>
+
+## Summary
+
+| Location | Use | Example |
+|----------|-----|---------|
+| `WHERE` | Filter rows | `WHERE harga > (SELECT AVG(harga) FROM buku)` |
+| `SELECT` | Comparison value column | `(SELECT AVG(harga) FROM buku) AS rata_rata` |
+| `FROM` | Derived table | `FROM (SELECT ... ) AS alias` |
+
+Next: using a subquery together with **IN** to match against a list of results, not just one value.

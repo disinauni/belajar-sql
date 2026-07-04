@@ -1,0 +1,138 @@
+---
+title: "ALTER TABLE & DROP TABLE"
+unit: 6
+lesson: 5
+description: "Modifying an existing table's structure with ALTER TABLE, and removing a table entirely with DROP TABLE"
+objectives:
+  - "Add a new column to an existing table with ALTER TABLE ADD COLUMN"
+  - "Rename a table and a column with ALTER TABLE RENAME"
+  - "Remove a table entirely with DROP TABLE, and understand its risk"
+estimatedTime: 20
+prerequisites: ["unit-6/04-constraint"]
+difficulty: "intermediate"
+tags: ["alter-table", "drop-table", "ddl"]
+translationStatus: "complete"
+---
+
+# ALTER TABLE & DROP TABLE
+
+Sometimes an existing table's structure needs to change — adding a new column, renaming it, or (in extreme cases) removing it entirely. `ALTER TABLE` and `DROP TABLE` are the DDL statements for this.
+
+## Adding a Column with ALTER TABLE ADD COLUMN
+
+```sql
+CREATE TABLE buku (
+  id INTEGER PRIMARY KEY,
+  judul TEXT NOT NULL
+);
+
+ALTER TABLE buku ADD COLUMN rating REAL;
+
+SELECT * FROM buku;
+```
+
+A table that already has data stays safe — existing rows get a `NULL` value for the new column, unless you add a `DEFAULT`:
+
+```sql
+ALTER TABLE buku ADD COLUMN stok INTEGER DEFAULT 0;
+```
+
+## Renaming a Table
+
+```sql
+ALTER TABLE buku RENAME TO koleksi_buku;
+```
+
+## Renaming a Column
+
+```sql
+ALTER TABLE koleksi_buku RENAME COLUMN judul TO judul_buku;
+```
+
+:::note
+SQLite has historically supported only limited `ALTER TABLE` operations (`ADD COLUMN`, `RENAME TABLE`, `RENAME COLUMN`) compared to other RDBMSes like PostgreSQL, which can change a column's data type directly. For complex changes in SQLite, the common pattern is: create a new table with the desired structure, copy the data over, drop the old table, rename the new one.
+:::
+
+## DROP TABLE — Removing a Table Entirely
+
+```sql
+DROP TABLE koleksi_buku;
+```
+
+After this, the `koleksi_buku` table **along with all its data** is completely gone — not just its contents (like `DELETE FROM`), but its structure too.
+
+:::warning
+`DROP TABLE` cannot be undone. This is the most destructive statement in SQL — even more drastic than `DELETE` or `UPDATE` without `WHERE`, since it removes the table's definition too. In real production databases, `DROP TABLE` is usually restricted to administrators with a special approval process.
+:::
+
+## Exercise
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u6l5-ex1"
+  title="Add a Column to a Table"
+  description="Create a table siswa (id INTEGER PRIMARY KEY, nama TEXT NOT NULL), then add a new column nilai (INTEGER DEFAULT 0) with ALTER TABLE. Show its structure via SELECT * FROM siswa after inserting one row."
+  type="code-output"
+  schema=""
+  starterCode="CREATE TABLE siswa (
+  id INTEGER PRIMARY KEY,
+  nama TEXT NOT NULL
+);
+
+INSERT INTO siswa (id, nama) VALUES (1, 'Dewi');
+
+SELECT * FROM siswa;"
+  expectedQuery="CREATE TABLE siswa (id INTEGER PRIMARY KEY, nama TEXT NOT NULL); ALTER TABLE siswa ADD COLUMN nilai INTEGER DEFAULT 0; INSERT INTO siswa (id, nama) VALUES (1, 'Dewi'); SELECT * FROM siswa;"
+  hints={["Add ALTER TABLE siswa ADD COLUMN nilai INTEGER DEFAULT 0; after CREATE TABLE"]}
+  explanation="ALTER TABLE ADD COLUMN adds a new column to an existing table, complete with a DEFAULT for future rows."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u6l5-ex2"
+  title="Rename a Table"
+  description="Create a table item (id INTEGER PRIMARY KEY, nama TEXT), then rename it to produk with ALTER TABLE RENAME TO. Show its contents using the new table name."
+  type="code-output"
+  schema=""
+  starterCode="CREATE TABLE item (
+  id INTEGER PRIMARY KEY,
+  nama TEXT
+);
+
+INSERT INTO item (id, nama) VALUES (1, 'Pulpen');
+
+SELECT * FROM item;"
+  expectedQuery="CREATE TABLE item (id INTEGER PRIMARY KEY, nama TEXT); INSERT INTO item (id, nama) VALUES (1, 'Pulpen'); ALTER TABLE item RENAME TO produk; SELECT * FROM produk;"
+  hints={["Add ALTER TABLE item RENAME TO produk;", "The final SELECT must use the NEW name: produk"]}
+  explanation="After ALTER TABLE ... RENAME TO produk, the table must be accessed by its new name — the old name (item) no longer works."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u6l5-ex3"
+  title="DROP TABLE vs DELETE"
+  description="What distinguishes DROP TABLE from DELETE FROM (without WHERE)?"
+  type="multiple-choice"
+  options={[
+    "No difference at all",
+    "DROP TABLE removes the table's structure itself, while DELETE only empties its contents (structure remains)",
+    "DELETE is more dangerous than DROP TABLE",
+    "DROP TABLE only works on empty tables"
+  ]}
+  correctIndex={1}
+  hints={["After each statement, ask: does the table still 'exist' structurally?"]}
+  explanation="DELETE FROM (without WHERE) empties all rows but the table's structure remains. DROP TABLE removes the table itself entirely — both structure and data are gone."
+  lang="en"
+/>
+
+## Summary
+
+| Statement | Effect |
+|-----------|--------|
+| `ALTER TABLE ... ADD COLUMN` | Adds a new column to an existing table |
+| `ALTER TABLE ... RENAME TO` | Renames a table |
+| `ALTER TABLE ... RENAME COLUMN` | Renames a column |
+| `DROP TABLE` | Permanently removes a table along with its structure |
+
+You've now mastered every topic in this course! Time to close it out with the **Final Project: Design & Manage Your Own Database** — combining everything you've learned from Unit 0 through Unit 6.

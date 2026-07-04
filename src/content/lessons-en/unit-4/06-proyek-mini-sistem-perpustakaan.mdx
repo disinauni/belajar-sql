@@ -1,0 +1,108 @@
+---
+title: "Mini Project: Library System"
+unit: 4
+lesson: 6
+description: "Building complete school library system reports using every JOIN technique"
+objectives:
+  - "Compose multi-table queries that answer real business questions"
+  - "Combine INNER JOIN, LEFT JOIN, GROUP BY, and HAVING in a single query"
+  - "Review every JOIN concept from Unit 4"
+estimatedTime: 40
+prerequisites: ["unit-4/05-alias-kondisi-on-lanjutan"]
+difficulty: "intermediate"
+tags: ["project", "review"]
+database: "perpustakaan"
+translationStatus: "complete"
+---
+
+# Mini Project: Library System
+
+Congratulations on reaching the end of Unit 4! You can now work with databases made up of **many interrelated tables** — just like a real information system. Let's solve a few real reports for a school library administrator.
+
+## The JOIN Toolkit You've Mastered
+
+| Technique | Use |
+|-----------|-----|
+| `INNER JOIN` | Combine rows with a match in both tables |
+| `LEFT JOIN` | Keep every left-table row, even without a match |
+| JOIN 3+ tables | Chain several JOIN clauses in sequence |
+| Self JOIN | Join a table with itself (2 aliases) |
+| Condition in ON vs WHERE | ON for match conditions, WHERE for final filtering |
+
+## Case Study: Most Popular Books Report
+
+**"Which book titles are borrowed the most? Show the title and loan count, sorted highest first, only books borrowed at least once"**
+
+```sql
+SELECT buku.judul, COUNT(*) AS jumlah_dipinjam
+FROM peminjaman
+INNER JOIN buku ON peminjaman.buku_id = buku.id
+GROUP BY buku.judul
+ORDER BY jumlah_dipinjam DESC;
+```
+
+**"Which books have NEVER been borrowed at all?"**
+
+```sql
+SELECT buku.judul
+FROM buku
+LEFT JOIN peminjaman ON buku.id = peminjaman.buku_id
+WHERE peminjaman.id IS NULL;
+```
+
+## Project Exercises
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u4l6-ex1"
+  title="Books Currently Out (Not Returned)"
+  description="Show the member's name and book title for every loan that hasn't been returned yet (tanggal_kembali NULL)."
+  type="code-output"
+  database="perpustakaan"
+  starterCode="SELECT anggota.nama, buku.judul FROM peminjaman INNER JOIN anggota ON peminjaman.anggota_id = anggota.id INNER JOIN buku ON peminjaman.buku_id = buku.id;"
+  expectedQuery="SELECT anggota.nama, buku.judul FROM peminjaman INNER JOIN anggota ON peminjaman.anggota_id = anggota.id INNER JOIN buku ON peminjaman.buku_id = buku.id WHERE peminjaman.tanggal_kembali IS NULL;"
+  hints={["Add WHERE peminjaman.tanggal_kembali IS NULL at the end"]}
+  explanation="Since this condition is about the loan itself (not 'does a match exist'), it's safe to put in WHERE after an INNER JOIN — unlike the LEFT JOIN case from the previous lesson."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u4l6-ex2"
+  title="Most Popular Books"
+  description="Show the book title and its loan count (aliased jumlah_dipinjam), sorted by most borrowed, taking the top 3."
+  type="code-output"
+  database="perpustakaan"
+  strictOrder
+  starterCode="SELECT buku.judul, COUNT(*) AS jumlah_dipinjam FROM peminjaman INNER JOIN buku ON peminjaman.buku_id = buku.id GROUP BY buku.judul;"
+  expectedQuery="SELECT buku.judul, COUNT(*) AS jumlah_dipinjam FROM peminjaman INNER JOIN buku ON peminjaman.buku_id = buku.id GROUP BY buku.judul ORDER BY jumlah_dipinjam DESC LIMIT 3;"
+  hints={["Add ORDER BY jumlah_dipinjam DESC LIMIT 3 at the end"]}
+  explanation="JOIN + GROUP BY + ORDER BY + LIMIT work together just like in previous units — the joined result is treated like one big table."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u4l6-ex3"
+  title="Books Never Borrowed"
+  description="Show the titles of books that have never appeared in any loan record at all."
+  type="code-output"
+  database="perpustakaan"
+  starterCode="SELECT buku.judul FROM buku INNER JOIN peminjaman ON buku.id = peminjaman.buku_id;"
+  expectedQuery="SELECT buku.judul FROM buku LEFT JOIN peminjaman ON buku.id = peminjaman.buku_id WHERE peminjaman.id IS NULL;"
+  hints={["Change INNER JOIN to LEFT JOIN", "Add WHERE peminjaman.id IS NULL"]}
+  explanation="The LEFT JOIN + WHERE ... IS NULL pattern finds left-table rows (buku) with absolutely no match in the right table (peminjaman)."
+  lang="en"
+/>
+
+## Reflection: What You've Mastered
+
+| Concept | Function |
+|---------|----------|
+| Normalization & Foreign Key | Splitting data into separate tables, linked by FK |
+| `INNER JOIN` | Only rows matched in both tables |
+| `LEFT JOIN` | Every left row, NULL if no match |
+| Multi-table JOIN | Chaining several `JOIN` clauses |
+| Self JOIN | A table JOINed with itself, two aliases |
+| ON vs WHERE | ON for match conditions, WHERE for result filtering |
+
+You can now work with multi-table databases — a core skill for almost every real information system! In **Unit 5 (Subqueries & CTEs)**, we'll learn to nest queries inside queries — another way to answer complex questions that doesn't always require a JOIN.

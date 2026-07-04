@@ -1,0 +1,129 @@
+---
+title: "Mengubah Data dengan UPDATE"
+unit: 6
+lesson: 1
+description: "Mengubah nilai kolom pada baris yang sudah ada dengan perintah UPDATE"
+objectives:
+  - "Mengubah satu atau lebih kolom dengan UPDATE ... SET"
+  - "Memahami kenapa UPDATE tanpa WHERE sangat berbahaya"
+  - "Mengubah banyak baris sekaligus berdasarkan kondisi"
+estimatedTime: 25
+prerequisites: ["unit-6/00-insert"]
+difficulty: "intermediate"
+tags: ["update", "dml"]
+database: "toko_buku"
+---
+
+# Mengubah Data dengan UPDATE
+
+`UPDATE` mengubah nilai kolom pada baris yang **sudah ada** di tabel — berbeda dengan `INSERT` yang menambah baris baru.
+
+## UPDATE Dasar
+
+```sql
+UPDATE buku
+SET stok = 15
+WHERE id = 1;
+```
+
+- **`UPDATE buku`** — tabel yang akan diubah
+- **`SET stok = 15`** — kolom mana yang diubah, dan nilai barunya
+- **`WHERE id = 1`** — baris mana saja yang terkena perubahan ini
+
+Coba `SELECT * FROM buku WHERE id = 1;` setelah menjalankan `UPDATE` di atas untuk melihat perubahannya.
+
+## Mengubah Banyak Kolom Sekaligus
+
+```sql
+UPDATE buku
+SET harga = 75000, stok = 20
+WHERE id = 1;
+```
+
+Pisahkan tiap `kolom = nilai` dengan koma di dalam satu `SET`.
+
+## BAHAYA: UPDATE Tanpa WHERE
+
+```sql
+-- BAHAYA! Ini mengubah stok SEMUA baris di tabel jadi 0, bukan cuma satu buku
+UPDATE buku SET stok = 0;
+```
+
+:::warning
+`UPDATE` **tanpa `WHERE`** mengubah **SEMUA baris** di tabel, bukan cuma satu. Ini adalah salah satu kesalahan paling merusak dalam SQL — di dunia nyata (bukan playground ini), ini bisa berarti kehilangan data produksi secara permanen. Selalu double-check klausa `WHERE` sebelum menjalankan `UPDATE`, terutama di database sungguhan.
+:::
+
+:::tip
+Kebiasaan aman: sebelum menjalankan `UPDATE`, jalankan dulu `SELECT` dengan `WHERE` yang sama untuk melihat **baris mana saja** yang akan terkena dampak. Kalau hasil `SELECT`-nya sesuai harapan, baru ganti `SELECT *` menjadi `UPDATE ... SET ...`.
+:::
+
+## UPDATE Berdasarkan Kondisi yang Mengenai Banyak Baris
+
+```sql
+-- Naikkan harga 10% untuk semua buku kategori Fiksi
+UPDATE buku
+SET harga = harga * 1.1
+WHERE kategori = 'Fiksi';
+```
+
+Perhatikan `harga = harga * 1.1` — nilai baru bisa dihitung dari nilai **lama** kolom yang sama, bukan cuma nilai tetap.
+
+## Latihan
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u6l1-ex1"
+  title="Update Stok Satu Buku"
+  description="Ubah stok buku dengan id 6 ('Negeri 5 Menara', stok 0) menjadi 25. Lalu tampilkan baris itu untuk verifikasi."
+  type="code-output"
+  starterCode="UPDATE buku SET stok = 10 WHERE id = 6;
+
+SELECT * FROM buku WHERE id = 6;"
+  expectedQuery="UPDATE buku SET stok = 25 WHERE id = 6; SELECT * FROM buku WHERE id = 6;"
+  hints={["Ganti nilai stok menjadi 25"]}
+  explanation="UPDATE ... SET stok = 25 WHERE id = 6 hanya mengubah baris dengan id 6, tidak menyentuh baris lain."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u6l1-ex2"
+  title="Diskon 10% Kategori Teknologi"
+  description="Turunkan harga 10% untuk semua buku kategori 'Teknologi' (kalikan harga dengan 0.9). Lalu tampilkan judul dan harga baru kategori itu."
+  type="code-output"
+  starterCode="UPDATE buku SET harga = harga * 1.1 WHERE kategori = 'Fiksi';
+
+SELECT judul, harga FROM buku WHERE kategori = 'Fiksi';"
+  expectedQuery="UPDATE buku SET harga = harga * 0.9 WHERE kategori = 'Teknologi'; SELECT judul, harga FROM buku WHERE kategori = 'Teknologi';"
+  hints={["Gunakan pengali 0.9 untuk penurunan 10%", "Ganti kategori menjadi 'Teknologi'"]}
+  explanation="harga = harga * 0.9 menghitung nilai baru dari harga lama, diterapkan ke semua baris yang cocok dengan WHERE kategori = 'Teknologi'."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u6l1-ex3"
+  title="Risiko UPDATE Tanpa WHERE"
+  description="Apa yang terjadi jika kamu menjalankan UPDATE buku SET stok = 0; TANPA klausa WHERE?"
+  type="multiple-choice"
+  options={[
+    "Hanya baris pertama yang berubah",
+    "Tidak ada yang berubah karena query akan error",
+    "SEMUA baris di tabel buku akan stoknya menjadi 0",
+    "SQLite akan meminta konfirmasi sebelum menjalankan"
+  ]}
+  correctIndex={2}
+  hints={["WHERE adalah satu-satunya cara membatasi baris mana yang terkena UPDATE"]}
+  explanation="Tanpa WHERE, UPDATE mengubah SEMUA baris di tabel — salah satu kesalahan paling berbahaya dan mudah terjadi tanpa sengaja dalam SQL."
+  lang="id"
+/>
+
+## Ringkasan
+
+| Konsep | Contoh |
+|--------|--------|
+| UPDATE dasar | `UPDATE buku SET stok = 15 WHERE id = 1;` |
+| Banyak kolom | `SET harga = 75000, stok = 20` |
+| Hitung dari nilai lama | `SET harga = harga * 1.1` |
+| BAHAYA | `UPDATE` tanpa `WHERE` mengubah SEMUA baris |
+
+Selanjutnya: menghapus baris dengan **DELETE** — sama pentingnya untuk berhati-hati dengan `WHERE`.

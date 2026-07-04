@@ -1,0 +1,127 @@
+---
+title: "Menghapus Data dengan DELETE"
+unit: 6
+lesson: 2
+description: "Menghapus baris dari tabel dengan perintah DELETE, dan pentingnya WHERE"
+objectives:
+  - "Menghapus baris tertentu dengan DELETE FROM ... WHERE"
+  - "Memahami DELETE tanpa WHERE menghapus seluruh isi tabel"
+  - "Membedakan DELETE (menghapus baris) dengan DROP TABLE (menghapus tabel)"
+estimatedTime: 20
+prerequisites: ["unit-6/01-update"]
+difficulty: "intermediate"
+tags: ["delete", "dml"]
+database: "toko_buku"
+---
+
+# Menghapus Data dengan DELETE
+
+`DELETE` menghapus baris dari tabel — perintah DML terakhir setelah `INSERT` dan `UPDATE`.
+
+## DELETE Dasar
+
+```sql
+DELETE FROM buku WHERE id = 6;
+```
+
+Baris dengan `id = 6` akan hilang permanen dari database yang sedang berjalan. Coba `SELECT * FROM buku;` sesudahnya — baris itu sudah tidak ada lagi.
+
+## DELETE Berdasarkan Kondisi
+
+```sql
+-- Hapus semua buku dengan stok 0
+DELETE FROM buku WHERE stok = 0;
+```
+
+```sql
+-- Hapus buku kategori Keuangan yang harganya di bawah 100000
+DELETE FROM buku WHERE kategori = 'Keuangan' AND harga < 100000;
+```
+
+Semua teknik `WHERE` dari Unit 1-2 (operator perbandingan, `AND`/`OR`, `IN`, `BETWEEN`, dst) berlaku sama persis untuk `DELETE`.
+
+## BAHAYA: DELETE Tanpa WHERE
+
+```sql
+-- BAHAYA! Ini menghapus SEMUA baris di tabel buku, tabelnya sendiri masih ada tapi kosong
+DELETE FROM buku;
+```
+
+:::warning
+Sama seperti `UPDATE`, `DELETE` **tanpa `WHERE`** akan menghapus **SEMUA baris** di tabel. Ini salah satu perintah paling berbahaya dalam SQL — selalu periksa ulang `WHERE`-mu, dan di database sungguhan, pertimbangkan menjalankan `SELECT` dengan `WHERE` yang sama dulu untuk memastikan baris yang akan terhapus benar-benar yang kamu maksud.
+:::
+
+## DELETE vs DROP TABLE
+
+Penting untuk tidak tertukar antara dua perintah ini:
+
+| Perintah | Efek |
+|----------|------|
+| `DELETE FROM buku;` | Menghapus **semua baris**, tabel `buku` (struktur/skemanya) tetap ada, kosong |
+| `DROP TABLE buku;` | Menghapus **tabel itu sendiri** sepenuhnya — struktur dan semua datanya hilang |
+
+Kita akan membahas `DROP TABLE` lebih detail di lesson **ALTER TABLE & DROP TABLE**.
+
+:::tip
+Setelah `DELETE FROM buku;`, kamu masih bisa `INSERT` data baru ke tabel `buku` karena strukturnya masih ada. Setelah `DROP TABLE buku;`, kamu harus `CREATE TABLE buku (...)` lagi dari nol sebelum bisa memakainya.
+:::
+
+## Latihan
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u6l2-ex1"
+  title="Hapus Buku Tertentu"
+  description="Hapus buku dengan id 11 ('Pulang'). Lalu tampilkan semua buku untuk verifikasi jumlahnya berkurang jadi 11."
+  type="code-output"
+  starterCode="DELETE FROM buku WHERE id = 6;
+
+SELECT * FROM buku;"
+  expectedQuery="DELETE FROM buku WHERE id = 11; SELECT * FROM buku;"
+  hints={["Ganti id menjadi 11"]}
+  explanation="DELETE FROM buku WHERE id = 11 menghapus tepat satu baris, menyisakan 11 baris lainnya."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u6l2-ex2"
+  title="Hapus Buku Stok Kosong"
+  description="Hapus semua buku dengan stok = 0. Lalu tampilkan semua buku yang tersisa."
+  type="code-output"
+  starterCode="DELETE FROM buku WHERE kategori = 'Keuangan';
+
+SELECT * FROM buku;"
+  expectedQuery="DELETE FROM buku WHERE stok = 0; SELECT * FROM buku;"
+  hints={["Ganti kondisi WHERE menjadi stok = 0"]}
+  explanation="DELETE FROM buku WHERE stok = 0 menghapus baris manapun yang stoknya persis nol."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u6l2-ex3"
+  title="DELETE vs DROP TABLE"
+  description="Setelah menjalankan DELETE FROM buku; (tanpa WHERE), apa yang terjadi pada TABEL buku itu sendiri?"
+  type="multiple-choice"
+  options={[
+    "Tabel buku ikut terhapus sepenuhnya, sama seperti DROP TABLE",
+    "Tabel buku tetap ada (strukturnya utuh), hanya isinya (semua baris) yang kosong",
+    "Tabel buku berubah nama otomatis",
+    "Perintah ini akan selalu gagal karena tidak ada WHERE"
+  ]}
+  correctIndex={1}
+  hints={["DELETE bekerja pada BARIS, bukan pada struktur tabel"]}
+  explanation="DELETE FROM buku; (tanpa WHERE) menghapus semua baris tapi tabel buku sendiri (skemanya) tetap ada, kosong tanpa data — berbeda dengan DROP TABLE yang menghapus tabelnya sendiri."
+  lang="id"
+/>
+
+## Ringkasan
+
+| Konsep | Contoh |
+|--------|--------|
+| DELETE dasar | `DELETE FROM buku WHERE id = 6;` |
+| DELETE dengan kondisi | Semua teknik `WHERE` dari unit sebelumnya berlaku |
+| BAHAYA | `DELETE` tanpa `WHERE` menghapus SEMUA baris |
+| Beda dengan DROP TABLE | `DELETE` hapus baris, `DROP TABLE` hapus tabel |
+
+Kamu sudah menguasai `INSERT`, `UPDATE`, `DELETE` — tiga perintah DML utama! Selanjutnya kita masuk ke DDL: merancang tabel sendiri dari nol dengan **CREATE TABLE**.

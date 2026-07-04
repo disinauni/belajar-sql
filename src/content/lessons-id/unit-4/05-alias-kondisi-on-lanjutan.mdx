@@ -1,0 +1,133 @@
+---
+title: "Alias & Kondisi ON Lanjutan"
+unit: 4
+lesson: 5
+description: "Kondisi ON dengan banyak syarat, dan perbedaan penting antara menaruh syarat di ON vs WHERE pada LEFT JOIN"
+objectives:
+  - "Menulis kondisi ON dengan lebih dari satu syarat (AND)"
+  - "Memahami perbedaan menaruh syarat tambahan di ON vs di WHERE pada LEFT JOIN"
+  - "Menghindari jebakan umum yang membuat LEFT JOIN 'berubah' seperti INNER JOIN"
+estimatedTime: 20
+prerequisites: ["unit-4/04-self-join"]
+difficulty: "intermediate"
+tags: ["join", "alias", "on"]
+database: "perpustakaan"
+---
+
+# Alias & Kondisi ON Lanjutan
+
+Kamu sudah bisa menulis `INNER JOIN`, `LEFT JOIN`, dan `Self JOIN` dasar. Sekarang mari perdalam satu detail yang sering menjebak pemula: **di mana syarat tambahan harus ditulis — di `ON` atau di `WHERE`?**
+
+## Kondisi ON dengan Banyak Syarat
+
+`ON` tidak harus berisi tepat satu kondisi kesetaraan — kamu bisa menggabungkan lebih dari satu syarat dengan `AND`:
+
+```sql
+-- Hanya gabungkan ke peminjaman yang MASIH AKTIF (belum dikembalikan)
+SELECT anggota.nama, peminjaman.tanggal_pinjam
+FROM anggota
+LEFT JOIN peminjaman
+  ON anggota.id = peminjaman.anggota_id
+  AND peminjaman.tanggal_kembali IS NULL;
+```
+
+## Jebakan: ON vs WHERE pada LEFT JOIN
+
+Ini bagian pentingnya. Bandingkan dua query berikut — sekilas terlihat mirip, tapi hasilnya **berbeda**:
+
+```sql
+-- Versi A: syarat tanggal_kembali ada di ON
+SELECT anggota.nama, peminjaman.tanggal_pinjam
+FROM anggota
+LEFT JOIN peminjaman
+  ON anggota.id = peminjaman.anggota_id AND peminjaman.tanggal_kembali IS NULL;
+```
+
+```sql
+-- Versi B: syarat tanggal_kembali dipindah ke WHERE
+SELECT anggota.nama, peminjaman.tanggal_pinjam
+FROM anggota
+LEFT JOIN peminjaman ON anggota.id = peminjaman.anggota_id
+WHERE peminjaman.tanggal_kembali IS NULL;
+```
+
+Ambil contoh Citra: dia pernah meminjam satu buku, tapi sudah dikembalikan (jadi tidak punya peminjaman aktif).
+
+- **Versi A** menampilkan Citra dengan kolom peminjaman `NULL` — benar, karena dia memang tidak sedang meminjam apapun **saat ini**.
+- **Versi B** kehilangan Citra sepenuhnya dari hasil! Karena `WHERE` dievaluasi **setelah** LEFT JOIN selesai, baris Citra (yang tanggal_kembalinya berisi tanggal asli, bukan NULL) tersaring keluar oleh `WHERE peminjaman.tanggal_kembali IS NULL` — padahal maksud awalnya adalah menampilkan SEMUA anggota.
+
+<img src="/images/inner-vs-left-join.svg" alt="Syarat di ON vs WHERE menghasilkan efek berbeda pada LEFT JOIN" width="100%" />
+
+:::warning
+Menaruh syarat tentang tabel kanan di `WHERE` (bukan `ON`) pada sebuah `LEFT JOIN` **secara tidak sengaja mengubahnya jadi mirip INNER JOIN** — karena `WHERE` membuang baris yang kolom kanannya NULL, padahal NULL itu justru yang ingin kamu pertahankan dari LEFT JOIN. Aturan praktis: syarat yang mengatur "apakah pasangan ini cocok" masuk ke `ON`; syarat yang menyaring hasil akhir masuk ke `WHERE`.
+:::
+
+## Kapan WHERE Tetap Aman
+
+Kalau syaratnya tentang tabel **kiri** (bukan kanan), menaruhnya di `WHERE` tidak masalah karena tabel kiri selalu muncul penuh:
+
+```sql
+-- Aman: kelas ada di tabel kiri (anggota), tidak memengaruhi hasil LEFT JOIN
+SELECT anggota.nama, peminjaman.tanggal_pinjam
+FROM anggota
+LEFT JOIN peminjaman ON anggota.id = peminjaman.anggota_id
+WHERE anggota.kelas = '10A';
+```
+
+## Latihan
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u4l5-ex1"
+  title="Peminjaman Aktif per Anggota (Termasuk yang Tidak Ada)"
+  description="Tampilkan nama semua anggota dan tanggal_pinjam untuk peminjaman AKTIF (belum dikembalikan) saja — anggota tanpa peminjaman aktif tetap harus muncul dengan NULL."
+  type="code-output"
+  database="perpustakaan"
+  starterCode="SELECT anggota.nama, peminjaman.tanggal_pinjam FROM anggota LEFT JOIN peminjaman ON anggota.id = peminjaman.anggota_id;"
+  expectedQuery="SELECT anggota.nama, peminjaman.tanggal_pinjam FROM anggota LEFT JOIN peminjaman ON anggota.id = peminjaman.anggota_id AND peminjaman.tanggal_kembali IS NULL;"
+  hints={["Tambahkan AND peminjaman.tanggal_kembali IS NULL di dalam ON, bukan di WHERE"]}
+  explanation="Menaruh syarat tanggal_kembali IS NULL di dalam ON mempertahankan semua anggota di hasil, sambil hanya menggabungkan ke peminjaman yang masih aktif."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u4l5-ex2"
+  title="Membuktikan Citra Hilang"
+  description="Jalankan query dengan syarat tanggal_kembali IS NULL di WHERE (bukan ON) untuk melihat sendiri kenapa Citra hilang dari hasil."
+  type="code-output"
+  database="perpustakaan"
+  starterCode="SELECT anggota.nama, peminjaman.tanggal_pinjam FROM anggota LEFT JOIN peminjaman ON anggota.id = peminjaman.anggota_id AND peminjaman.tanggal_kembali IS NULL;"
+  expectedQuery="SELECT anggota.nama, peminjaman.tanggal_pinjam FROM anggota LEFT JOIN peminjaman ON anggota.id = peminjaman.anggota_id WHERE peminjaman.tanggal_kembali IS NULL;"
+  hints={["Pindahkan syarat tanggal_kembali IS NULL dari ON ke WHERE"]}
+  explanation="Dengan syarat di WHERE, Citra (yang sudah mengembalikan satu-satunya buku yang dia pinjam) hilang total dari hasil — berbeda dengan versi ON yang tetap menampilkannya dengan NULL."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u4l5-ex3"
+  title="Aturan Praktis ON vs WHERE"
+  description="Kapan syarat tentang tabel KANAN sebaiknya ditaruh di ON, bukan WHERE, pada sebuah LEFT JOIN?"
+  type="multiple-choice"
+  options={[
+    "Tidak pernah ada bedanya, keduanya selalu identik",
+    "Ketika kamu ingin tetap mempertahankan semua baris tabel kiri, meski tidak ada pasangan yang memenuhi syarat itu",
+    "Hanya saat memakai INNER JOIN",
+    "ON hanya boleh berisi satu kondisi kesetaraan, tidak bisa dipakai untuk syarat lain"
+  ]}
+  correctIndex={1}
+  hints={["Pikirkan kasus Citra yang hilang dari hasil di atas"]}
+  explanation="Syarat tentang tabel kanan yang ditaruh di WHERE akan membuang baris tabel kiri yang tidak punya pasangan memenuhi syarat itu — mengalahkan tujuan LEFT JOIN. Taruh syarat itu di ON agar baris tabel kiri tetap dipertahankan."
+  lang="id"
+/>
+
+## Ringkasan
+
+| Konsep | Contoh |
+|--------|--------|
+| ON dengan banyak syarat | `ON a.id = b.a_id AND b.kolom IS NULL` |
+| Syarat di ON (LEFT JOIN) | Mempertahankan semua baris kiri |
+| Syarat di WHERE (LEFT JOIN) | Bisa tidak sengaja membuang baris kiri — mirip INNER JOIN |
+| Syarat aman di WHERE | Kondisi yang hanya menyangkut tabel kiri |
+
+Kamu sudah menguasai seluruh teknik JOIN! Saatnya menggabungkan semuanya di **Proyek Mini: Sistem Perpustakaan**.

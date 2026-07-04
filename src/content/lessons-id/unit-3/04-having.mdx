@@ -1,0 +1,123 @@
+---
+title: "Menyaring Grup dengan HAVING"
+unit: 3
+lesson: 4
+description: "Menyaring hasil GROUP BY berdasarkan nilai fungsi agregat dengan HAVING"
+objectives:
+  - "Menyaring kelompok hasil GROUP BY dengan HAVING"
+  - "Memahami perbedaan mendasar antara WHERE dan HAVING"
+  - "Menggabungkan WHERE dan HAVING dalam satu query"
+estimatedTime: 25
+prerequisites: ["unit-3/03-group-by"]
+difficulty: "beginner"
+tags: ["having", "group-by", "agregasi"]
+database: "toko_buku"
+---
+
+# Menyaring Grup dengan HAVING
+
+`WHERE` menyaring **baris mentah** sebelum dikelompokkan. Tapi bagaimana kalau kamu ingin menyaring berdasarkan **hasil agregat**-nya — misalnya "tampilkan kategori yang punya lebih dari 2 buku"? `WHERE` tidak bisa melakukan ini, karena `COUNT(*)` belum ada sebelum pengelompokan selesai. Di sinilah `HAVING` berperan.
+
+## HAVING Dasar
+
+```sql
+SELECT kategori, COUNT(*) AS jumlah
+FROM buku
+GROUP BY kategori
+HAVING COUNT(*) > 1;
+```
+
+Hanya kategori dengan lebih dari 1 buku yang muncul — kategori dengan tepat 1 buku (Non-Fiksi, Keuangan) tersaring keluar.
+
+<img src="/images/group-by-having.svg" alt="WHERE menyaring baris, HAVING menyaring hasil grup" width="100%" />
+
+## WHERE vs HAVING — Perbedaan Mendasar
+
+| | `WHERE` | `HAVING` |
+|---|---------|----------|
+| Bekerja pada | Baris mentah, sebelum dikelompokkan | Hasil kelompok, setelah agregasi |
+| Bisa pakai fungsi agregat? | Tidak | Ya |
+| Kapan dievaluasi | Sebelum `GROUP BY` | Sesudah `GROUP BY` |
+
+```sql
+-- ERROR secara logika: WHERE tidak bisa memakai COUNT(*)
+SELECT kategori, COUNT(*) FROM buku WHERE COUNT(*) > 1 GROUP BY kategori;
+```
+
+```sql
+-- BENAR: HAVING dipakai untuk menyaring hasil agregat
+SELECT kategori, COUNT(*) FROM buku GROUP BY kategori HAVING COUNT(*) > 1;
+```
+
+## Menggabungkan WHERE dan HAVING
+
+Keduanya bisa dipakai bersama — `WHERE` menyaring baris dulu, baru dikelompokkan, baru `HAVING` menyaring hasil kelompoknya:
+
+```sql
+-- Hanya buku dengan stok > 0, dikelompokkan per kategori,
+-- lalu tampilkan kategori dengan rata-rata harga di atas 70000
+SELECT kategori, ROUND(AVG(harga), 0) AS rata_rata
+FROM buku
+WHERE stok > 0
+GROUP BY kategori
+HAVING AVG(harga) > 70000;
+```
+
+:::tip
+Cara mudah mengingat: **WHERE menyaring SEBELUM mengelompokkan** (baris individual), **HAVING menyaring SESUDAH mengelompokkan** (hasil agregat). Kalau kondisimu mengandung `COUNT`/`SUM`/`AVG`/`MIN`/`MAX`, itu harus di `HAVING`, bukan `WHERE`.
+:::
+
+## Latihan
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u3l4-ex1"
+  title="Kategori dengan Lebih dari 1 Buku"
+  description="Tampilkan kategori dan jumlah bukunya (alias jumlah), hanya untuk kategori dengan LEBIH DARI 1 buku."
+  type="code-output"
+  starterCode="SELECT kategori, COUNT(*) AS jumlah FROM buku GROUP BY kategori;"
+  expectedQuery="SELECT kategori, COUNT(*) AS jumlah FROM buku GROUP BY kategori HAVING COUNT(*) > 1;"
+  hints={["Tambahkan HAVING COUNT(*) > 1 setelah GROUP BY"]}
+  explanation="HAVING COUNT(*) > 1 menyaring hasil pengelompokan, hanya menyisakan kategori dengan lebih dari 1 buku."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u3l4-ex2"
+  title="Kategori dengan Rata-Rata Harga Tinggi"
+  description="Tampilkan kategori dan rata-rata harganya (alias rata_rata, dibulatkan), hanya untuk kategori dengan rata-rata harga LEBIH DARI 85000."
+  type="code-output"
+  starterCode="SELECT kategori, ROUND(AVG(harga), 0) AS rata_rata FROM buku GROUP BY kategori;"
+  expectedQuery="SELECT kategori, ROUND(AVG(harga), 0) AS rata_rata FROM buku GROUP BY kategori HAVING AVG(harga) > 85000;"
+  hints={["Tambahkan HAVING AVG(harga) > 85000"]}
+  explanation="HAVING AVG(harga) > 85000 menyaring kategori berdasarkan hasil rata-rata hitungnya, bukan baris individual."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u3l4-ex3"
+  title="Kapan Harus Pakai HAVING"
+  description="Kamu ingin menyaring 'kategori yang total stoknya lebih dari 20'. Klausa mana yang tepat?"
+  type="multiple-choice"
+  options={[
+    "WHERE SUM(stok) > 20",
+    "HAVING SUM(stok) > 20",
+    "GROUP BY SUM(stok) > 20",
+    "ORDER BY SUM(stok) > 20"
+  ]}
+  correctIndex={1}
+  hints={["Syarat ini melibatkan hasil SUM() setelah pengelompokan — bukan baris individual"]}
+  explanation="Karena kondisinya melibatkan fungsi agregat SUM(), harus memakai HAVING (yang bekerja setelah GROUP BY), bukan WHERE (yang bekerja pada baris individual sebelum dikelompokkan)."
+  lang="id"
+/>
+
+## Ringkasan
+
+| Konsep | Contoh |
+|--------|--------|
+| Saring hasil grup | `GROUP BY kategori HAVING COUNT(*) > 1` |
+| WHERE + HAVING bersama | `WHERE stok > 0 GROUP BY kategori HAVING AVG(harga) > 70000` |
+| Aturan kunci | Kondisi dengan fungsi agregat → `HAVING`, bukan `WHERE` |
+
+Selanjutnya: menggabungkan semua klausa SELECT yang sudah kamu pelajari — `WHERE`, `GROUP BY`, `HAVING`, `ORDER BY`, `LIMIT` — dalam urutan yang benar.

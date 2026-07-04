@@ -1,0 +1,134 @@
+---
+title: "IN with a Subquery"
+unit: 5
+lesson: 2
+description: "Matching a value against a subquery's result list using IN, as an alternative to JOIN"
+objectives:
+  - "Combine IN with a subquery that returns many rows"
+  - "Compare the IN+subquery approach with JOIN for the same question"
+  - "Use NOT IN with a subquery"
+estimatedTime: 20
+prerequisites: ["unit-5/01-subquery-select-from"]
+difficulty: "intermediate"
+tags: ["in", "subquery"]
+database: "perpustakaan"
+translationStatus: "complete"
+---
+
+# IN with a Subquery
+
+The subqueries in Unit 5 so far have always returned **a single value** (scalar). But a subquery can also return **many rows** — and `IN` is how you use one.
+
+## Basic IN + Subquery
+
+Remember the question from Unit 4: "which members have ever borrowed a book?" We already answered it with `JOIN`. Now let's answer it with a **subquery**:
+
+```sql
+SELECT nama
+FROM anggota
+WHERE id IN (SELECT anggota_id FROM peminjaman);
+```
+
+The subquery `(SELECT anggota_id FROM peminjaman)` produces a list of every `anggota_id` that has ever appeared in the loans table. `IN` then matches `id` in `anggota` against any value in that list.
+
+## IN+Subquery vs JOIN — Two Ways, One Goal
+
+```sql
+-- Way 1: with JOIN (from Unit 4)
+SELECT DISTINCT anggota.nama
+FROM anggota
+INNER JOIN peminjaman ON anggota.id = peminjaman.anggota_id;
+
+-- Way 2: with IN + subquery
+SELECT nama
+FROM anggota
+WHERE id IN (SELECT anggota_id FROM peminjaman);
+```
+
+Both produce the same list of names. `JOIN` is better suited when you need to display columns from **both tables** at once (e.g. member name AND book title). `IN` + subquery is more concise when you only need to filter one table based on its presence in another, without needing the second table's columns in the final result.
+
+## NOT IN with a Subquery
+
+```sql
+-- Members who have NEVER borrowed (an alternative to LEFT JOIN + IS NULL)
+SELECT nama
+FROM anggota
+WHERE id NOT IN (SELECT anggota_id FROM peminjaman);
+```
+
+:::warning
+Remember the warning from Unit 2: `NOT IN` is dangerous if its subquery could produce `NULL`. Luckily, `peminjaman.anggota_id` in our schema is always `NOT NULL`, so it's safe here. But always stay alert — if a column inside a `NOT IN` subquery can be NULL, the result can unexpectedly come back empty. `NOT EXISTS` (next lesson) is a safer alternative.
+:::
+
+## IN + Subquery with an Extra Condition
+
+The subquery itself can have its own `WHERE`:
+
+```sql
+-- Titles ever borrowed by class '10A' members
+SELECT judul
+FROM buku
+WHERE id IN (
+  SELECT peminjaman.buku_id
+  FROM peminjaman
+  INNER JOIN anggota ON peminjaman.anggota_id = anggota.id
+  WHERE anggota.kelas = '10A'
+);
+```
+
+## Exercise
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u5l2-ex1"
+  title="Members Who Have Borrowed"
+  description="Show the names of members who HAVE borrowed a book, using IN with a subquery (not a JOIN)."
+  type="code-output"
+  database="perpustakaan"
+  starterCode="SELECT nama FROM anggota;"
+  expectedQuery="SELECT nama FROM anggota WHERE id IN (SELECT anggota_id FROM peminjaman);"
+  hints={["Subquery: SELECT anggota_id FROM peminjaman", "Use WHERE id IN (...)"]}
+  explanation="IN (SELECT anggota_id FROM peminjaman) filters members whose id appears in the list of anggota_id values in the peminjaman table."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u5l2-ex2"
+  title="Books Never Borrowed (via NOT IN)"
+  description="Show the titles of books that have never appeared in the loan records, using NOT IN with a subquery."
+  type="code-output"
+  database="perpustakaan"
+  starterCode="SELECT judul FROM buku WHERE id IN (SELECT buku_id FROM peminjaman);"
+  expectedQuery="SELECT judul FROM buku WHERE id NOT IN (SELECT buku_id FROM peminjaman);"
+  hints={["Change IN to NOT IN"]}
+  explanation="NOT IN (SELECT buku_id FROM peminjaman) filters books whose id has NEVER appeared in the loan records."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u5l2-ex3"
+  title="When IN+Subquery Suits Better Than JOIN"
+  description="When is the IN + subquery approach usually more concise than a JOIN?"
+  type="multiple-choice"
+  options={[
+    "When you need to display columns from both tables at once in the final result",
+    "When you only need to filter one table based on its presence in another, without needing the second table's columns",
+    "IN + subquery is always better than JOIN in every case",
+    "JOIN can't be used together with WHERE"
+  ]}
+  correctIndex={1}
+  hints={["Think about the final result you need: just one table, or a combination of columns from two tables?"]}
+  explanation="IN + subquery fits when you only need to filter one table based on the existence of related data elsewhere. If you need columns from both tables in the final result, JOIN is more appropriate."
+  lang="en"
+/>
+
+## Summary
+
+| Concept | Example |
+|---------|---------|
+| IN + subquery | `WHERE id IN (SELECT anggota_id FROM peminjaman)` |
+| NOT IN + subquery | `WHERE id NOT IN (SELECT anggota_id FROM peminjaman)` |
+| Alternative to | `JOIN` (when you don't need the second table's columns) |
+
+Next: **EXISTS**, a safer and more efficient alternative to `IN`/`NOT IN` for checking data existence.

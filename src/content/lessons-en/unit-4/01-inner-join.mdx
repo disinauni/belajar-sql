@@ -1,0 +1,128 @@
+---
+title: "INNER JOIN"
+unit: 4
+lesson: 1
+description: "Combining two tables with INNER JOIN based on a related column"
+objectives:
+  - "Write an INNER JOIN query between two tables"
+  - "Understand that INNER JOIN only returns rows with a matching pair"
+  - "Combine INNER JOIN with WHERE and ORDER BY"
+estimatedTime: 30
+prerequisites: ["unit-4/00-apa-itu-join"]
+difficulty: "intermediate"
+tags: ["inner-join", "join"]
+database: "perpustakaan"
+translationStatus: "complete"
+---
+
+# INNER JOIN
+
+`INNER JOIN` combines rows from two tables based on a related column — only rows with a **matching pair in both tables** appear in the result.
+
+## Anatomy of an INNER JOIN
+
+```sql
+SELECT anggota.nama, peminjaman.tanggal_pinjam
+FROM anggota
+INNER JOIN peminjaman ON anggota.id = peminjaman.anggota_id;
+```
+
+- **`FROM anggota`** — the left table
+- **`INNER JOIN peminjaman`** — the right table being joined
+- **`ON anggota.id = peminjaman.anggota_id`** — the join condition: rows are considered "paired" if `id` in `anggota` equals `anggota_id` in `peminjaman`
+
+The result now shows the borrower's **name**, not just a meaningless `anggota_id`.
+
+## `table.column` Notation
+
+Since two tables are joined, SQLite needs to know which column belongs to which table — especially if a column name is shared by both tables (like `id`). The `table_name.column_name` notation removes this ambiguity.
+
+```sql
+SELECT anggota.nama, buku.judul, peminjaman.tanggal_pinjam
+FROM peminjaman
+INNER JOIN anggota ON peminjaman.anggota_id = anggota.id
+INNER JOIN buku ON peminjaman.buku_id = buku.id;
+```
+
+This query joins **three tables at once** — we'll cover this in more detail in the Joining Multiple Tables lesson.
+
+## INNER JOIN Only Takes Matches
+
+If a member has never borrowed a book (like Gilang in our data), that member **won't appear** in the `INNER JOIN` result with `peminjaman` — because there's no matching `peminjaman` row for them.
+
+<img src="/images/inner-vs-left-join.svg" alt="INNER JOIN only takes rows matching in both tables" width="100%" />
+
+## INNER JOIN with WHERE and ORDER BY
+
+`WHERE` and `ORDER BY` still work as usual after a JOIN:
+
+```sql
+SELECT anggota.nama, buku.judul, peminjaman.tanggal_pinjam
+FROM peminjaman
+INNER JOIN anggota ON peminjaman.anggota_id = anggota.id
+INNER JOIN buku ON peminjaman.buku_id = buku.id
+WHERE anggota.kelas = '10A'
+ORDER BY peminjaman.tanggal_pinjam ASC;
+```
+
+:::note
+The word `INNER` is actually optional — writing just `JOIN` (without `INNER`) in SQLite means exactly the same as `INNER JOIN`. But writing `INNER JOIN` explicitly makes your intent clearer compared to other JOIN types (`LEFT JOIN`, etc.).
+:::
+
+## Exercise
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u4l1-ex1"
+  title="Borrower Name and Loan Date"
+  description="Show the member's name and tanggal_pinjam for every loan transaction, by joining the anggota and peminjaman tables."
+  type="code-output"
+  database="perpustakaan"
+  starterCode="SELECT * FROM peminjaman;"
+  expectedQuery="SELECT anggota.nama, peminjaman.tanggal_pinjam FROM anggota INNER JOIN peminjaman ON anggota.id = peminjaman.anggota_id;"
+  hints={["Use INNER JOIN ... ON anggota.id = peminjaman.anggota_id"]}
+  explanation="INNER JOIN connects each peminjaman row with its matching member via the ON condition."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u4l1-ex2"
+  title="Titles Currently Borrowed by Class 10A"
+  description="Show the member's name and book title for loans by members in class '10A', joining anggota, peminjaman, and buku."
+  type="code-output"
+  database="perpustakaan"
+  starterCode="SELECT anggota.nama, buku.judul FROM peminjaman INNER JOIN anggota ON peminjaman.anggota_id = anggota.id INNER JOIN buku ON peminjaman.buku_id = buku.id;"
+  expectedQuery="SELECT anggota.nama, buku.judul FROM peminjaman INNER JOIN anggota ON peminjaman.anggota_id = anggota.id INNER JOIN buku ON peminjaman.buku_id = buku.id WHERE anggota.kelas = '10A';"
+  hints={["Add WHERE anggota.kelas = '10A'"]}
+  explanation="WHERE still works after a JOIN, filtering the combined result by a column from any of the joined tables."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u4l1-ex3"
+  title="INNER JOIN Behavior"
+  description="If a member has never borrowed any book, will that member appear in the result of an INNER JOIN between anggota and peminjaman?"
+  type="multiple-choice"
+  options={[
+    "Yes, always with the loan columns empty",
+    "No — INNER JOIN only shows rows that have a matching pair in both tables",
+    "Only if that member is in class 10A",
+    "The query will error"
+  ]}
+  correctIndex={1}
+  hints={["INNER JOIN needs a matching pair in BOTH tables"]}
+  explanation="INNER JOIN only returns rows with a matching pair in both tables. A member without any loan won't appear — for that, we need LEFT JOIN, covered in the next lesson."
+  lang="en"
+/>
+
+## Summary
+
+| Concept | Example |
+|---------|---------|
+| INNER JOIN two tables | `FROM a INNER JOIN b ON a.id = b.a_id` |
+| Explicit column notation | `table.column` |
+| Only matched rows | Members without a loan don't appear |
+| JOIN + WHERE + ORDER BY | Work as usual after a JOIN |
+
+Next: showing rows **even without a matching pair** with **LEFT JOIN**.

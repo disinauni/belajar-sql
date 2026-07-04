@@ -1,0 +1,125 @@
+---
+title: "EXISTS & NOT EXISTS"
+unit: 5
+lesson: 3
+description: "Memeriksa keberadaan baris terkait dengan subquery berkorelasi EXISTS"
+objectives:
+  - "Menulis subquery berkorelasi dengan EXISTS"
+  - "Memahami EXISTS hanya peduli 'ada/tidak ada baris', bukan isinya"
+  - "Membandingkan EXISTS dengan IN untuk kasus yang sama"
+estimatedTime: 25
+prerequisites: ["unit-5/02-in-subquery"]
+difficulty: "intermediate"
+tags: ["exists", "subquery", "correlated-subquery"]
+database: "perpustakaan"
+---
+
+# EXISTS & NOT EXISTS
+
+`EXISTS` adalah operator yang memeriksa apakah sebuah subquery mengembalikan **setidaknya satu baris** — ia tidak peduli isi barisnya, hanya peduli **ada atau tidaknya**.
+
+## Subquery Berkorelasi (Correlated Subquery)
+
+Semua subquery yang kita tulis sebelumnya berdiri sendiri — bisa dijalankan terpisah dari query luar. `EXISTS` biasanya dipakai dengan **subquery berkorelasi**: subquery yang merujuk ke kolom dari query luar di dalam kondisinya.
+
+```sql
+SELECT nama
+FROM anggota AS a
+WHERE EXISTS (
+  SELECT 1 FROM peminjaman AS p WHERE p.anggota_id = a.id
+);
+```
+
+Perhatikan `p.anggota_id = a.id` — subquery ini merujuk ke `a.id` dari tabel luar (`anggota AS a`). Subquery ini **dievaluasi ulang untuk setiap baris** di tabel luar: "apakah ada baris peminjaman dengan anggota_id sama dengan id anggota INI?"
+
+:::note
+`SELECT 1` di dalam subquery `EXISTS` adalah konvensi umum — angka `1` di situ tidak penting isinya, karena `EXISTS` hanya mengecek **keberadaan baris**, bukan nilainya. Kamu bisa saja menulis `SELECT *` atau `SELECT anggota_id`, hasilnya sama saja.
+:::
+
+## NOT EXISTS
+
+```sql
+-- Anggota yang belum pernah meminjam (tidak ada baris peminjaman yang cocok)
+SELECT nama
+FROM anggota AS a
+WHERE NOT EXISTS (
+  SELECT 1 FROM peminjaman AS p WHERE p.anggota_id = a.id
+);
+```
+
+## EXISTS vs IN — Kapan Beda Hasilnya?
+
+Untuk kasus sederhana seperti ini, `EXISTS` dan `IN` menghasilkan hasil yang sama:
+
+```sql
+-- Dengan IN (dari lesson sebelumnya)
+SELECT nama FROM anggota WHERE id IN (SELECT anggota_id FROM peminjaman);
+
+-- Dengan EXISTS (setara)
+SELECT nama FROM anggota AS a
+WHERE EXISTS (SELECT 1 FROM peminjaman AS p WHERE p.anggota_id = a.id);
+```
+
+Tapi `NOT EXISTS` **lebih aman** daripada `NOT IN` ketika subquery berpotensi mengandung `NULL` — `NOT EXISTS` tidak punya masalah jebakan NULL yang dimiliki `NOT IN`. Karena itu, banyak yang membiasakan diri memakai `EXISTS`/`NOT EXISTS` sebagai kebiasaan default yang lebih aman.
+
+:::tip
+Aturan praktis: kalau kamu hanya perlu tahu "apakah ADA data terkait", pakai `EXISTS`/`NOT EXISTS`. Kalau kamu perlu mencocokkan dengan daftar nilai konkret, `IN` masih cocok — asal kolomnya dijamin tidak NULL.
+:::
+
+## Latihan
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u5l3-ex1"
+  title="Anggota dengan Peminjaman Aktif"
+  description="Tampilkan nama anggota yang MEMILIKI setidaknya satu peminjaman yang masih aktif (tanggal_kembali NULL), menggunakan EXISTS."
+  type="code-output"
+  database="perpustakaan"
+  starterCode="SELECT nama FROM anggota AS a WHERE EXISTS (SELECT 1 FROM peminjaman AS p WHERE p.anggota_id = a.id);"
+  expectedQuery="SELECT nama FROM anggota AS a WHERE EXISTS (SELECT 1 FROM peminjaman AS p WHERE p.anggota_id = a.id AND p.tanggal_kembali IS NULL);"
+  hints={["Tambahkan AND p.tanggal_kembali IS NULL di dalam subquery EXISTS"]}
+  explanation="Subquery berkorelasi bisa punya kondisi tambahan seperti kondisi WHERE biasa — di sini kita cek pasangan anggota_id DAN status belum dikembalikan."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u5l3-ex2"
+  title="Anggota Tanpa Peminjaman Aktif"
+  description="Tampilkan nama anggota yang TIDAK memiliki peminjaman aktif sama sekali (semua sudah dikembalikan, atau belum pernah pinjam), menggunakan NOT EXISTS."
+  type="code-output"
+  database="perpustakaan"
+  starterCode="SELECT nama FROM anggota AS a WHERE EXISTS (SELECT 1 FROM peminjaman AS p WHERE p.anggota_id = a.id AND p.tanggal_kembali IS NULL);"
+  expectedQuery="SELECT nama FROM anggota AS a WHERE NOT EXISTS (SELECT 1 FROM peminjaman AS p WHERE p.anggota_id = a.id AND p.tanggal_kembali IS NULL);"
+  hints={["Ganti EXISTS menjadi NOT EXISTS"]}
+  explanation="NOT EXISTS membalik logikanya: anggota yang TIDAK punya satupun baris peminjaman aktif yang cocok."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u5l3-ex3"
+  title="Apa yang Diperiksa EXISTS"
+  description="Apa yang sebenarnya diperiksa oleh operator EXISTS?"
+  type="multiple-choice"
+  options={[
+    "Nilai kolom pertama dari subquery",
+    "Apakah subquery mengembalikan setidaknya satu baris — isinya tidak relevan",
+    "Apakah subquery mengembalikan tepat satu baris",
+    "Apakah subquery menghasilkan error"
+  ]}
+  correctIndex={1}
+  hints={["Itulah kenapa SELECT 1 sering dipakai — isi kolomnya tidak penting"]}
+  explanation="EXISTS hanya mengecek KEBERADAAN baris hasil subquery (ada minimal satu, atau tidak ada sama sekali) — isi/nilai baris itu sendiri tidak relevan."
+  lang="id"
+/>
+
+## Ringkasan
+
+| Konsep | Contoh |
+|--------|--------|
+| EXISTS | `WHERE EXISTS (SELECT 1 FROM p WHERE p.x = a.id)` |
+| NOT EXISTS | `WHERE NOT EXISTS (...)` |
+| Subquery berkorelasi | Subquery yang merujuk kolom dari query luar |
+| Lebih aman dari | `NOT IN` (tidak punya jebakan NULL) |
+
+Selanjutnya: memberi nama pada subquery dengan **CTE (WITH)**, dan menggabungkan hasil dua query dengan **UNION**.

@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 260" width="680" height="260" font-family="'Segoe UI', system-ui, sans-serif">
+  <defs>
+    <style>
+      :root {
+        --bg: #f8fafc; --border: #e2e8f0; --card-bg: #ffffff; --card-border: #e2e8f0;
+        --value-text: #1e293b; --text-sub: #64748b; --shadow: rgba(0,0,0,0.07);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #0f172a; --border: #1e293b; --card-bg: #1e293b; --card-border: #334155;
+          --value-text: #f1f5f9; --text-sub: #94a3b8; --shadow: rgba(0,0,0,0.4);
+        }
+      }
+    </style>
+    <filter id="ij-shadow"><feDropShadow dx="0" dy="2" stdDeviation="5" flood-color="var(--shadow)"/></filter>
+  </defs>
+
+  <rect width="680" height="260" rx="14" fill="var(--bg)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="340" y="24" text-anchor="middle" fill="var(--text-sub)" font-size="11" font-weight="600" letter-spacing="0.5">INNER JOIN vs LEFT JOIN</text>
+
+  <!-- INNER JOIN venn -->
+  <text x="170" y="50" text-anchor="middle" fill="var(--text-sub)" font-size="11" font-weight="700">INNER JOIN</text>
+  <circle cx="140" cy="110" r="55" fill="#3b82f6" fill-opacity="0.18" stroke="#3b82f6" stroke-width="1.5"/>
+  <circle cx="200" cy="110" r="55" fill="#10b981" fill-opacity="0.18" stroke="#10b981" stroke-width="1.5"/>
+  <!-- intersection highlight -->
+  <clipPath id="ij-clip"><circle cx="140" cy="110" r="55"/></clipPath>
+  <circle cx="200" cy="110" r="55" fill="#f59e0b" fill-opacity="0.45" clip-path="url(#ij-clip)"/>
+  <text x="115" y="115" text-anchor="middle" fill="var(--value-text)" font-size="10" font-weight="700">anggota</text>
+  <text x="225" y="115" text-anchor="middle" fill="var(--value-text)" font-size="10" font-weight="700">peminjaman</text>
+  <text x="170" y="180" text-anchor="middle" fill="#b45309" font-size="10" font-weight="700">hanya irisan</text>
+  <text x="170" y="194" text-anchor="middle" fill="var(--text-sub)" font-size="9">(yang punya pasangan)</text>
+
+  <!-- LEFT JOIN venn -->
+  <text x="510" y="50" text-anchor="middle" fill="var(--text-sub)" font-size="11" font-weight="700">LEFT JOIN</text>
+  <circle cx="480" cy="110" r="55" fill="#3b82f6" fill-opacity="0.45" stroke="#3b82f6" stroke-width="2"/>
+  <circle cx="540" cy="110" r="55" fill="#10b981" fill-opacity="0.18" stroke="#10b981" stroke-width="1.5"/>
+  <clipPath id="lj-clip"><circle cx="480" cy="110" r="55"/></clipPath>
+  <circle cx="540" cy="110" r="55" fill="#f59e0b" fill-opacity="0.45" clip-path="url(#lj-clip)"/>
+  <text x="455" y="115" text-anchor="middle" fill="var(--value-text)" font-size="10" font-weight="700">anggota</text>
+  <text x="565" y="115" text-anchor="middle" fill="var(--value-text)" font-size="10" font-weight="700">peminjaman</text>
+  <text x="510" y="180" text-anchor="middle" fill="#1d4ed8" font-size="10" font-weight="700">semua lingkaran kiri</text>
+  <text x="510" y="194" text-anchor="middle" fill="var(--text-sub)" font-size="9">(NULL jika tak ada pasangan)</text>
+
+  <line x1="340" y1="40" x2="340" y2="210" stroke="var(--border)" stroke-width="1" stroke-dasharray="4 4"/>
+
+  <text x="170" y="230" text-anchor="middle" fill="var(--text-sub)" font-size="9">Gilang (tanpa peminjaman) HILANG</text>
+  <text x="510" y="230" text-anchor="middle" fill="var(--text-sub)" font-size="9">Gilang tetap MUNCUL, kolom kanan NULL</text>
+</svg>

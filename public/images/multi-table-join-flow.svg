@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 220" width="680" height="220" font-family="'Segoe UI', system-ui, sans-serif">
+  <defs>
+    <style>
+      :root {
+        --bg: #f8fafc; --border: #e2e8f0; --card-bg: #ffffff; --card-border: #e2e8f0;
+        --value-text: #1e293b; --text-sub: #64748b; --arrow: #94a3b8; --shadow: rgba(0,0,0,0.07);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #0f172a; --border: #1e293b; --card-bg: #1e293b; --card-border: #334155;
+          --value-text: #f1f5f9; --text-sub: #94a3b8; --arrow: #64748b; --shadow: rgba(0,0,0,0.4);
+        }
+      }
+    </style>
+    <filter id="mt-shadow"><feDropShadow dx="0" dy="2" stdDeviation="5" flood-color="var(--shadow)"/></filter>
+    <marker id="mt-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="var(--arrow)"/>
+    </marker>
+  </defs>
+
+  <rect width="680" height="220" rx="14" fill="var(--bg)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="340" y="24" text-anchor="middle" fill="var(--text-sub)" font-size="11" font-weight="600" letter-spacing="0.5">SKEMA perpustakaan: anggota &#8596; peminjaman &#8596; buku</text>
+
+  <!-- anggota table -->
+  <g filter="url(#mt-shadow)">
+    <rect x="30" y="60" width="160" height="110" rx="10" fill="var(--card-bg)" stroke="#3b82f6" stroke-width="1.5"/>
+  </g>
+  <text x="110" y="82" text-anchor="middle" fill="#2563eb" font-size="12" font-weight="700" font-family="'JetBrains Mono', monospace">anggota</text>
+  <text x="45" y="102" fill="var(--value-text)" font-size="10" font-family="'JetBrains Mono', monospace">id (PK)</text>
+  <text x="45" y="120" fill="var(--value-text)" font-size="10" font-family="'JetBrains Mono', monospace">nama</text>
+  <text x="45" y="138" fill="var(--value-text)" font-size="10" font-family="'JetBrains Mono', monospace">kelas</text>
+
+  <!-- peminjaman table (middle) -->
+  <g filter="url(#mt-shadow)">
+    <rect x="260" y="46" width="180" height="138" rx="10" fill="var(--card-bg)" stroke="#8b5cf6" stroke-width="1.5"/>
+  </g>
+  <text x="350" y="68" text-anchor="middle" fill="#7c3aed" font-size="12" font-weight="700" font-family="'JetBrains Mono', monospace">peminjaman</text>
+  <text x="275" y="88" fill="var(--value-text)" font-size="10" font-family="'JetBrains Mono', monospace">id (PK)</text>
+  <text x="275" y="106" fill="#2563eb" font-size="10" font-family="'JetBrains Mono', monospace">anggota_id (FK)</text>
+  <text x="275" y="124" fill="#059669" font-size="10" font-family="'JetBrains Mono', monospace">buku_id (FK)</text>
+  <text x="275" y="142" fill="var(--value-text)" font-size="10" font-family="'JetBrains Mono', monospace">tanggal_pinjam</text>
+  <text x="275" y="160" fill="var(--text-sub)" font-size="10" font-family="'JetBrains Mono', monospace">tanggal_kembali</text>
+
+  <!-- buku table -->
+  <g filter="url(#mt-shadow)">
+    <rect x="490" y="60" width="160" height="110" rx="10" fill="var(--card-bg)" stroke="#10b981" stroke-width="1.5"/>
+  </g>
+  <text x="570" y="82" text-anchor="middle" fill="#059669" font-size="12" font-weight="700" font-family="'JetBrains Mono', monospace">buku</text>
+  <text x="505" y="102" fill="var(--value-text)" font-size="10" font-family="'JetBrains Mono', monospace">id (PK)</text>
+  <text x="505" y="120" fill="var(--value-text)" font-size="10" font-family="'JetBrains Mono', monospace">judul</text>
+  <text x="505" y="138" fill="var(--value-text)" font-size="10" font-family="'JetBrains Mono', monospace">stok</text>
+
+  <line x1="192" y1="115" x2="258" y2="105" stroke="var(--arrow)" stroke-width="2" marker-end="url(#mt-arrow)"/>
+  <line x1="440" y1="105" x2="488" y2="115" stroke="var(--arrow)" stroke-width="2" marker-end="url(#mt-arrow)"/>
+
+  <text x="340" y="200" text-anchor="middle" fill="var(--text-sub)" font-size="10">FROM peminjaman JOIN anggota ON ... JOIN buku ON ...</text>
+</svg>

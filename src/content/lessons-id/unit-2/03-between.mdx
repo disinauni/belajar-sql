@@ -1,0 +1,117 @@
+---
+title: "Operator BETWEEN"
+unit: 2
+lesson: 3
+description: "Menyaring nilai dalam sebuah rentang dengan BETWEEN, termasuk pada tanggal"
+objectives:
+  - "Menyaring rentang angka dengan BETWEEN"
+  - "Memahami BETWEEN bersifat inklusif di kedua ujung"
+  - "Menggunakan NOT BETWEEN"
+estimatedTime: 15
+prerequisites: ["unit-2/02-in-operator"]
+difficulty: "beginner"
+tags: ["between", "rentang"]
+database: "toko_buku"
+---
+
+# Operator BETWEEN
+
+`BETWEEN` menyaring nilai yang berada dalam sebuah rentang — alternatif yang lebih ringkas daripada menulis dua kondisi `>=` dan `<=` sekaligus.
+
+## BETWEEN Dasar
+
+```sql
+-- Setara dengan: harga >= 60000 AND harga <= 90000
+SELECT judul, harga
+FROM buku
+WHERE harga BETWEEN 60000 AND 90000;
+```
+
+## BETWEEN Bersifat Inklusif
+
+Kedua ujung rentang **ikut disertakan** dalam hasil — buku dengan harga persis 60000 atau persis 90000 tetap muncul.
+
+```sql
+SELECT judul, tahun_terbit
+FROM buku
+WHERE tahun_terbit BETWEEN 2004 AND 2011;
+```
+
+:::note
+`BETWEEN 60000 AND 90000` selalu ditulis dengan nilai **kecil dulu, besar kemudian**. Membalik urutan (`BETWEEN 90000 AND 60000`) tidak menghasilkan error, tapi hasilnya akan selalu kosong karena SQLite mengartikannya sebagai `nilai >= 90000 AND nilai <= 60000` yang mustahil terpenuhi.
+:::
+
+## NOT BETWEEN
+
+```sql
+-- Buku dengan harga di LUAR rentang 60000-90000
+SELECT judul, harga
+FROM buku
+WHERE harga NOT BETWEEN 60000 AND 90000;
+```
+
+## BETWEEN vs Operator Perbandingan
+
+`BETWEEN` hanyalah gula sintaksis (syntactic sugar) — dua query berikut identik hasilnya:
+
+```sql
+SELECT judul FROM buku WHERE harga BETWEEN 60000 AND 90000;
+SELECT judul FROM buku WHERE harga >= 60000 AND harga <= 90000;
+```
+
+Pilih `BETWEEN` saat rentangnya jelas dan tunggal — pilih `AND` manual saat butuh kombinasi kondisi yang lebih rumit.
+
+## Latihan
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u2l3-ex1"
+  title="Buku Kelas Menengah"
+  description="Tampilkan judul dan harga buku dengan harga antara 70000 dan 100000 (inklusif)."
+  type="code-output"
+  starterCode="SELECT judul, harga FROM buku;"
+  expectedQuery="SELECT judul, harga FROM buku WHERE harga BETWEEN 70000 AND 100000;"
+  hints={["Gunakan BETWEEN 70000 AND 100000"]}
+  explanation="BETWEEN 70000 AND 100000 menyaring harga di rentang itu, termasuk kedua batasnya."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u2l3-ex2"
+  title="Terbit di Luar Dekade 2010-an"
+  description="Tampilkan judul dan tahun_terbit buku yang TIDAK terbit antara tahun 2010 dan 2019."
+  type="code-output"
+  starterCode="SELECT judul, tahun_terbit FROM buku;"
+  expectedQuery="SELECT judul, tahun_terbit FROM buku WHERE tahun_terbit NOT BETWEEN 2010 AND 2019;"
+  hints={["Gunakan NOT BETWEEN"]}
+  explanation="NOT BETWEEN 2010 AND 2019 menampilkan buku yang tahun terbitnya di luar rentang tersebut."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u2l3-ex3"
+  title="Sifat Inklusif BETWEEN"
+  description="Jika sebuah buku harganya PERSIS 60000, apakah baris itu muncul di hasil WHERE harga BETWEEN 60000 AND 90000?"
+  type="multiple-choice"
+  options={[
+    "Ya, karena BETWEEN inklusif di kedua ujung",
+    "Tidak, karena BETWEEN selalu eksklusif",
+    "Hanya muncul jika ditulis BETWEEN 60001 AND 90000",
+    "Tergantung tipe data kolomnya"
+  ]}
+  correctIndex={0}
+  hints={["Inklusif berarti batas atas dan bawah ikut dihitung"]}
+  explanation="BETWEEN bersifat inklusif — nilai yang persis sama dengan batas bawah atau batas atas tetap disertakan dalam hasil."
+  lang="id"
+/>
+
+## Ringkasan
+
+| Konsep | Contoh |
+|--------|--------|
+| Rentang inklusif | `harga BETWEEN 60000 AND 90000` |
+| Kebalikan | `harga NOT BETWEEN 60000 AND 90000` |
+| Setara dengan | `harga >= 60000 AND harga <= 90000` |
+
+Selanjutnya: menangani nilai kosong dengan **NULL**.

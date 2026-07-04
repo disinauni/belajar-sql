@@ -1,0 +1,124 @@
+---
+title: "Menangani NULL"
+unit: 2
+lesson: 4
+description: "Memahami arti NULL dan cara memeriksanya dengan IS NULL / IS NOT NULL"
+objectives:
+  - "Menjelaskan kenapa NULL bukan nol atau string kosong"
+  - "Menyaring baris dengan IS NULL dan IS NOT NULL"
+  - "Memberi nilai pengganti untuk NULL dengan COALESCE"
+estimatedTime: 20
+prerequisites: ["unit-2/03-between"]
+difficulty: "beginner"
+tags: ["null", "is-null", "coalesce"]
+---
+
+# Menangani NULL
+
+Tabel `buku` yang kita pakai sejak Unit 1 kebetulan tidak punya kolom kosong sama sekali. Tapi di dunia nyata, data yang belum diisi itu biasa — misalnya pelanggan yang belum mengisi email. Lesson ini memakai tabel contoh baru: `pelanggan (id, nama, email)`.
+
+| id | nama | email |
+|----|------|-------|
+| 1 | Dewi | dewi@email.com |
+| 2 | Farhan | *(NULL)* |
+| 3 | Citra | citra@email.com |
+| 4 | Budi | *(NULL)* |
+| 5 | Eka | eka@email.com |
+
+## NULL Bukan Nol, Bukan String Kosong
+
+`NULL` berarti **"tidak ada nilai sama sekali"** — beda dengan angka 0 atau teks kosong `''`. Farhan dan Budi belum mengisi email; kolom email mereka bukan bertuliskan `""` atau `"0"`, tapi benar-benar kosong.
+
+```sql
+-- ERROR secara logika — ini TIDAK akan menemukan baris NULL sama sekali!
+SELECT * FROM pelanggan WHERE email = NULL;
+```
+
+:::warning
+`= NULL` **tidak pernah bernilai true**, bahkan untuk baris yang emailnya memang NULL! Operator perbandingan biasa (`=`, `<>`) tidak bisa dipakai untuk NULL — SQL punya operator khusus: `IS NULL` dan `IS NOT NULL`.
+:::
+
+## IS NULL & IS NOT NULL
+
+```sql
+-- Pelanggan yang BELUM mengisi email
+SELECT nama FROM pelanggan WHERE email IS NULL;
+```
+
+```sql
+-- Pelanggan yang SUDAH mengisi email
+SELECT nama, email FROM pelanggan WHERE email IS NOT NULL;
+```
+
+## COALESCE — Nilai Pengganti untuk NULL
+
+Fungsi `COALESCE()` mengembalikan nilai pertama yang bukan NULL dari daftar argumennya — berguna untuk menampilkan teks pengganti:
+
+```sql
+SELECT nama, COALESCE(email, '(belum diisi)') AS email
+FROM pelanggan;
+```
+
+Baris dengan email NULL akan tampil sebagai "(belum diisi)", sementara baris lain tetap menampilkan emailnya.
+
+:::tip
+NULL juga "menular" dalam perhitungan: `harga * NULL` hasilnya NULL, bukan 0. Kalau kamu menjumlahkan kolom yang mengandung NULL dengan `SUM()`, SQLite otomatis mengabaikan baris NULL itu (dibahas lebih lanjut di Unit 3).
+:::
+
+## Latihan
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u2l4-ex1"
+  title="Pelanggan Belum Isi Email"
+  description="Tampilkan nama pelanggan yang belum mengisi kolom email."
+  type="code-output"
+  schema={`CREATE TABLE pelanggan (id INTEGER PRIMARY KEY, nama TEXT NOT NULL, email TEXT); INSERT INTO pelanggan (id, nama, email) VALUES (1,'Dewi','dewi@email.com'),(2,'Farhan',NULL),(3,'Citra','citra@email.com'),(4,'Budi',NULL),(5,'Eka','eka@email.com');`}
+  starterCode="SELECT nama FROM pelanggan;"
+  expectedQuery="SELECT nama FROM pelanggan WHERE email IS NULL;"
+  hints={["Gunakan IS NULL, bukan = NULL"]}
+  explanation="WHERE email IS NULL adalah satu-satunya cara benar untuk menemukan baris dengan nilai NULL."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u2l4-ex2"
+  title="Pelanggan Sudah Isi Email"
+  description="Tampilkan nama dan email pelanggan yang SUDAH mengisi email."
+  type="code-output"
+  schema={`CREATE TABLE pelanggan (id INTEGER PRIMARY KEY, nama TEXT NOT NULL, email TEXT); INSERT INTO pelanggan (id, nama, email) VALUES (1,'Dewi','dewi@email.com'),(2,'Farhan',NULL),(3,'Citra','citra@email.com'),(4,'Budi',NULL),(5,'Eka','eka@email.com');`}
+  starterCode="SELECT nama, email FROM pelanggan;"
+  expectedQuery="SELECT nama, email FROM pelanggan WHERE email IS NOT NULL;"
+  hints={["Gunakan IS NOT NULL"]}
+  explanation="IS NOT NULL menyaring baris yang kolomnya sudah terisi (bukan NULL)."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u2l4-ex3"
+  title="Kenapa = NULL Tidak Bekerja"
+  description="Kenapa WHERE email = NULL tidak pernah menemukan baris apapun, meski ada baris dengan email NULL?"
+  type="multiple-choice"
+  options={[
+    "Karena NULL dianggap sama dengan string kosong",
+    "Karena operator = tidak bisa dipakai untuk membandingkan dengan 'tidak ada nilai' — harus pakai IS NULL",
+    "Karena kolom email harus bertipe INTEGER",
+    "Ini sebenarnya bekerja normal seperti operator lain"
+  ]}
+  correctIndex={1}
+  hints={["NULL bukan nilai yang bisa dibandingkan dengan =, karena artinya 'tidak ada nilai'"]}
+  explanation="NULL merepresentasikan ketiadaan nilai, sehingga tidak bisa dibandingkan dengan operator kesetaraan biasa. SQL menyediakan IS NULL/IS NOT NULL khusus untuk ini."
+  lang="id"
+/>
+
+## Ringkasan
+
+| Konsep | Contoh |
+|--------|--------|
+| Cek kosong | `WHERE email IS NULL` |
+| Cek terisi | `WHERE email IS NOT NULL` |
+| Nilai pengganti | `COALESCE(email, '(belum diisi)')` |
+| Jebakan umum | `WHERE email = NULL` — **tidak pernah bekerja** |
+
+Kamu sudah menguasai semua teknik filtering lanjutan! Saatnya menggabungkan semuanya di proyek mini unit ini.

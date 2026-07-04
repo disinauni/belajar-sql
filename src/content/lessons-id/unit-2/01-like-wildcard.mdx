@@ -1,0 +1,128 @@
+---
+title: "LIKE & Wildcard"
+unit: 2
+lesson: 1
+description: "Mencocokkan pola teks dengan LIKE, wildcard % dan _"
+objectives:
+  - "Mencari teks yang mengandung, diawali, atau diakhiri pola tertentu dengan LIKE"
+  - "Memahami perbedaan wildcard % dan _"
+  - "Menggabungkan LIKE dengan NOT LIKE"
+estimatedTime: 25
+prerequisites: ["unit-2/00-operator-logika"]
+difficulty: "beginner"
+tags: ["like", "wildcard", "pattern-matching"]
+database: "toko_buku"
+---
+
+# LIKE & Wildcard
+
+`WHERE judul = 'Sapiens'` hanya menemukan kecocokan **persis**. Tapi bagaimana kalau kamu ingin mencari semua judul yang **mengandung** kata "Cinta", tanpa tahu judul lengkapnya? Di situlah `LIKE` dipakai.
+
+## Wildcard `%` — Nol atau Lebih Karakter
+
+```sql
+-- Judul yang MENGANDUNG kata "Cinta" di mana saja
+SELECT judul FROM buku WHERE judul LIKE '%Cinta%';
+```
+
+```sql
+-- Judul yang DIAWALI huruf "B"
+SELECT judul FROM buku WHERE judul LIKE 'B%';
+```
+
+```sql
+-- Judul yang DIAKHIRI huruf "a"
+SELECT judul FROM buku WHERE judul LIKE '%a';
+```
+
+Tanda `%` berarti "di sini boleh ada nol karakter, satu karakter, atau berapapun karakter apa saja".
+
+## Wildcard `_` — Tepat Satu Karakter
+
+Garis bawah `_` mencocokkan **tepat satu** karakter, tidak lebih tidak kurang:
+
+```sql
+-- Kategori dengan tepat 5 huruf: "Fiksi" cocok, "Teknologi" tidak
+SELECT judul, kategori FROM buku WHERE kategori LIKE '_____';
+```
+
+<img src="/images/like-wildcard-pattern.svg" alt="Pola wildcard % dan _ pada LIKE" width="100%" />
+
+## NOT LIKE
+
+```sql
+-- Judul yang TIDAK mengandung kata "Cinta"
+SELECT judul FROM buku WHERE judul NOT LIKE '%Cinta%';
+```
+
+## Kombinasi Pola
+
+```sql
+-- Diawali "A", diakhiri "a" (contoh: "Ayat-Ayat Cinta", "Atomic..." kalau berakhiran a)
+SELECT judul FROM buku WHERE judul LIKE 'A%a';
+```
+
+:::note
+Secara default, `LIKE` di SQLite **tidak case-sensitive** untuk huruf ASCII — `LIKE '%cinta%'` dan `LIKE '%Cinta%'` menghasilkan hasil yang sama.
+:::
+
+:::warning
+`LIKE` tanpa wildcard sama saja dengan `=` — `WHERE judul LIKE 'Sapiens'` hanya cocok persis "Sapiens". Wildcard `%`/`_` itulah yang membuat LIKE berguna untuk pencarian pola.
+:::
+
+## Latihan
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u2l1-ex1"
+  title="Judul Mengandung 'Cantik'"
+  description="Tampilkan semua judul buku yang mengandung kata 'Cantik' di mana saja dalam judulnya."
+  type="code-output"
+  starterCode="SELECT judul FROM buku WHERE judul LIKE '%Sapiens%';"
+  expectedQuery="SELECT judul FROM buku WHERE judul LIKE '%Cantik%';"
+  hints={["Apit kata kunci dengan % di kedua sisi"]}
+  explanation="'%Cantik%' mencocokkan judul apapun yang mengandung kata 'Cantik' di posisi manapun."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u2l1-ex2"
+  title="Penulis Diawali 'Tere'"
+  description="Tampilkan judul dan penulis untuk buku yang nama penulisnya DIAWALI kata 'Tere'."
+  type="code-output"
+  starterCode="SELECT judul, penulis FROM buku;"
+  expectedQuery="SELECT judul, penulis FROM buku WHERE penulis LIKE 'Tere%';"
+  hints={["Wildcard % di akhir saja berarti 'diawali dengan'", "Tambahkan WHERE penulis LIKE 'Tere%'"]}
+  explanation="'Tere%' mencocokkan teks yang DIAWALI 'Tere' — berbeda dengan '%Tere%' yang juga akan cocok meski 'Tere' muncul di tengah/akhir nama."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u2l1-ex3"
+  title="Perbedaan % dan _"
+  description="Apa perbedaan wildcard % dan _ pada LIKE?"
+  type="multiple-choice"
+  options={[
+    "Keduanya sama persis, hanya beda simbol",
+    "% mencocokkan nol atau lebih karakter, _ mencocokkan tepat satu karakter",
+    "% hanya untuk angka, _ hanya untuk huruf",
+    "_ mencocokkan nol atau lebih karakter, % mencocokkan tepat satu karakter"
+  ]}
+  correctIndex={1}
+  hints={["Pikirkan % sebagai 'apa saja, berapa saja', _ sebagai 'satu slot karakter'"]}
+  explanation="% mencocokkan nol atau lebih karakter apapun, sedangkan _ mencocokkan tepat satu karakter di posisi itu."
+  lang="id"
+/>
+
+## Ringkasan
+
+| Pola | Arti | Contoh |
+|------|------|--------|
+| `'%kata%'` | Mengandung "kata" di mana saja | `LIKE '%Cinta%'` |
+| `'kata%'` | Diawali "kata" | `LIKE 'B%'` |
+| `'%kata'` | Diakhiri "kata" | `LIKE '%a'` |
+| `'_____'` | Tepat 5 karakter | `LIKE '_____'` |
+| `NOT LIKE` | Kebalikan dari LIKE | `NOT LIKE '%Cinta%'` |
+
+Selanjutnya: memeriksa banyak kemungkinan nilai sekaligus dengan **IN**.

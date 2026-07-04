@@ -1,0 +1,101 @@
+---
+title: "Proyek Mini: Filter Lanjutan"
+unit: 2
+lesson: 5
+description: "Menggabungkan AND/OR/NOT, LIKE, IN, BETWEEN, dan NULL dalam skenario filtering nyata"
+objectives:
+  - "Menyusun kondisi WHERE kompleks dengan berbagai operator sekaligus"
+  - "Memilih operator yang paling tepat untuk tiap skenario"
+  - "Mereview seluruh teknik filtering dari Unit 2"
+estimatedTime: 30
+prerequisites: ["unit-2/04-null-values"]
+difficulty: "beginner"
+tags: ["project", "review"]
+database: "toko_buku"
+---
+
+# Proyek Mini: Filter Lanjutan
+
+Selamat sampai di akhir Unit 2! Sekarang kamu punya perangkat filtering lengkap: `AND`/`OR`/`NOT`, `LIKE`, `IN`, `BETWEEN`, dan `IS NULL`. Mari gabungkan semuanya untuk menjawab pertanyaan admin toko buku yang lebih realistis.
+
+## Memilih Operator yang Tepat
+
+| Kebutuhan | Operator |
+|-----------|----------|
+| Beberapa kondisi harus semua benar | `AND` |
+| Salah satu dari beberapa kondisi cukup | `OR` |
+| Mencari pola/potongan teks | `LIKE '%...%'` |
+| Cocok dengan salah satu dari daftar nilai | `IN (...)` |
+| Nilai dalam rentang tertentu | `BETWEEN ... AND ...` |
+| Kolom kosong/terisi | `IS NULL` / `IS NOT NULL` |
+
+## Studi Kasus
+
+**"Buku Fiksi atau Non-Fiksi, dengan harga antara 60000 dan 100000, yang judulnya tidak mengandung kata 'Cinta'"**
+
+```sql
+SELECT judul, kategori, harga
+FROM buku
+WHERE kategori IN ('Fiksi', 'Non-Fiksi')
+  AND harga BETWEEN 60000 AND 100000
+  AND judul NOT LIKE '%Cinta%';
+```
+
+Perhatikan bagaimana `IN` menggantikan `OR` berulang, dan `BETWEEN` menggantikan dua kondisi `>=`/`<=`, sehingga query tetap ringkas meski menggabungkan banyak syarat.
+
+## Latihan Proyek
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u2l5-ex1"
+  title="Kombinasi Kategori & Rentang Harga"
+  description="Tampilkan judul, kategori, dan harga untuk buku kategori 'Teknologi' atau 'Keuangan', dengan harga antara 50000 dan 100000."
+  type="code-output"
+  starterCode="SELECT judul, kategori, harga FROM buku;"
+  expectedQuery="SELECT judul, kategori, harga FROM buku WHERE kategori IN ('Teknologi', 'Keuangan') AND harga BETWEEN 50000 AND 100000;"
+  hints={["Gabungkan IN untuk kategori dan BETWEEN untuk harga dengan AND", "Ingat tanda kurung pada IN"]}
+  explanation="IN (...) menyaring dua kategori sekaligus, digabung AND dengan BETWEEN untuk rentang harga."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u2l5-ex2"
+  title="Judul Tanpa Kata Tertentu, Stok Tersedia"
+  description="Tampilkan judul, penulis, dan stok untuk buku yang judulnya TIDAK mengandung kata 'Pulang', dan stoknya lebih dari 0."
+  type="code-output"
+  starterCode="SELECT judul, penulis, stok FROM buku;"
+  expectedQuery="SELECT judul, penulis, stok FROM buku WHERE judul NOT LIKE '%Pulang%' AND stok > 0;"
+  hints={["Gunakan NOT LIKE untuk mengecualikan kata tertentu", "Gabungkan dengan AND stok > 0"]}
+  explanation="NOT LIKE '%Pulang%' mengecualikan judul yang mengandung kata itu, digabung AND dengan syarat stok."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u2l5-ex3"
+  title="Memilih Operator Paling Tepat"
+  description="Kamu ingin mencari buku dengan penulis 'Andrea Hirata', 'Tere Liye', atau 'Eka Kurniawan'. Operator mana yang paling ringkas dan tepat?"
+  type="multiple-choice"
+  options={[
+    "LIKE dengan tiga wildcard terpisah",
+    "IN dengan daftar tiga nama penulis",
+    "BETWEEN nama penulis pertama dan terakhir secara alfabetis",
+    "IS NULL pada kolom penulis"
+  ]}
+  correctIndex={1}
+  hints={["Ini kasus klasik: cocok dengan salah satu dari beberapa nilai spesifik"]}
+  explanation="IN adalah pilihan paling tepat untuk mencocokkan salah satu dari beberapa nilai spesifik yang sudah diketahui persis."
+  lang="id"
+/>
+
+## Ringkasan Unit 2
+
+| Konsep | Operator |
+|--------|----------|
+| Logika gabungan | `AND`, `OR`, `NOT` |
+| Pola teks | `LIKE`, wildcard `%` `_` |
+| Daftar nilai | `IN`, `NOT IN` |
+| Rentang nilai | `BETWEEN ... AND ...` |
+| Nilai kosong | `IS NULL`, `IS NOT NULL`, `COALESCE` |
+
+Di **Unit 3 (Agregasi & GROUP BY)**, kita akan belajar meringkas banyak baris menjadi satu angka — total penjualan, rata-rata harga, jumlah buku per kategori — dengan `COUNT`, `SUM`, `AVG`, dan `GROUP BY`.

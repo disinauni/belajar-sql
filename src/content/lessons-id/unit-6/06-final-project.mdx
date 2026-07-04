@@ -1,0 +1,151 @@
+---
+title: "Final Project: Rancang Database Sendiri"
+unit: 6
+lesson: 6
+description: "Proyek penutup kursus: merancang skema, mengisi data, dan menganalisisnya menggunakan seluruh materi Unit 0-6"
+objectives:
+  - "Merancang skema tabel sendiri dengan constraint yang tepat"
+  - "Mengisi dan memodifikasi data dengan INSERT, UPDATE, DELETE"
+  - "Menyusun query analisis menggunakan JOIN, agregasi, dan subquery"
+estimatedTime: 60
+prerequisites: ["unit-6/05-alter-drop-table"]
+difficulty: "intermediate"
+tags: ["final-project", "review", "capstone"]
+---
+
+# Final Project: Rancang Database Sendiri
+
+Selamat datang di proyek penutup kursus Belajar SQL! Playground di lesson ini **benar-benar kosong** — kamu akan merancang skema, mengisi data, dan menganalisisnya sendiri dari nol, menggabungkan **semua** yang sudah kamu pelajari dari Unit 0 sampai Unit 6.
+
+## Skenario: Sistem Toko Kelontong Sekolah
+
+Kamu diminta merancang database sederhana untuk toko kelontong sekolah, yang mencatat **produk** dan **transaksi penjualan**.
+
+## Langkah 1: Rancang Skema
+
+```sql
+CREATE TABLE produk (
+  id INTEGER PRIMARY KEY,
+  nama TEXT NOT NULL,
+  harga INTEGER NOT NULL CHECK (harga >= 0),
+  stok INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE TABLE transaksi (
+  id INTEGER PRIMARY KEY,
+  produk_id INTEGER NOT NULL REFERENCES produk(id),
+  jumlah INTEGER NOT NULL CHECK (jumlah > 0),
+  tanggal TEXT NOT NULL
+);
+```
+
+Perhatikan bagaimana skema ini menerapkan pelajaran dari seluruh unit: `PRIMARY KEY` dan `FOREIGN KEY` (Unit 4), `NOT NULL`/`CHECK`/`DEFAULT` (Unit 6).
+
+## Langkah 2: Isi Data Awal
+
+```sql
+INSERT INTO produk (id, nama, harga, stok) VALUES
+  (1, 'Pensil', 2500, 100),
+  (2, 'Buku Tulis', 5000, 50),
+  (3, 'Penghapus', 1500, 80),
+  (4, 'Penggaris', 3000, 40);
+
+INSERT INTO transaksi (id, produk_id, jumlah, tanggal) VALUES
+  (1, 1, 5, '2026-06-01'),
+  (2, 2, 2, '2026-06-01'),
+  (3, 1, 3, '2026-06-02'),
+  (4, 3, 10, '2026-06-02'),
+  (5, 2, 1, '2026-06-03');
+```
+
+## Langkah 3: Analisis dengan JOIN, Agregasi, dan Subquery
+
+```sql
+-- Total pendapatan per produk (JOIN + agregasi dari Unit 3 & 4)
+SELECT produk.nama, SUM(produk.harga * transaksi.jumlah) AS total_pendapatan
+FROM transaksi
+INNER JOIN produk ON transaksi.produk_id = produk.id
+GROUP BY produk.nama
+ORDER BY total_pendapatan DESC;
+```
+
+```sql
+-- Produk yang belum pernah terjual (LEFT JOIN dari Unit 4)
+SELECT produk.nama
+FROM produk
+LEFT JOIN transaksi ON produk.id = transaksi.produk_id
+WHERE transaksi.id IS NULL;
+```
+
+## Latihan Proyek
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u6l6-ex1"
+  title="Bangun Skema dan Data Awal"
+  description="Buat kedua tabel (produk dan transaksi) persis seperti skema di atas, isi dengan data awal di atas, lalu tampilkan seluruh isi tabel produk untuk verifikasi."
+  type="code-output"
+  schema=""
+  starterCode="-- Buat tabel produk dan transaksi, lalu isi datanya
+-- (lihat skema dan data di atas)
+
+SELECT * FROM produk;"
+  expectedQuery="CREATE TABLE produk (id INTEGER PRIMARY KEY, nama TEXT NOT NULL, harga INTEGER NOT NULL CHECK (harga >= 0), stok INTEGER NOT NULL DEFAULT 0); CREATE TABLE transaksi (id INTEGER PRIMARY KEY, produk_id INTEGER NOT NULL REFERENCES produk(id), jumlah INTEGER NOT NULL CHECK (jumlah > 0), tanggal TEXT NOT NULL); INSERT INTO produk (id, nama, harga, stok) VALUES (1, 'Pensil', 2500, 100), (2, 'Buku Tulis', 5000, 50), (3, 'Penghapus', 1500, 80), (4, 'Penggaris', 3000, 40); SELECT * FROM produk;"
+  hints={["Salin CREATE TABLE untuk kedua tabel dari materi di atas", "INSERT data produk sebelum SELECT"]}
+  explanation="Membangun skema (CREATE TABLE) dan mengisinya (INSERT) adalah fondasi sebelum bisa melakukan analisis apapun."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u6l6-ex2"
+  title="Laporan Pendapatan per Produk"
+  description="Dengan skema dan data yang sudah lengkap (produk + transaksi), tampilkan nama produk dan total pendapatannya (alias total_pendapatan), urutkan dari yang tertinggi."
+  type="code-output"
+  strictOrder
+  schema=""
+  starterCode="-- (asumsikan tabel produk dan transaksi sudah terisi seperti pada materi)
+CREATE TABLE produk (id INTEGER PRIMARY KEY, nama TEXT NOT NULL, harga INTEGER NOT NULL CHECK (harga >= 0), stok INTEGER NOT NULL DEFAULT 0);
+CREATE TABLE transaksi (id INTEGER PRIMARY KEY, produk_id INTEGER NOT NULL REFERENCES produk(id), jumlah INTEGER NOT NULL CHECK (jumlah > 0), tanggal TEXT NOT NULL);
+INSERT INTO produk (id, nama, harga, stok) VALUES (1, 'Pensil', 2500, 100), (2, 'Buku Tulis', 5000, 50), (3, 'Penghapus', 1500, 80), (4, 'Penggaris', 3000, 40);
+INSERT INTO transaksi (id, produk_id, jumlah, tanggal) VALUES (1, 1, 5, '2026-06-01'), (2, 2, 2, '2026-06-01'), (3, 1, 3, '2026-06-02'), (4, 3, 10, '2026-06-02'), (5, 2, 1, '2026-06-03');
+
+SELECT produk.nama, SUM(produk.harga * transaksi.jumlah) AS total_pendapatan
+FROM transaksi INNER JOIN produk ON transaksi.produk_id = produk.id
+GROUP BY produk.nama;"
+  expectedQuery="CREATE TABLE produk (id INTEGER PRIMARY KEY, nama TEXT NOT NULL, harga INTEGER NOT NULL CHECK (harga >= 0), stok INTEGER NOT NULL DEFAULT 0); CREATE TABLE transaksi (id INTEGER PRIMARY KEY, produk_id INTEGER NOT NULL REFERENCES produk(id), jumlah INTEGER NOT NULL CHECK (jumlah > 0), tanggal TEXT NOT NULL); INSERT INTO produk (id, nama, harga, stok) VALUES (1, 'Pensil', 2500, 100), (2, 'Buku Tulis', 5000, 50), (3, 'Penghapus', 1500, 80), (4, 'Penggaris', 3000, 40); INSERT INTO transaksi (id, produk_id, jumlah, tanggal) VALUES (1, 1, 5, '2026-06-01'), (2, 2, 2, '2026-06-01'), (3, 1, 3, '2026-06-02'), (4, 3, 10, '2026-06-02'), (5, 2, 1, '2026-06-03'); SELECT produk.nama, SUM(produk.harga * transaksi.jumlah) AS total_pendapatan FROM transaksi INNER JOIN produk ON transaksi.produk_id = produk.id GROUP BY produk.nama ORDER BY total_pendapatan DESC;"
+  hints={["Tambahkan ORDER BY total_pendapatan DESC di akhir query SELECT"]}
+  explanation="JOIN menghubungkan transaksi dengan harga produknya, GROUP BY mengelompokkan per produk, SUM menghitung total pendapatan, dan ORDER BY DESC mengurutkan dari yang tertinggi."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u6l6-ex3"
+  title="Refleksi Kursus"
+  description="Dari Unit 0 hingga Unit 6, teknik manakah yang menjadi FONDASI untuk hampir semua teknik lain yang kamu pelajari setelahnya?"
+  type="multiple-choice"
+  options={[
+    "SELECT, FROM, dan WHERE dari Unit 1",
+    "CREATE TABLE dari Unit 6",
+    "UNION dari Unit 5",
+    "Self JOIN dari Unit 4"
+  ]}
+  correctIndex={0}
+  hints={["Hampir setiap query lain — JOIN, agregasi, subquery — dibangun di atas apa?"]}
+  explanation="SELECT/FROM/WHERE adalah fondasi yang dipakai ulang di setiap teknik lain sepanjang kursus — JOIN, GROUP BY, subquery, bahkan INSERT/UPDATE/DELETE semuanya bergantung pada pemahaman dasar ini."
+  lang="id"
+/>
+
+## Perjalanan yang Sudah Kamu Tempuh
+
+| Unit | Kemampuan |
+|------|-----------|
+| 0 | Memahami database, SQLite, dan playground |
+| 1 | SELECT, WHERE, ORDER BY, LIMIT, AS, DISTINCT |
+| 2 | AND/OR/NOT, LIKE, IN, BETWEEN, NULL |
+| 3 | COUNT, SUM, AVG, MIN, MAX, GROUP BY, HAVING |
+| 4 | INNER/LEFT JOIN, JOIN banyak tabel, Self JOIN |
+| 5 | Subquery, IN+subquery, EXISTS, CTE, UNION |
+| 6 | INSERT, UPDATE, DELETE, CREATE TABLE, constraint, ALTER/DROP TABLE |
+
+**Selamat!** Kamu telah menyelesaikan seluruh kurikulum Belajar SQL — dari sekadar tahu apa itu database, sampai bisa merancang skema sendiri dan menganalisis data dengan query tingkat lanjut. Kemampuan ini adalah fondasi inti untuk hampir semua pekerjaan yang berhubungan dengan data: web development, data analysis, business intelligence, hingga data science. Teruslah berlatih dengan dataset nyata, dan jangan ragu kembali ke lesson manapun kalau butuh menyegarkan ingatan!

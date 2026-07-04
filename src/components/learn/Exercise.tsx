@@ -234,7 +234,7 @@ export function Exercise(props: ExerciseProps) {
           initialCode={starterCode ?? ''}
           lang={lang}
           {...(database ? { database } : {})}
-          {...(schema ? { schema } : {})}
+          {...(schema !== undefined ? { schema } : {})}
           {...(expectedQuery ? { expectedQuery } : {})}
           {...(expectedResult ? { expectedResult } : {})}
           compareOptions={{ strictOrder: strictOrder ?? false }}
@@ -248,7 +248,7 @@ export function Exercise(props: ExerciseProps) {
           initialCode={starterCode ?? ''}
           lang={lang}
           {...(database ? { database } : {})}
-          {...(schema ? { schema } : {})}
+          {...(schema !== undefined ? { schema } : {})}
           height={220}
         />
       )}

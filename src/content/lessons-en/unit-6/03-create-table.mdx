@@ -1,0 +1,142 @@
+---
+title: "Creating Tables with CREATE TABLE"
+unit: 6
+lesson: 3
+description: "Designing and creating a new table from scratch with CREATE TABLE and basic data types"
+objectives:
+  - "Create a new table with CREATE TABLE and define its columns"
+  - "Learn SQLite's basic data types: INTEGER, TEXT, REAL"
+  - "Fill a newly created table with INSERT"
+estimatedTime: 30
+prerequisites: ["unit-6/02-delete"]
+difficulty: "intermediate"
+tags: ["create-table", "ddl", "data-types"]
+translationStatus: "complete"
+---
+
+# Creating Tables with CREATE TABLE
+
+So far we've always worked with tables that were **already set up** for us. Now it's time to learn SQL's other side: designing your own table from scratch. This lesson's playground is **empty** — there's no table at all until you create one yourself!
+
+## Basic CREATE TABLE
+
+```sql
+CREATE TABLE siswa (
+  id INTEGER PRIMARY KEY,
+  nama TEXT NOT NULL,
+  nilai INTEGER
+);
+```
+
+- **`CREATE TABLE siswa`** — the new table's name
+- Each line in parentheses defines one column: its **name**, then its **data type**
+- `PRIMARY KEY` and `NOT NULL` are *constraints* (rules) — covered in more detail in the next lesson
+
+Once created, the `siswa` table is still **empty** — `CREATE TABLE` only defines the structure, it doesn't fill in any data.
+
+## SQLite's Basic Data Types
+
+| Type | Stores | Example |
+|------|--------|---------|
+| `INTEGER` | Whole numbers | `17`, `0`, `-5` |
+| `REAL` | Decimal numbers | `3.14`, `72500.5` |
+| `TEXT` | Text/strings | `'Budi'`, `'Fiksi'` |
+
+```sql
+CREATE TABLE produk (
+  id INTEGER PRIMARY KEY,
+  nama TEXT NOT NULL,
+  harga REAL NOT NULL,
+  stok INTEGER
+);
+```
+
+:::note
+SQLite actually uses a more flexible type system ("type affinity") than other RDBMSes like PostgreSQL/MySQL — it doesn't always enforce data types as strictly. But still declare data types correctly, since other RDBMSes are much stricter, and it's good practice that keeps your schema clear to anyone reading it.
+:::
+
+## Filling a New Table with INSERT
+
+Once the table structure exists, you can `INSERT` right away as usual:
+
+```sql
+CREATE TABLE siswa (
+  id INTEGER PRIMARY KEY,
+  nama TEXT NOT NULL,
+  nilai INTEGER
+);
+
+INSERT INTO siswa (id, nama, nilai) VALUES
+  (1, 'Dewi', 88),
+  (2, 'Farhan', 92);
+
+SELECT * FROM siswa;
+```
+
+## Exercise
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u6l3-ex1"
+  title="Create a Notes Table"
+  description="Create a table named catatan with columns id (INTEGER PRIMARY KEY) and isi (TEXT NOT NULL). Then add one row: id 1, isi 'Belajar SQL hari ini!'. Show its contents."
+  type="code-output"
+  schema=""
+  starterCode="CREATE TABLE catatan (
+  id INTEGER PRIMARY KEY,
+  isi TEXT
+);
+
+SELECT * FROM catatan;"
+  expectedQuery="CREATE TABLE catatan (id INTEGER PRIMARY KEY, isi TEXT NOT NULL); INSERT INTO catatan (id, isi) VALUES (1, 'Belajar SQL hari ini!'); SELECT * FROM catatan;"
+  hints={["Add NOT NULL to the isi column", "Don't forget to INSERT after CREATE TABLE"]}
+  explanation="CREATE TABLE defines the structure, then INSERT fills in the data — both can run in sequence in one playground."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u6l3-ex2"
+  title="Create a Products Table with REAL"
+  description="Create a table named produk with columns id (INTEGER PRIMARY KEY), nama (TEXT NOT NULL), and harga (REAL). Add one row: id 1, nama 'Pensil', harga 2500.5. Show its contents."
+  type="code-output"
+  schema=""
+  starterCode="CREATE TABLE produk (
+  id INTEGER PRIMARY KEY,
+  nama TEXT NOT NULL
+);
+
+SELECT * FROM produk;"
+  expectedQuery="CREATE TABLE produk (id INTEGER PRIMARY KEY, nama TEXT NOT NULL, harga REAL); INSERT INTO produk (id, nama, harga) VALUES (1, 'Pensil', 2500.5); SELECT * FROM produk;"
+  hints={["Add a harga column of type REAL", "Don't forget to INSERT one row of data"]}
+  explanation="A REAL harga column can store decimal numbers like 2500.5, unlike INTEGER which only stores whole numbers."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u6l3-ex3"
+  title="What CREATE TABLE Does"
+  description="What does CREATE TABLE do?"
+  type="multiple-choice"
+  options={[
+    "Fills data into an already-existing table",
+    "Defines a new table's structure (column names and data types) — the resulting table is still empty",
+    "Deletes an existing table",
+    "Changes the data type of an existing column"
+  ]}
+  correctIndex={1}
+  hints={["CREATE TABLE is DDL, not DML — it's about STRUCTURE, not CONTENTS"]}
+  explanation="CREATE TABLE only defines a new table's structure/schema — what columns it has and their data types. A newly created table stays empty until you fill it with INSERT."
+  lang="en"
+/>
+
+## Summary
+
+| Concept | Example |
+|---------|---------|
+| Create a table | `CREATE TABLE name (column type, ...);` |
+| Data types | `INTEGER`, `REAL`, `TEXT` |
+| New table | Always empty until `INSERT`ed into |
+| DDL vs DML | `CREATE TABLE` = DDL (structure), `INSERT`/`UPDATE`/`DELETE` = DML (data) |
+
+Next: tightening data rules with **constraints** — `PRIMARY KEY`, `FOREIGN KEY`, `NOT NULL`, `UNIQUE`, `DEFAULT`, and `CHECK`.

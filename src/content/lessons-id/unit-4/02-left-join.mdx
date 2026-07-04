@@ -1,0 +1,133 @@
+---
+title: "LEFT JOIN"
+unit: 4
+lesson: 2
+description: "Menampilkan semua baris dari tabel kiri meski tidak ada pasangan di tabel kanan dengan LEFT JOIN"
+objectives:
+  - "Menulis query LEFT JOIN antara dua tabel"
+  - "Memahami LEFT JOIN mengisi NULL saat tidak ada pasangan"
+  - "Mencari baris 'tanpa pasangan' dengan LEFT JOIN + WHERE ... IS NULL"
+estimatedTime: 30
+prerequisites: ["unit-4/01-inner-join"]
+difficulty: "intermediate"
+tags: ["left-join", "join"]
+database: "perpustakaan"
+---
+
+# LEFT JOIN
+
+`INNER JOIN` di lesson sebelumnya "menyembunyikan" anggota yang belum pernah meminjam buku — mereka tidak punya pasangan, jadi tidak muncul. Tapi bagaimana kalau pertanyaanmu justru **"anggota mana saja yang belum pernah meminjam?"** — kamu butuh `LEFT JOIN`.
+
+## LEFT JOIN Dasar
+
+```sql
+SELECT anggota.nama, peminjaman.tanggal_pinjam
+FROM anggota
+LEFT JOIN peminjaman ON anggota.id = peminjaman.anggota_id;
+```
+
+`LEFT JOIN` mengembalikan **semua baris dari tabel kiri** (`anggota`), meskipun tidak ada pasangan di tabel kanan (`peminjaman`). Untuk anggota tanpa peminjaman, kolom dari `peminjaman` akan diisi `NULL`.
+
+<img src="/images/inner-vs-left-join.svg" alt="LEFT JOIN menyertakan semua baris tabel kiri, INNER JOIN hanya yang cocok" width="100%" />
+
+:::note
+"Kiri" mengacu pada tabel yang ditulis di `FROM`, dan "kanan" pada tabel yang ditulis setelah `LEFT JOIN`. `FROM anggota LEFT JOIN peminjaman` berarti anggota adalah tabel kiri.
+:::
+
+## Mencari Baris "Tanpa Pasangan"
+
+Kombinasi `LEFT JOIN` + `WHERE ... IS NULL` adalah pola klasik untuk menemukan baris tabel kiri yang **tidak punya pasangan sama sekali**:
+
+```sql
+-- Anggota yang belum pernah meminjam buku apapun
+SELECT anggota.nama
+FROM anggota
+LEFT JOIN peminjaman ON anggota.id = peminjaman.anggota_id
+WHERE peminjaman.id IS NULL;
+```
+
+Kalau `peminjaman.id` (yang seharusnya selalu terisi jika ada pasangan) hasilnya `NULL`, itu tandanya baris `anggota` ini **tidak punya pasangan** di `peminjaman` sama sekali.
+
+## Buku yang Belum Pernah Dipinjam
+
+Pola yang sama bisa dibalik untuk mencari buku yang belum pernah dipinjam:
+
+```sql
+SELECT buku.judul
+FROM buku
+LEFT JOIN peminjaman ON buku.id = peminjaman.buku_id
+WHERE peminjaman.id IS NULL;
+```
+
+## Buku yang Sedang Dipinjam (Belum Dikembalikan)
+
+Ingat kolom `tanggal_kembali` yang nullable dari lesson sebelumnya? Kombinasi ini menemukan peminjaman yang masih aktif:
+
+```sql
+SELECT anggota.nama, buku.judul
+FROM peminjaman
+INNER JOIN anggota ON peminjaman.anggota_id = anggota.id
+INNER JOIN buku ON peminjaman.buku_id = buku.id
+WHERE peminjaman.tanggal_kembali IS NULL;
+```
+
+:::tip
+Perhatikan: `tanggal_kembali IS NULL` di sini beda konteks dengan `peminjaman.id IS NULL` pada pola "cari yang tanpa pasangan". Yang pertama mengecek nilai asli kolom (belum dikembalikan), yang kedua mengecek "ketiadaan pasangan JOIN" (kolom yang seharusnya selalu ada, tapi NULL karena LEFT JOIN tidak menemukan pasangan).
+:::
+
+## Latihan
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u4l2-ex1"
+  title="Semua Anggota, Termasuk yang Belum Pinjam"
+  description="Tampilkan nama semua anggota dan tanggal_pinjam mereka (jika ada) — anggota yang belum pernah pinjam tetap harus muncul."
+  type="code-output"
+  database="perpustakaan"
+  starterCode="SELECT anggota.nama, peminjaman.tanggal_pinjam FROM anggota INNER JOIN peminjaman ON anggota.id = peminjaman.anggota_id;"
+  expectedQuery="SELECT anggota.nama, peminjaman.tanggal_pinjam FROM anggota LEFT JOIN peminjaman ON anggota.id = peminjaman.anggota_id;"
+  hints={["Ganti INNER JOIN menjadi LEFT JOIN"]}
+  explanation="LEFT JOIN menyertakan semua anggota, termasuk yang tidak punya baris peminjaman (kolom tanggal_pinjam akan NULL untuk mereka)."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u4l2-ex2"
+  title="Anggota yang Belum Pernah Meminjam"
+  description="Tampilkan nama anggota yang belum pernah meminjam buku apapun."
+  type="code-output"
+  database="perpustakaan"
+  starterCode="SELECT anggota.nama FROM anggota LEFT JOIN peminjaman ON anggota.id = peminjaman.anggota_id;"
+  expectedQuery="SELECT anggota.nama FROM anggota LEFT JOIN peminjaman ON anggota.id = peminjaman.anggota_id WHERE peminjaman.id IS NULL;"
+  hints={["Tambahkan WHERE peminjaman.id IS NULL"]}
+  explanation="WHERE peminjaman.id IS NULL menyaring hanya baris anggota yang tidak punya pasangan di peminjaman sama sekali."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u4l2-ex3"
+  title="Kenapa LEFT JOIN untuk Kasus Ini"
+  description="Kenapa kita butuh LEFT JOIN (bukan INNER JOIN) untuk menemukan anggota yang belum pernah meminjam buku?"
+  type="multiple-choice"
+  options={[
+    "Karena LEFT JOIN lebih cepat dieksekusi",
+    "Karena INNER JOIN akan menyembunyikan anggota tanpa peminjaman (tidak ada pasangan = tidak muncul), sedangkan LEFT JOIN tetap menampilkannya dengan NULL",
+    "Karena tabel anggota harus selalu di sebelah kiri",
+    "Sebenarnya INNER JOIN juga bisa, hasilnya sama"
+  ]}
+  correctIndex={1}
+  hints={["Ingat sifat dasar INNER JOIN dari lesson sebelumnya"]}
+  explanation="INNER JOIN hanya menampilkan baris yang punya pasangan di kedua tabel — anggota tanpa peminjaman akan hilang dari hasil. LEFT JOIN mempertahankan semua baris tabel kiri, mengisi NULL saat tak ada pasangan, sehingga bisa dideteksi dengan IS NULL."
+  lang="id"
+/>
+
+## Ringkasan
+
+| Konsep | Contoh |
+|--------|--------|
+| LEFT JOIN dasar | `FROM a LEFT JOIN b ON a.id = b.a_id` |
+| Semua baris kiri disertakan | Tanpa pasangan → kolom kanan jadi NULL |
+| Cari yang tanpa pasangan | `LEFT JOIN ... WHERE b.id IS NULL` |
+
+Selanjutnya: menggabungkan **lebih dari dua tabel sekaligus**.

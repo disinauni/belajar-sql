@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 220" width="680" height="220" font-family="'Segoe UI', system-ui, sans-serif">
+  <defs>
+    <style>
+      :root {
+        --bg: #f8fafc; --border: #e2e8f0; --card-bg: #ffffff; --card-border: #e2e8f0;
+        --value-text: #1e293b; --text-sub: #64748b; --shadow: rgba(0,0,0,0.07);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #0f172a; --border: #1e293b; --card-bg: #1e293b; --card-border: #334155;
+          --value-text: #f1f5f9; --text-sub: #94a3b8; --shadow: rgba(0,0,0,0.4);
+        }
+      }
+    </style>
+    <filter id="af-shadow"><feDropShadow dx="0" dy="2" stdDeviation="5" flood-color="var(--shadow)"/></filter>
+  </defs>
+
+  <rect width="680" height="220" rx="14" fill="var(--bg)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="340" y="24" text-anchor="middle" fill="var(--text-sub)" font-size="11" font-weight="600" letter-spacing="0.5">5 FUNGSI AGREGAT: MERINGKAS BANYAK BARIS JADI SATU NILAI</text>
+
+  <!-- Input column of rows -->
+  <g font-family="'JetBrains Mono', monospace" font-size="10">
+    <rect x="30" y="50" width="70" height="130" rx="6" fill="var(--card-bg)" stroke="var(--card-border)"/>
+    <text x="65" y="68" text-anchor="middle" fill="var(--text-sub)" font-size="9">harga</text>
+    <text x="65" y="86" text-anchor="middle" fill="var(--value-text)">68000</text>
+    <text x="65" y="102" text-anchor="middle" fill="var(--value-text)">85000</text>
+    <text x="65" y="118" text-anchor="middle" fill="var(--value-text)">89000</text>
+    <text x="65" y="134" text-anchor="middle" fill="var(--value-text)">110000</text>
+    <text x="65" y="150" text-anchor="middle" fill="var(--value-text)">95000</text>
+    <text x="65" y="166" text-anchor="middle" fill="var(--text-sub)">...dst</text>
+  </g>
+
+  <!-- 5 result cards -->
+  <g filter="url(#af-shadow)">
+    <rect x="140" y="50" width="100" height="130" rx="10" fill="var(--card-bg)" stroke="#3b82f6" stroke-width="1.5"/>
+    <rect x="255" y="50" width="100" height="130" rx="10" fill="var(--card-bg)" stroke="#10b981" stroke-width="1.5"/>
+    <rect x="370" y="50" width="100" height="130" rx="10" fill="var(--card-bg)" stroke="#8b5cf6" stroke-width="1.5"/>
+    <rect x="485" y="50" width="95" height="130" rx="10" fill="var(--card-bg)" stroke="#f59e0b" stroke-width="1.5"/>
+    <rect x="590" y="50" width="60" height="130" rx="10" fill="var(--card-bg)" stroke="#ef4444" stroke-width="1.5"/>
+  </g>
+
+  <text x="190" y="75" text-anchor="middle" fill="#2563eb" font-size="12" font-weight="700" font-family="'JetBrains Mono', monospace">COUNT</text>
+  <text x="190" y="120" text-anchor="middle" fill="var(--value-text)" font-size="20" font-weight="700">12</text>
+  <text x="190" y="160" text-anchor="middle" fill="var(--text-sub)" font-size="9">jumlah baris</text>
+
+  <text x="305" y="75" text-anchor="middle" fill="#059669" font-size="12" font-weight="700" font-family="'JetBrains Mono', monospace">SUM</text>
+  <text x="305" y="120" text-anchor="middle" fill="var(--value-text)" font-size="14" font-weight="700">995000</text>
+  <text x="305" y="160" text-anchor="middle" fill="var(--text-sub)" font-size="9">total nilai</text>
+
+  <text x="420" y="75" text-anchor="middle" fill="#7c3aed" font-size="12" font-weight="700" font-family="'JetBrains Mono', monospace">AVG</text>
+  <text x="420" y="120" text-anchor="middle" fill="var(--value-text)" font-size="14" font-weight="700">82917</text>
+  <text x="420" y="160" text-anchor="middle" fill="var(--text-sub)" font-size="9">rata-rata</text>
+
+  <text x="532" y="75" text-anchor="middle" fill="#d97706" font-size="12" font-weight="700" font-family="'JetBrains Mono', monospace">MIN</text>
+  <text x="532" y="120" text-anchor="middle" fill="var(--value-text)" font-size="14" font-weight="700">55000</text>
+  <text x="532" y="160" text-anchor="middle" fill="var(--text-sub)" font-size="9">terkecil</text>
+
+  <text x="620" y="75" text-anchor="middle" fill="#dc2626" font-size="12" font-weight="700" font-family="'JetBrains Mono', monospace">MAX</text>
+  <text x="620" y="120" text-anchor="middle" fill="var(--value-text)" font-size="12" font-weight="700">120k</text>
+  <text x="620" y="160" text-anchor="middle" fill="var(--text-sub)" font-size="8">terbesar</text>
+
+  <line x1="105" y1="115" x2="135" y2="115" stroke="var(--text-sub)" stroke-width="1.5"/>
+</svg>

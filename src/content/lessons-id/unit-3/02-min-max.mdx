@@ -1,0 +1,120 @@
+---
+title: "MIN & MAX"
+unit: 3
+lesson: 2
+description: "Mencari nilai terkecil dan terbesar pada sebuah kolom dengan MIN dan MAX"
+objectives:
+  - "Mencari nilai terkecil dengan MIN"
+  - "Mencari nilai terbesar dengan MAX"
+  - "Memahami MIN/MAX juga bekerja pada teks dan tanggal"
+estimatedTime: 15
+prerequisites: ["unit-3/01-sum-avg"]
+difficulty: "beginner"
+tags: ["min", "max", "fungsi-agregat"]
+database: "toko_buku"
+---
+
+# MIN & MAX
+
+`MIN` dan `MAX` adalah fungsi agregat untuk mencari nilai terkecil dan terbesar pada sebuah kolom.
+
+## MIN & MAX pada Angka
+
+```sql
+SELECT MIN(harga) AS termurah, MAX(harga) AS termahal FROM buku;
+```
+
+Satu query bisa langsung menghasilkan dua angka ringkasan sekaligus — harga termurah dan termahal.
+
+```sql
+SELECT MIN(tahun_terbit) AS tertua, MAX(tahun_terbit) AS terbaru FROM buku;
+```
+
+## MIN/MAX Bukan Cuma untuk Angka
+
+`MIN`/`MAX` juga bekerja pada kolom teks (alfabetis) dan tanggal (kronologis):
+
+```sql
+-- Judul paling awal dan paling akhir secara alfabetis
+SELECT MIN(judul) AS judul_pertama_abjad, MAX(judul) AS judul_terakhir_abjad
+FROM buku;
+```
+
+## Mencari Baris Lengkap dengan Nilai MIN/MAX
+
+`MIN(harga)` hanya mengembalikan **angkanya saja**, bukan seluruh baris buku itu. Untuk mengetahui buku *mana* yang termurah lengkap dengan semua kolomnya, gabungkan dengan `ORDER BY` + `LIMIT` (dari Unit 1) — bukan `MIN()`:
+
+```sql
+-- Cara mendapatkan angka termurah saja
+SELECT MIN(harga) FROM buku;
+
+-- Cara mendapatkan BARIS buku termurah lengkap
+SELECT * FROM buku ORDER BY harga ASC LIMIT 1;
+```
+
+:::tip
+Ini kesalahan pemula yang umum: mengira `SELECT judul, MIN(harga) FROM buku` akan menampilkan judul buku termurah. Padahal itu mencampur kolom biasa dengan fungsi agregat tanpa `GROUP BY` — hasilnya tidak terdefinisi dengan baik. Kita akan bahas kenapa di lesson **GROUP BY** berikutnya.
+:::
+
+## MIN/MAX dengan WHERE
+
+```sql
+-- Harga termahal khusus kategori Fiksi
+SELECT MAX(harga) AS termahal_fiksi FROM buku WHERE kategori = 'Fiksi';
+```
+
+## Latihan
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u3l2-ex1"
+  title="Stok Tertinggi dan Terendah"
+  description="Tampilkan stok terkecil (alias stok_min) dan stok terbesar (alias stok_max) dari seluruh buku."
+  type="code-output"
+  starterCode="SELECT MIN(harga), MAX(harga) FROM buku;"
+  expectedQuery="SELECT MIN(stok) AS stok_min, MAX(stok) AS stok_max FROM buku;"
+  hints={["Ganti kolom harga menjadi stok"]}
+  explanation="MIN(stok) dan MAX(stok) menghasilkan dua angka ringkasan sekaligus dalam satu query."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u3l2-ex2"
+  title="Buku Termurah Lengkap (bukan cuma angkanya)"
+  description="Tampilkan SEMUA KOLOM untuk buku dengan harga termurah (gunakan ORDER BY + LIMIT, bukan MIN())."
+  type="code-output"
+  strictOrder
+  starterCode="SELECT MIN(harga) FROM buku;"
+  expectedQuery="SELECT * FROM buku ORDER BY harga ASC LIMIT 1;"
+  hints={["MIN(harga) hanya memberi angkanya, bukan barisnya", "Urutkan ASC lalu ambil baris pertama"]}
+  explanation="Untuk mendapatkan baris lengkap dengan nilai terendah, gunakan ORDER BY ASC LIMIT 1 — bukan MIN(), yang hanya mengembalikan angka."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u3l2-ex3"
+  title="MIN/MAX pada Teks"
+  description="Apa yang dilakukan MAX(judul) pada kolom teks?"
+  type="multiple-choice"
+  options={[
+    "Selalu error karena MAX hanya untuk angka",
+    "Mengembalikan judul dengan urutan alfabet paling akhir",
+    "Mengembalikan judul terpanjang",
+    "Mengembalikan judul yang paling sering muncul"
+  ]}
+  correctIndex={1}
+  hints={["MIN/MAX pada teks bekerja berdasarkan urutan alfabetis"]}
+  explanation="MAX pada kolom teks mengembalikan nilai yang urutan alfabetisnya paling akhir, sama seperti MIN mengembalikan yang paling awal."
+  lang="id"
+/>
+
+## Ringkasan
+
+| Fungsi | Kegunaan |
+|--------|----------|
+| `MIN(kolom)` | Nilai terkecil (angka) atau paling awal (teks/tanggal) |
+| `MAX(kolom)` | Nilai terbesar (angka) atau paling akhir (teks/tanggal) |
+| Baris lengkap termin/termax | Pakai `ORDER BY` + `LIMIT 1`, bukan `MIN()`/`MAX()` |
+
+Sekarang kamu punya 5 fungsi agregat: `COUNT`, `SUM`, `AVG`, `MIN`, `MAX`. Selanjutnya kita belajar **GROUP BY** — cara mengelompokkan baris supaya fungsi agregat ini bisa dihitung per kelompok, bukan cuma satu angka untuk seluruh tabel.

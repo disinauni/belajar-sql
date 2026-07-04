@@ -1,0 +1,152 @@
+---
+title: "Constraint: PRIMARY KEY, FOREIGN KEY, dan Lainnya"
+unit: 6
+lesson: 4
+description: "Memperketat aturan data dengan constraint: PRIMARY KEY, FOREIGN KEY, NOT NULL, UNIQUE, DEFAULT, CHECK"
+objectives:
+  - "Menjelaskan fungsi masing-masing constraint utama"
+  - "Menulis CREATE TABLE dengan kombinasi beberapa constraint"
+  - "Memahami constraint mencegah data tidak valid tersimpan"
+estimatedTime: 30
+prerequisites: ["unit-6/03-create-table"]
+difficulty: "intermediate"
+tags: ["constraint", "primary-key", "foreign-key", "ddl"]
+---
+
+# Constraint: PRIMARY KEY, FOREIGN KEY, dan Lainnya
+
+**Constraint** adalah aturan yang ditempelkan pada kolom tabel untuk mencegah data yang tidak valid tersimpan. Kamu sudah memakai beberapa constraint sejak awal kursus ini (`PRIMARY KEY`, `NOT NULL`, `REFERENCES`) — sekarang mari lihat semuanya secara lengkap.
+
+## Ringkasan Constraint
+
+| Constraint | Fungsi |
+|-----------|--------|
+| `PRIMARY KEY` | Nilai unik, identitas utama tiap baris |
+| `FOREIGN KEY` / `REFERENCES` | Merujuk ke Primary Key tabel lain |
+| `NOT NULL` | Kolom wajib diisi, tidak boleh NULL |
+| `UNIQUE` | Nilai tidak boleh sama dengan baris lain |
+| `DEFAULT` | Nilai otomatis jika tidak diisi saat INSERT |
+| `CHECK` | Nilai harus memenuhi kondisi tertentu |
+
+## Contoh Lengkap
+
+```sql
+CREATE TABLE anggota (
+  id INTEGER PRIMARY KEY,
+  nama TEXT NOT NULL,
+  email TEXT UNIQUE,
+  status TEXT DEFAULT 'aktif',
+  umur INTEGER CHECK (umur >= 10)
+);
+```
+
+Mari bedah tiap constraint:
+- `id INTEGER PRIMARY KEY` — setiap anggota harus punya id unik
+- `nama TEXT NOT NULL` — nama wajib diisi
+- `email TEXT UNIQUE` — dua anggota tidak boleh punya email yang sama (tapi boleh NULL kalau belum diisi)
+- `status TEXT DEFAULT 'aktif'` — kalau tidak diisi saat INSERT, otomatis terisi `'aktif'`
+- `umur INTEGER CHECK (umur >= 10)` — SQLite menolak `INSERT` dengan umur di bawah 10
+
+## Melihat Constraint Bekerja
+
+```sql
+-- Ini akan berhasil — status otomatis 'aktif', email unik
+INSERT INTO anggota (id, nama, email, umur) VALUES (1, 'Dewi', 'dewi@email.com', 15);
+
+-- Ini akan GAGAL — email sudah dipakai id 1 (melanggar UNIQUE)
+INSERT INTO anggota (id, nama, email, umur) VALUES (2, 'Farhan', 'dewi@email.com', 16);
+
+-- Ini akan GAGAL — umur di bawah 10 (melanggar CHECK)
+INSERT INTO anggota (id, nama, email, umur) VALUES (3, 'Budi', 'budi@email.com', 8);
+```
+
+:::tip
+Constraint adalah "penjaga gerbang" data — mereka menolak data yang melanggar aturan **sebelum** tersimpan, jadi kamu tidak perlu memeriksa validitas data secara manual di setiap query. Rancang constraint sejak awal `CREATE TABLE`, jangan menunggu data tidak valid masuk dulu baru dibersihkan.
+:::
+
+## FOREIGN KEY Sebagai Constraint
+
+```sql
+CREATE TABLE peminjaman (
+  id INTEGER PRIMARY KEY,
+  anggota_id INTEGER NOT NULL REFERENCES anggota(id),
+  tanggal_pinjam TEXT NOT NULL
+);
+```
+
+`REFERENCES anggota(id)` adalah bentuk singkat dari `FOREIGN KEY` constraint — SQLite (jika diaktifkan) akan menolak `INSERT` ke `peminjaman` dengan `anggota_id` yang tidak ada di tabel `anggota`.
+
+## Latihan
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u6l4-ex1"
+  title="Tabel dengan DEFAULT"
+  description="Buat tabel pesanan dengan kolom id (INTEGER PRIMARY KEY), item (TEXT NOT NULL), dan status (TEXT DEFAULT 'menunggu'). INSERT satu baris tanpa mengisi status, lalu tampilkan semua kolomnya."
+  type="code-output"
+  schema=""
+  starterCode="CREATE TABLE pesanan (
+  id INTEGER PRIMARY KEY,
+  item TEXT NOT NULL
+);
+
+INSERT INTO pesanan (id, item) VALUES (1, 'Buku Tulis');
+
+SELECT * FROM pesanan;"
+  expectedQuery="CREATE TABLE pesanan (id INTEGER PRIMARY KEY, item TEXT NOT NULL, status TEXT DEFAULT 'menunggu'); INSERT INTO pesanan (id, item) VALUES (1, 'Buku Tulis'); SELECT * FROM pesanan;"
+  hints={["Tambahkan kolom status TEXT DEFAULT 'menunggu'"]}
+  explanation="Karena status tidak diisi saat INSERT, DEFAULT 'menunggu' otomatis mengisi nilai itu."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u6l4-ex2"
+  title="Tabel dengan CHECK"
+  description="Buat tabel produk dengan kolom id (INTEGER PRIMARY KEY), nama (TEXT NOT NULL), dan harga (INTEGER CHECK (harga >= 0)). Coba INSERT satu produk dengan harga 15000, lalu tampilkan isinya."
+  type="code-output"
+  schema=""
+  starterCode="CREATE TABLE produk (
+  id INTEGER PRIMARY KEY,
+  nama TEXT NOT NULL,
+  harga INTEGER
+);
+
+INSERT INTO produk (id, nama, harga) VALUES (1, 'Pensil', 15000);
+
+SELECT * FROM produk;"
+  expectedQuery="CREATE TABLE produk (id INTEGER PRIMARY KEY, nama TEXT NOT NULL, harga INTEGER CHECK (harga >= 0)); INSERT INTO produk (id, nama, harga) VALUES (1, 'Pensil', 15000); SELECT * FROM produk;"
+  hints={["Tambahkan CHECK (harga >= 0) pada kolom harga"]}
+  explanation="CHECK (harga >= 0) tidak menghalangi INSERT ini karena 15000 memenuhi syarat — tapi akan menolak nilai negatif."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u6l4-ex3"
+  title="Beda UNIQUE dan PRIMARY KEY"
+  description="Apa perbedaan utama antara constraint UNIQUE dan PRIMARY KEY?"
+  type="multiple-choice"
+  options={[
+    "Tidak ada bedanya, keduanya identik",
+    "Sebuah tabel hanya boleh punya SATU Primary Key, tapi bisa punya BEBERAPA kolom UNIQUE",
+    "UNIQUE hanya berlaku untuk kolom angka",
+    "PRIMARY KEY boleh diisi NULL, UNIQUE tidak boleh"
+  ]}
+  correctIndex={1}
+  hints={["Pikirkan berapa banyak kolom 'identitas utama' yang masuk akal untuk satu tabel"]}
+  explanation="Sebuah tabel hanya boleh punya satu Primary Key (identitas utama), tapi bisa punya beberapa kolom UNIQUE berbeda (misalnya email dan nomor telepon, keduanya harus unik tapi bukan Primary Key)."
+  lang="id"
+/>
+
+## Ringkasan
+
+| Constraint | Contoh |
+|-----------|--------|
+| `PRIMARY KEY` | `id INTEGER PRIMARY KEY` |
+| `FOREIGN KEY` | `anggota_id INTEGER REFERENCES anggota(id)` |
+| `NOT NULL` | `nama TEXT NOT NULL` |
+| `UNIQUE` | `email TEXT UNIQUE` |
+| `DEFAULT` | `status TEXT DEFAULT 'aktif'` |
+| `CHECK` | `umur INTEGER CHECK (umur >= 10)` |
+
+Selanjutnya: mengubah struktur tabel yang sudah ada dengan **ALTER TABLE**, dan menghapusnya sepenuhnya dengan **DROP TABLE**.

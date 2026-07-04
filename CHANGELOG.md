@@ -5,9 +5,23 @@ Semua perubahan penting pada proyek belajar-sql dicatat di file ini. Format meng
 ## [Unreleased]
 
 ### Added
+- **Kurikulum lengkap Unit 2-6** (33 lesson baru × ID/EN = 66 file MDX), melengkapi roadmap yang sebelumnya kosong:
+  - **Unit 2 — Filtering & Operator** (6 lesson): `AND`/`OR`/`NOT`, `LIKE` & wildcard, `IN`, `BETWEEN`, `NULL`/`COALESCE`, proyek mini filter lanjutan
+  - **Unit 3 — Agregasi & GROUP BY** (7 lesson): `COUNT`, `SUM`/`AVG`, `MIN`/`MAX`, `GROUP BY`, `HAVING`, urutan klausa F-W-G-H-O-L lengkap, proyek mini laporan penjualan
+  - **Unit 4 — JOIN** (7 lesson): konsep JOIN & Foreign Key, `INNER JOIN`, `LEFT JOIN`, JOIN 3+ tabel, Self JOIN, kondisi `ON` vs `WHERE` lanjutan, proyek mini sistem perpustakaan
+  - **Unit 5 — Subquery & CTE** (6 lesson): subquery di `WHERE`/`SELECT`/`FROM`, `IN`+subquery, `EXISTS`/`NOT EXISTS`, CTE (`WITH`) & `UNION`, proyek mini analisis data
+  - **Unit 6 — Modifikasi Data & Skema** (7 lesson): `INSERT`, `UPDATE`, `DELETE`, `CREATE TABLE`, constraint (`PRIMARY KEY`/`FOREIGN KEY`/`NOT NULL`/`UNIQUE`/`DEFAULT`/`CHECK`), `ALTER`/`DROP TABLE`, final project capstone
+- `src/data/sample-databases.ts`: database `perpustakaan` dibangun penuh (3 tabel relasional: `anggota`, `buku`, `peminjaman`) untuk mengajarkan JOIN tanpa mengubah skema `toko_buku` yang sudah dipakai Unit 0-1
+- `src/data/glossary.ts`: kategori baru `lanjutan` (Subquery & Lanjutan) plus istilah baru — `COALESCE`, `Self JOIN`, `Subquery`, `CTE`, `UNION`, `EXISTS`, `NOT NULL`, `UNIQUE`, `DEFAULT`, `CHECK`, `ALTER TABLE`
+- 10 diagram SVG baru untuk Unit 2-6 (operator logika, wildcard LIKE, fungsi agregat, GROUP BY/HAVING, INNER vs LEFT JOIN, join multi-tabel, subquery nesting, CTE/UNION, siklus CRUD, constraint)
 - `vercel.json` — konfigurasi deploy static ke Vercel: `buildCommand`/`outputDirectory` eksplisit, `Content-Type: application/wasm` + caching untuk `/wasm/*`, cache immutable untuk aset `/_astro/*` dan `/images/*`, serta security headers (`X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`, `Content-Security-Policy` dengan `wasm-unsafe-eval` di `script-src` agar sql.js/WebAssembly bisa di-instantiate di bawah CSP ketat)
 - `package.json`: field `engines.node: "22.x"` agar Vercel memakai versi Node yang sama dengan environment development (Volta)
 - `CHANGELOG.md` untuk mencatat riwayat perubahan proyek
+
+### Changed
+- `src/lib/curriculum.ts`: Unit 2-6 diubah dari `isAvailable: false, lessons: []` menjadi kurikulum penuh dengan `projectTitle` nyata per unit
+- `src/lib/progress.ts`: `UNIT_LESSON_COUNTS` diperluas mencakup unit-2 s/d unit-6 agar badge "Unit N Selesai" berfungsi benar
+- `README.md`: tabel kurikulum diperbarui — semua 7 unit kini ✅ Tersedia (44 lesson total)
 
 ## [0.1.0-beta.1] - 2026-07-04
 

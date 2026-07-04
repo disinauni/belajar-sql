@@ -1,0 +1,124 @@
+---
+title: "Filtering Groups with HAVING"
+unit: 3
+lesson: 4
+description: "Filtering GROUP BY results based on an aggregate value with HAVING"
+objectives:
+  - "Filter GROUP BY groups with HAVING"
+  - "Understand the fundamental difference between WHERE and HAVING"
+  - "Combine WHERE and HAVING in a single query"
+estimatedTime: 25
+prerequisites: ["unit-3/03-group-by"]
+difficulty: "beginner"
+tags: ["having", "group-by", "aggregation"]
+database: "toko_buku"
+translationStatus: "complete"
+---
+
+# Filtering Groups with HAVING
+
+`WHERE` filters **raw rows** before grouping. But what if you want to filter based on the **aggregate result** — e.g. "show categories with more than 2 books"? `WHERE` can't do this, since `COUNT(*)` doesn't exist yet before grouping finishes. That's what `HAVING` is for.
+
+## Basic HAVING
+
+```sql
+SELECT kategori, COUNT(*) AS jumlah
+FROM buku
+GROUP BY kategori
+HAVING COUNT(*) > 1;
+```
+
+Only categories with more than 1 book show up — categories with exactly 1 book (Non-Fiksi, Keuangan) get filtered out.
+
+<img src="/images/group-by-having.svg" alt="WHERE filters rows, HAVING filters group results" width="100%" />
+
+## WHERE vs HAVING — The Fundamental Difference
+
+| | `WHERE` | `HAVING` |
+|---|---------|----------|
+| Operates on | Raw rows, before grouping | Group results, after aggregation |
+| Can use aggregate functions? | No | Yes |
+| When evaluated | Before `GROUP BY` | After `GROUP BY` |
+
+```sql
+-- Logically WRONG: WHERE can't use COUNT(*)
+SELECT kategori, COUNT(*) FROM buku WHERE COUNT(*) > 1 GROUP BY kategori;
+```
+
+```sql
+-- CORRECT: HAVING is used to filter aggregate results
+SELECT kategori, COUNT(*) FROM buku GROUP BY kategori HAVING COUNT(*) > 1;
+```
+
+## Combining WHERE and HAVING
+
+Both can be used together — `WHERE` filters rows first, then grouping happens, then `HAVING` filters the group results:
+
+```sql
+-- Only books with stock > 0, grouped by category,
+-- then show categories with average price above 70000
+SELECT kategori, ROUND(AVG(harga), 0) AS rata_rata
+FROM buku
+WHERE stok > 0
+GROUP BY kategori
+HAVING AVG(harga) > 70000;
+```
+
+:::tip
+An easy way to remember: **WHERE filters BEFORE grouping** (individual rows), **HAVING filters AFTER grouping** (aggregate results). If your condition involves `COUNT`/`SUM`/`AVG`/`MIN`/`MAX`, it belongs in `HAVING`, not `WHERE`.
+:::
+
+## Exercise
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u3l4-ex1"
+  title="Categories With More Than 1 Book"
+  description="Show the category and its book count (aliased jumlah), only for categories with MORE THAN 1 book."
+  type="code-output"
+  starterCode="SELECT kategori, COUNT(*) AS jumlah FROM buku GROUP BY kategori;"
+  expectedQuery="SELECT kategori, COUNT(*) AS jumlah FROM buku GROUP BY kategori HAVING COUNT(*) > 1;"
+  hints={["Add HAVING COUNT(*) > 1 after GROUP BY"]}
+  explanation="HAVING COUNT(*) > 1 filters the grouped results, keeping only categories with more than 1 book."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u3l4-ex2"
+  title="Categories With High Average Price"
+  description="Show the category and its average price (aliased rata_rata, rounded), only for categories with an average price GREATER THAN 85000."
+  type="code-output"
+  starterCode="SELECT kategori, ROUND(AVG(harga), 0) AS rata_rata FROM buku GROUP BY kategori;"
+  expectedQuery="SELECT kategori, ROUND(AVG(harga), 0) AS rata_rata FROM buku GROUP BY kategori HAVING AVG(harga) > 85000;"
+  hints={["Add HAVING AVG(harga) > 85000"]}
+  explanation="HAVING AVG(harga) > 85000 filters categories based on their computed average, not individual rows."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u3l4-ex3"
+  title="When to Use HAVING"
+  description="You want to filter for 'categories whose total stock is greater than 20'. Which clause is correct?"
+  type="multiple-choice"
+  options={[
+    "WHERE SUM(stok) > 20",
+    "HAVING SUM(stok) > 20",
+    "GROUP BY SUM(stok) > 20",
+    "ORDER BY SUM(stok) > 20"
+  ]}
+  correctIndex={1}
+  hints={["This condition involves the SUM() result after grouping — not individual rows"]}
+  explanation="Since the condition involves the SUM() aggregate function, it must use HAVING (which runs after GROUP BY), not WHERE (which runs on individual rows before grouping)."
+  lang="en"
+/>
+
+## Summary
+
+| Concept | Example |
+|---------|---------|
+| Filter group result | `GROUP BY kategori HAVING COUNT(*) > 1` |
+| WHERE + HAVING together | `WHERE stok > 0 GROUP BY kategori HAVING AVG(harga) > 70000` |
+| Key rule | A condition with an aggregate function → `HAVING`, not `WHERE` |
+
+Next: combining every SELECT clause you've learned — `WHERE`, `GROUP BY`, `HAVING`, `ORDER BY`, `LIMIT` — in the correct order.

@@ -1,0 +1,141 @@
+---
+title: "Operator Logika: AND, OR, NOT"
+unit: 2
+lesson: 0
+description: "Menggabungkan lebih dari satu kondisi WHERE dengan AND, OR, dan NOT"
+objectives:
+  - "Menggabungkan dua kondisi atau lebih dengan AND dan OR"
+  - "Membalik hasil kondisi dengan NOT"
+  - "Memahami urutan evaluasi AND/OR dan kapan butuh tanda kurung"
+estimatedTime: 25
+prerequisites: ["unit-1/07-proyek-mini-query-toko-buku"]
+difficulty: "beginner"
+tags: ["operator-logika", "and", "or", "not", "where"]
+database: "toko_buku"
+---
+
+# Operator Logika: AND, OR, NOT
+
+Di Unit 1 kamu sudah memakai `WHERE` dengan satu kondisi. Tapi pertanyaan nyata sering butuh **lebih dari satu syarat sekaligus** — misalnya "buku Fiksi yang harganya di bawah 70000". Di sinilah operator logika `AND`, `OR`, dan `NOT` berperan.
+
+## AND — Kedua Kondisi Harus Benar
+
+```sql
+SELECT judul, kategori, harga
+FROM buku
+WHERE kategori = 'Fiksi' AND harga < 70000;
+```
+
+Baris hanya muncul jika **kedua** kondisi terpenuhi. Kamu bisa merangkai lebih dari dua kondisi dengan `AND` berulang:
+
+```sql
+SELECT judul FROM buku
+WHERE kategori = 'Fiksi' AND harga < 70000 AND stok > 0;
+```
+
+## OR — Salah Satu Kondisi Cukup
+
+```sql
+SELECT judul, kategori
+FROM buku
+WHERE kategori = 'Teknologi' OR kategori = 'Keuangan';
+```
+
+Baris muncul jika **minimal satu** dari kondisi terpenuhi.
+
+:::warning
+`AND` dan `OR` sering tertukar dengan bahasa sehari-hari. "Tampilkan buku Fiksi dan Teknologi" dalam bahasa Indonesia terdengar seperti "AND", tapi maksudnya sebenarnya "kategori = Fiksi **ATAU** kategori = Teknologi" — karena satu baris tidak mungkin punya dua kategori sekaligus!
+:::
+
+## NOT — Membalik Kondisi
+
+```sql
+SELECT judul, kategori
+FROM buku
+WHERE NOT kategori = 'Fiksi';
+```
+
+Setara dengan `WHERE kategori <> 'Fiksi'`. `NOT` lebih terasa manfaatnya saat membalik kondisi yang kompleks:
+
+```sql
+SELECT judul FROM buku
+WHERE NOT (kategori = 'Fiksi' AND harga > 80000);
+```
+
+## Urutan Evaluasi & Tanda Kurung
+
+Saat `AND` dan `OR` digabung, SQL mengevaluasi `AND` **lebih dulu** daripada `OR` — sama seperti perkalian lebih dulu daripada penjumlahan di matematika.
+
+```sql
+-- Tanpa kurung: dievaluasi sebagai (kategori = 'Fiksi') OR (kategori = 'Teknologi' AND harga < 60000)
+SELECT judul FROM buku
+WHERE kategori = 'Fiksi' OR kategori = 'Teknologi' AND harga < 60000;
+```
+
+Kalau maksudmu berbeda, **selalu tulis tanda kurung eksplisit** — jangan mengandalkan urutan implisit:
+
+```sql
+-- Lebih jelas: "kategori Fiksi ATAU Teknologi, DAN harganya di bawah 60000"
+SELECT judul FROM buku
+WHERE (kategori = 'Fiksi' OR kategori = 'Teknologi') AND harga < 60000;
+```
+
+:::tip
+Kalau query WHERE kamu mulai punya lebih dari satu `AND`/`OR`, selalu tambahkan tanda kurung meskipun urutan defaultnya sudah benar — supaya orang lain (dan kamu sendiri, tiga bulan kemudian) langsung paham maksudnya tanpa perlu mengingat aturan prioritas.
+:::
+
+## Latihan
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u2l0-ex1"
+  title="Fiksi Murah dan Tersedia"
+  description="Tampilkan judul buku kategori 'Fiksi' dengan harga di bawah 70000 DAN stok lebih dari 0."
+  type="code-output"
+  starterCode="SELECT judul, kategori, harga, stok FROM buku WHERE kategori = 'Fiksi';"
+  expectedQuery="SELECT judul, kategori, harga, stok FROM buku WHERE kategori = 'Fiksi' AND harga < 70000 AND stok > 0;"
+  hints={["Gabungkan tiga kondisi dengan AND", "kategori = 'Fiksi', harga < 70000, stok > 0"]}
+  explanation="Tiga kondisi digabung dengan AND — baris hanya muncul jika ketiganya benar sekaligus."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u2l0-ex2"
+  title="Teknologi atau Keuangan"
+  description="Tampilkan judul dan kategori untuk buku yang kategorinya 'Teknologi' ATAU 'Keuangan'."
+  type="code-output"
+  starterCode="SELECT judul, kategori FROM buku WHERE kategori = 'Teknologi';"
+  expectedQuery="SELECT judul, kategori FROM buku WHERE kategori = 'Teknologi' OR kategori = 'Keuangan';"
+  hints={["Gunakan OR untuk menggabungkan dua kemungkinan kategori"]}
+  explanation="OR membuat baris muncul jika salah satu dari dua kondisi terpenuhi."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u2l0-ex3"
+  title="Prioritas AND vs OR"
+  description="Tanpa tanda kurung, kondisi WHERE manakah yang dievaluasi lebih dulu antara AND dan OR?"
+  type="multiple-choice"
+  options={[
+    "OR selalu dievaluasi lebih dulu",
+    "AND dievaluasi lebih dulu daripada OR",
+    "Keduanya dievaluasi bersamaan tanpa urutan",
+    "Urutannya acak tergantung data"
+  ]}
+  correctIndex={1}
+  hints={["Mirip aturan perkalian sebelum penjumlahan di matematika"]}
+  explanation="AND memiliki prioritas lebih tinggi daripada OR, jadi dievaluasi lebih dulu jika tidak ada tanda kurung. Sebaiknya selalu gunakan tanda kurung eksplisit untuk kejelasan."
+  lang="id"
+/>
+
+## Ringkasan
+
+| Operator | Arti | Contoh |
+|----------|------|--------|
+| `AND` | Kedua kondisi harus benar | `harga < 70000 AND stok > 0` |
+| `OR` | Salah satu kondisi cukup | `kategori = 'A' OR kategori = 'B'` |
+| `NOT` | Membalik kondisi | `NOT kategori = 'Fiksi'` |
+| `(...)` | Mengelompokkan kondisi eksplisit | `(A OR B) AND C` |
+
+Selanjutnya: mencocokkan pola teks dengan **LIKE** dan wildcard.

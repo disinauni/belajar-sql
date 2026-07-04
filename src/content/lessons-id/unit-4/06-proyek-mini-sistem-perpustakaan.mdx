@@ -1,0 +1,107 @@
+---
+title: "Proyek Mini: Sistem Perpustakaan"
+unit: 4
+lesson: 6
+description: "Menyusun laporan lengkap sistem perpustakaan sekolah menggunakan seluruh teknik JOIN"
+objectives:
+  - "Menyusun query multi-tabel yang menjawab pertanyaan bisnis nyata"
+  - "Menggabungkan INNER JOIN, LEFT JOIN, GROUP BY, dan HAVING dalam satu query"
+  - "Mereview seluruh konsep JOIN dari Unit 4"
+estimatedTime: 40
+prerequisites: ["unit-4/05-alias-kondisi-on-lanjutan"]
+difficulty: "intermediate"
+tags: ["project", "review"]
+database: "perpustakaan"
+---
+
+# Proyek Mini: Sistem Perpustakaan
+
+Selamat sampai di akhir Unit 4! Kamu sekarang bisa bekerja dengan database yang terdiri dari **banyak tabel berhubungan** — persis seperti sistem informasi sungguhan. Mari selesaikan beberapa laporan nyata untuk pengelola perpustakaan sekolah.
+
+## Perangkat JOIN yang Sudah Kamu Kuasai
+
+| Teknik | Kegunaan |
+|--------|----------|
+| `INNER JOIN` | Gabungkan baris yang punya pasangan di kedua tabel |
+| `LEFT JOIN` | Pertahankan semua baris tabel kiri, meski tanpa pasangan |
+| JOIN 3+ tabel | Rangkai beberapa klausa JOIN berturut-turut |
+| Self JOIN | Gabungkan tabel dengan dirinya sendiri (2 alias) |
+| Syarat di ON vs WHERE | ON untuk syarat pasangan, WHERE untuk syarat hasil akhir |
+
+## Studi Kasus: Laporan Buku Terpopuler
+
+**"Judul buku apa saja yang paling banyak dipinjam? Tampilkan judul dan jumlah peminjaman, urutkan dari yang terbanyak, hanya buku yang pernah dipinjam minimal 1 kali"**
+
+```sql
+SELECT buku.judul, COUNT(*) AS jumlah_dipinjam
+FROM peminjaman
+INNER JOIN buku ON peminjaman.buku_id = buku.id
+GROUP BY buku.judul
+ORDER BY jumlah_dipinjam DESC;
+```
+
+**"Buku apa saja yang BELUM PERNAH dipinjam sama sekali?"**
+
+```sql
+SELECT buku.judul
+FROM buku
+LEFT JOIN peminjaman ON buku.id = peminjaman.buku_id
+WHERE peminjaman.id IS NULL;
+```
+
+## Latihan Proyek
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u4l6-ex1"
+  title="Buku yang Sedang Dipinjam (Belum Kembali)"
+  description="Tampilkan nama anggota dan judul buku untuk semua peminjaman yang BELUM dikembalikan (tanggal_kembali NULL)."
+  type="code-output"
+  database="perpustakaan"
+  starterCode="SELECT anggota.nama, buku.judul FROM peminjaman INNER JOIN anggota ON peminjaman.anggota_id = anggota.id INNER JOIN buku ON peminjaman.buku_id = buku.id;"
+  expectedQuery="SELECT anggota.nama, buku.judul FROM peminjaman INNER JOIN anggota ON peminjaman.anggota_id = anggota.id INNER JOIN buku ON peminjaman.buku_id = buku.id WHERE peminjaman.tanggal_kembali IS NULL;"
+  hints={["Tambahkan WHERE peminjaman.tanggal_kembali IS NULL di akhir"]}
+  explanation="Karena syarat ini tentang peminjaman itu sendiri (bukan tentang 'apakah pasangan ada'), aman ditaruh di WHERE setelah INNER JOIN — berbeda dengan kasus LEFT JOIN di lesson sebelumnya."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u4l6-ex2"
+  title="Buku Terpopuler"
+  description="Tampilkan judul buku dan jumlah peminjamannya (alias jumlah_dipinjam), urutkan dari yang paling banyak dipinjam, ambil 3 teratas."
+  type="code-output"
+  database="perpustakaan"
+  strictOrder
+  starterCode="SELECT buku.judul, COUNT(*) AS jumlah_dipinjam FROM peminjaman INNER JOIN buku ON peminjaman.buku_id = buku.id GROUP BY buku.judul;"
+  expectedQuery="SELECT buku.judul, COUNT(*) AS jumlah_dipinjam FROM peminjaman INNER JOIN buku ON peminjaman.buku_id = buku.id GROUP BY buku.judul ORDER BY jumlah_dipinjam DESC LIMIT 3;"
+  hints={["Tambahkan ORDER BY jumlah_dipinjam DESC LIMIT 3 di akhir"]}
+  explanation="JOIN + GROUP BY + ORDER BY + LIMIT bekerja sama seperti unit-unit sebelumnya — hasil gabungan tabel diperlakukan seperti satu tabel besar."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u4l6-ex3"
+  title="Buku yang Belum Pernah Dipinjam"
+  description="Tampilkan judul buku yang belum pernah muncul di catatan peminjaman sama sekali."
+  type="code-output"
+  database="perpustakaan"
+  starterCode="SELECT buku.judul FROM buku INNER JOIN peminjaman ON buku.id = peminjaman.buku_id;"
+  expectedQuery="SELECT buku.judul FROM buku LEFT JOIN peminjaman ON buku.id = peminjaman.buku_id WHERE peminjaman.id IS NULL;"
+  hints={["Ganti INNER JOIN menjadi LEFT JOIN", "Tambahkan WHERE peminjaman.id IS NULL"]}
+  explanation="Pola LEFT JOIN + WHERE ... IS NULL menemukan baris tabel kiri (buku) yang tidak punya pasangan sama sekali di tabel kanan (peminjaman)."
+  lang="id"
+/>
+
+## Refleksi: Apa yang Sudah Kamu Kuasai
+
+| Konsep | Fungsi |
+|--------|--------|
+| Normalisasi & Foreign Key | Memecah data ke tabel terpisah, dihubungkan dengan FK |
+| `INNER JOIN` | Hanya baris berpasangan di kedua tabel |
+| `LEFT JOIN` | Semua baris kiri, NULL jika tak ada pasangan |
+| JOIN banyak tabel | Rangkai beberapa `JOIN` berturut-turut |
+| Self JOIN | Tabel di-JOIN dengan dirinya sendiri, dua alias |
+| ON vs WHERE | ON untuk syarat pasangan, WHERE untuk syarat hasil |
+
+Kamu sekarang bisa bekerja dengan database multi-tabel — kemampuan inti untuk hampir semua sistem informasi nyata! Di **Unit 5 (Subquery & CTE)**, kita akan belajar menyusun query di dalam query — cara lain untuk menjawab pertanyaan kompleks yang tidak selalu butuh JOIN.

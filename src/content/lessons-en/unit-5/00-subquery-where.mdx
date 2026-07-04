@@ -1,0 +1,122 @@
+---
+title: "Subqueries in WHERE"
+unit: 5
+lesson: 0
+description: "Writing a SELECT query inside another query's WHERE condition"
+objectives:
+  - "Write a subquery inside a WHERE clause"
+  - "Compare a row's value against an aggregate result from a subquery"
+  - "Understand that a subquery is evaluated before the outer query"
+estimatedTime: 25
+prerequisites: ["unit-4/06-proyek-mini-sistem-perpustakaan"]
+difficulty: "intermediate"
+tags: ["subquery", "where"]
+database: "toko_buku"
+translationStatus: "complete"
+---
+
+# Subqueries in WHERE
+
+Consider this question: **"which books are priced above the average price of ALL books?"**. You need two steps: (1) compute the average across all books, (2) compare each book against that number. A **subquery** lets you do both in **one** query.
+
+## Basic Subquery in WHERE
+
+```sql
+SELECT judul, harga
+FROM buku
+WHERE harga > (SELECT AVG(harga) FROM buku);
+```
+
+<img src="/images/subquery-nesting.svg" alt="A subquery is evaluated first, its result used by the outer query" width="100%" />
+
+The part `(SELECT AVG(harga) FROM buku)` is a **subquery** — a complete query written in parentheses, becoming part of the main query's (called the **outer query**) `WHERE` condition.
+
+## Evaluation Order
+
+SQLite evaluates the subquery **first**, then uses its result to evaluate the outer query:
+
+1. Run `SELECT AVG(harga) FROM buku` → produces one number, e.g. `82916.67`
+2. Substitute that number into the outer query: `WHERE harga > 82916.67`
+3. Run the outer query with that now-"filled-in" condition
+
+## Subquery vs Computing Manually
+
+Without a subquery, you'd have to run two separate queries and copy the number manually:
+
+```sql
+-- Step 1: find out the average (say the result is 82916.67)
+SELECT AVG(harga) FROM buku;
+
+-- Step 2: manually copy that number into the second query
+SELECT judul FROM buku WHERE harga > 82916.67;
+```
+
+A subquery combines both steps into a single query that's always accurate — if the data changes, the subquery automatically recomputes, unlike a manually copied number.
+
+## Subqueries with Other Operators
+
+A subquery that produces **a single value** (called a *scalar subquery*) can be used with any comparison operator:
+
+```sql
+-- The cheapest book (compare against the subquery's MIN result)
+SELECT judul, harga FROM buku WHERE harga = (SELECT MIN(harga) FROM buku);
+```
+
+:::warning
+A subquery used with `=`, `>`, `<`, etc. must return **exactly one row, one column**. If the subquery returns more than one row, SQLite will error. For subqueries returning many rows, use `IN` instead (covered in the next lesson).
+:::
+
+## Exercise
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u5l0-ex1"
+  title="Books Below Average"
+  description="Show the title and price of books priced LOWER than the average price of all books."
+  type="code-output"
+  starterCode="SELECT judul, harga FROM buku WHERE harga > (SELECT AVG(harga) FROM buku);"
+  expectedQuery="SELECT judul, harga FROM buku WHERE harga < (SELECT AVG(harga) FROM buku);"
+  hints={["Change the > operator to <"]}
+  explanation="The subquery (SELECT AVG(harga) FROM buku) computes the average once, then it's used to compare every row."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u5l0-ex2"
+  title="The Most Expensive Book (via Subquery)"
+  description="Show the title and price for the book priced EXACTLY EQUAL to the most expensive price (use a MAX subquery, not ORDER BY)."
+  type="code-output"
+  starterCode="SELECT judul, harga FROM buku WHERE harga = (SELECT MIN(harga) FROM buku);"
+  expectedQuery="SELECT judul, harga FROM buku WHERE harga = (SELECT MAX(harga) FROM buku);"
+  hints={["Change MIN to MAX inside the subquery"]}
+  explanation="The subquery (SELECT MAX(harga) FROM buku) produces one number (the most expensive price), then it's compared using the = operator."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u5l0-ex3"
+  title="Subquery Evaluation Order"
+  description="In SELECT judul FROM buku WHERE harga > (SELECT AVG(harga) FROM buku), which part is evaluated FIRST?"
+  type="multiple-choice"
+  options={[
+    "The outer query (SELECT judul FROM buku WHERE ...) is evaluated first",
+    "The subquery (SELECT AVG(harga) FROM buku) is evaluated first, and its result is used by the outer query",
+    "Both are evaluated simultaneously with no order",
+    "The order is random each time the query runs"
+  ]}
+  correctIndex={1}
+  hints={["The outer query needs the average number to compare against — where does that number come from?"]}
+  explanation="The subquery must finish evaluating first to produce a value (e.g. an average), which is then used as part of the outer query's WHERE condition."
+  lang="en"
+/>
+
+## Summary
+
+| Concept | Example |
+|---------|---------|
+| Subquery in WHERE | `WHERE harga > (SELECT AVG(harga) FROM buku)` |
+| Scalar subquery | A subquery producing one row, one column |
+| Evaluation order | Subquery first, then the outer query |
+
+Next: placing a subquery in the **SELECT** and **FROM** clauses, not just WHERE.

@@ -1,0 +1,129 @@
+---
+title: "Menambah Data dengan INSERT"
+unit: 6
+lesson: 0
+description: "Menambahkan baris baru ke tabel dengan perintah INSERT"
+objectives:
+  - "Menambahkan satu baris data dengan INSERT INTO ... VALUES"
+  - "Menambahkan banyak baris sekaligus dalam satu perintah INSERT"
+  - "Memahami INSERT tanpa daftar kolom eksplisit itu berisiko"
+estimatedTime: 20
+prerequisites: ["unit-5/05-proyek-mini-analisis-data"]
+difficulty: "intermediate"
+tags: ["insert", "dml"]
+database: "toko_buku"
+---
+
+# Menambah Data dengan INSERT
+
+Sampai sekarang kita hanya **membaca** data dengan `SELECT`. Mulai unit ini, kita belajar **mengubah** data — dimulai dengan `INSERT`, perintah untuk menambahkan baris baru.
+
+:::note
+Semua perintah `INSERT`/`UPDATE`/`DELETE` yang kamu coba di playground ini hanya mengubah salinan database yang berjalan **di browser-mu sendiri**. Klik tombol **Reset** kapan saja untuk mengembalikan data ke kondisi semula.
+:::
+
+## INSERT Dasar
+
+```sql
+INSERT INTO buku (id, judul, penulis, kategori, harga, stok, tahun_terbit)
+VALUES (13, 'Bumi', 'Tere Liye', 'Fiksi', 70000, 5, 2014);
+```
+
+- **`INSERT INTO buku`** — tabel tujuan
+- **`(id, judul, penulis, kategori, harga, stok, tahun_terbit)`** — daftar kolom yang akan diisi, dalam urutan tertentu
+- **`VALUES (...)`** — nilai yang sesuai, dalam urutan yang **sama persis** dengan daftar kolom
+
+Setelah dijalankan, coba `SELECT * FROM buku WHERE id = 13;` untuk melihat baris barunya.
+
+## Kenapa Daftar Kolom Penting
+
+```sql
+-- Berisiko: mengandalkan urutan kolom asli tabel, mudah salah kalau skema berubah
+INSERT INTO buku VALUES (14, 'Rentang Waktu', 'Fiksi', 'Fiksi', 62000, 8, 2010);
+```
+
+:::warning
+`INSERT` tanpa daftar kolom eksplisit mengasumsikan kamu tahu **persis** urutan kolom asli tabel — kalau salah urutan (seperti contoh di atas: `penulis` dan `kategori` tertukar), data akan masuk ke kolom yang salah **tanpa error**! Selalu tulis daftar kolom secara eksplisit, meski lebih panjang.
+:::
+
+## Menambah Banyak Baris Sekaligus
+
+```sql
+INSERT INTO buku (id, judul, penulis, kategori, harga, stok, tahun_terbit) VALUES
+  (13, 'Bumi', 'Tere Liye', 'Fiksi', 70000, 5, 2014),
+  (14, 'Bulan', 'Tere Liye', 'Fiksi', 72000, 3, 2015);
+```
+
+Satu perintah `INSERT` bisa menambahkan banyak baris dengan memisahkan tiap tanda kurung `(...)` menggunakan koma — jauh lebih efisien daripada menulis `INSERT` berkali-kali.
+
+## INSERT dan Primary Key
+
+Kolom `id` di tabel `buku` adalah `PRIMARY KEY`, artinya nilainya harus **unik**. Mencoba `INSERT` dengan `id` yang sudah ada akan menghasilkan error:
+
+```sql
+-- ERROR: id 1 sudah dipakai oleh 'Laskar Pelangi'
+INSERT INTO buku (id, judul, penulis, kategori, harga, stok, tahun_terbit)
+VALUES (1, 'Judul Lain', 'Penulis Lain', 'Fiksi', 50000, 1, 2020);
+```
+
+## Latihan
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u6l0-ex1"
+  title="Tambah Satu Buku Baru"
+  description="Tambahkan buku baru: id 13, judul 'Rentang Waktu', penulis 'Tere Liye', kategori 'Fiksi', harga 62000, stok 8, tahun_terbit 2010. Lalu tampilkan semua kolomnya untuk memverifikasi."
+  type="code-output"
+  starterCode="INSERT INTO buku (id, judul, penulis, kategori, harga, stok, tahun_terbit)
+VALUES (13, 'Bumi', 'Tere Liye', 'Fiksi', 70000, 5, 2014);
+
+SELECT * FROM buku WHERE id = 13;"
+  expectedQuery="INSERT INTO buku (id, judul, penulis, kategori, harga, stok, tahun_terbit) VALUES (13, 'Rentang Waktu', 'Tere Liye', 'Fiksi', 62000, 8, 2010); SELECT * FROM buku WHERE id = 13;"
+  hints={["Sesuaikan semua nilai VALUES dengan data yang diminta", "Query kedua (SELECT) dipakai untuk memverifikasi hasilnya"]}
+  explanation="INSERT menambahkan baris baru dengan id 13, lalu SELECT memverifikasi bahwa data tersimpan dengan benar."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u6l0-ex2"
+  title="Tambah Dua Buku Sekaligus"
+  description="Tambahkan dua buku baru dalam SATU perintah INSERT: (13, 'Bumi', 'Tere Liye', 'Fiksi', 70000, 5, 2014) dan (14, 'Bulan', 'Tere Liye', 'Fiksi', 72000, 3, 2015). Lalu tampilkan keduanya."
+  type="code-output"
+  starterCode="INSERT INTO buku (id, judul, penulis, kategori, harga, stok, tahun_terbit)
+VALUES (13, 'Bumi', 'Tere Liye', 'Fiksi', 70000, 5, 2014);
+
+SELECT * FROM buku WHERE id IN (13, 14);"
+  expectedQuery="INSERT INTO buku (id, judul, penulis, kategori, harga, stok, tahun_terbit) VALUES (13, 'Bumi', 'Tere Liye', 'Fiksi', 70000, 5, 2014), (14, 'Bulan', 'Tere Liye', 'Fiksi', 72000, 3, 2015); SELECT * FROM buku WHERE id IN (13, 14);"
+  hints={["Pisahkan dua baris data dengan koma dalam satu VALUES", "(13, ...), (14, ...)"]}
+  explanation="Satu perintah INSERT bisa menambahkan banyak baris sekaligus dengan memisahkan tiap kurung nilai menggunakan koma."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u6l0-ex3"
+  title="Kenapa Daftar Kolom Eksplisit Penting"
+  description="Kenapa sebaiknya selalu menulis daftar kolom secara eksplisit di INSERT INTO tabel (kolom1, kolom2, ...), bukan mengandalkan urutan default?"
+  type="multiple-choice"
+  options={[
+    "Karena INSERT tidak akan berfungsi tanpa daftar kolom",
+    "Karena tanpa daftar kolom eksplisit, data bisa masuk ke kolom yang salah tanpa error jika urutan diasumsikan salah",
+    "Daftar kolom hanya memengaruhi kecepatan query",
+    "Karena SQLite mengharuskan urutan alfabetis pada kolom"
+  ]}
+  correctIndex={1}
+  hints={["Pikirkan risiko ketika seseorang mengubah urutan kolom di tabel di masa depan"]}
+  explanation="Tanpa daftar kolom eksplisit, INSERT mengandalkan urutan kolom asli tabel yang bisa berubah atau disalahpahami — data bisa masuk ke kolom yang salah tanpa peringatan error apapun."
+  lang="id"
+/>
+
+## Ringkasan
+
+| Konsep | Contoh |
+|--------|--------|
+| INSERT satu baris | `INSERT INTO buku (kolom...) VALUES (nilai...);` |
+| INSERT banyak baris | `VALUES (...), (...), (...);` |
+| Praktik aman | Selalu tulis daftar kolom eksplisit |
+| Batasan Primary Key | Nilai `id` harus unik, tidak boleh duplikat |
+
+Selanjutnya: mengubah data yang sudah ada dengan **UPDATE**.

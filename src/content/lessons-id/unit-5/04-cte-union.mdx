@@ -1,0 +1,137 @@
+---
+title: "CTE (WITH) & UNION"
+unit: 5
+lesson: 4
+description: "Memberi nama pada subquery dengan Common Table Expression (WITH), dan menggabungkan hasil query dengan UNION"
+objectives:
+  - "Menulis Common Table Expression (CTE) dengan WITH ... AS"
+  - "Menggabungkan hasil dua query SELECT dengan UNION dan UNION ALL"
+  - "Memahami perbedaan UNION dan UNION ALL soal duplikat"
+estimatedTime: 30
+prerequisites: ["unit-5/03-exists"]
+difficulty: "intermediate"
+tags: ["cte", "with", "union"]
+database: "toko_buku"
+---
+
+# CTE (WITH) & UNION
+
+Dua teknik terakhir di unit ini: **CTE** untuk membuat subquery lebih mudah dibaca dengan memberinya nama, dan **UNION** untuk menggabungkan hasil dua query berbeda menjadi satu.
+
+## CTE — Common Table Expression
+
+Subquery bertingkat (subquery di dalam subquery) bisa cepat jadi sulit dibaca. **CTE** memungkinkan kamu mendefinisikan subquery **di awal**, memberinya nama, lalu memakainya seperti tabel biasa di query utama:
+
+```sql
+WITH buku_mahal AS (
+  SELECT * FROM buku WHERE harga > 90000
+)
+SELECT judul, kategori FROM buku_mahal WHERE kategori = 'Teknologi';
+```
+
+Dibandingkan menulis subquery bersarang di `FROM`:
+
+```sql
+-- Versi tanpa CTE — sama hasilnya, tapi mulai sulit dibaca kalau logikanya bertambah rumit
+SELECT judul, kategori
+FROM (SELECT * FROM buku WHERE harga > 90000) AS buku_mahal
+WHERE kategori = 'Teknologi';
+```
+
+Untuk query sederhana, keduanya sama saja. Tapi CTE jadi jauh lebih berguna ketika kamu punya **beberapa** subquery bertingkat, atau ingin memakai hasil subquery yang sama **lebih dari sekali** dalam satu query.
+
+## CTE dengan Banyak Definisi
+
+```sql
+WITH
+  ringkasan_kategori AS (
+    SELECT kategori, AVG(harga) AS rata_rata FROM buku GROUP BY kategori
+  ),
+  kategori_mahal AS (
+    SELECT kategori FROM ringkasan_kategori WHERE rata_rata > 85000
+  )
+SELECT judul, kategori FROM buku WHERE kategori IN (SELECT kategori FROM kategori_mahal);
+```
+
+## UNION — Menggabungkan Hasil Dua Query
+
+`UNION` menggabungkan hasil dua (atau lebih) query `SELECT` menjadi satu daftar, dan **menghilangkan duplikat** secara otomatis:
+
+```sql
+-- Judul buku yang sangat murah ATAU sangat mahal
+SELECT judul FROM buku WHERE harga < 60000
+UNION
+SELECT judul FROM buku WHERE harga > 110000;
+```
+
+:::warning
+Kedua query yang digabung `UNION` harus punya **jumlah kolom yang sama**, dengan tipe data yang sesuai. Nama kolom hasil mengikuti query **pertama**.
+:::
+
+## UNION ALL — Menyimpan Duplikat
+
+Kalau kamu tahu tidak akan ada duplikat (atau justru ingin menyimpannya untuk efisiensi/keperluan tertentu), pakai `UNION ALL` — lebih cepat karena tidak perlu memeriksa duplikat:
+
+```sql
+SELECT judul, 'Murah' AS label FROM buku WHERE harga < 60000
+UNION ALL
+SELECT judul, 'Mahal' AS label FROM buku WHERE harga > 110000;
+```
+
+Menambahkan kolom label seperti `'Murah'`/`'Mahal'` (nilai teks tetap, bukan dari kolom) membantu membedakan baris itu berasal dari query yang mana.
+
+## Latihan
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u5l4-ex1"
+  title="CTE Buku Terjangkau"
+  description="Buat CTE bernama buku_terjangkau berisi buku dengan harga di bawah 70000, lalu tampilkan judul dan penulis dari kategori 'Fiksi' saja."
+  type="code-output"
+  starterCode="WITH buku_mahal AS (SELECT * FROM buku WHERE harga > 90000) SELECT judul, penulis FROM buku_mahal WHERE kategori = 'Fiksi';"
+  expectedQuery="WITH buku_terjangkau AS (SELECT * FROM buku WHERE harga < 70000) SELECT judul, penulis FROM buku_terjangkau WHERE kategori = 'Fiksi';"
+  hints={["Ganti nama CTE dan kondisi harga menjadi < 70000"]}
+  explanation="CTE buku_terjangkau didefinisikan sekali di awal dengan WITH, lalu dipakai seperti tabel biasa di query utama."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u5l4-ex2"
+  title="Gabungkan Buku Murah dan Mahal"
+  description="Tampilkan judul buku dengan harga di bawah 60000 ATAU di atas 110000, gabungkan dengan UNION."
+  type="code-output"
+  starterCode="SELECT judul FROM buku WHERE harga < 60000;"
+  expectedQuery="SELECT judul FROM buku WHERE harga < 60000 UNION SELECT judul FROM buku WHERE harga > 110000;"
+  hints={["Tambahkan UNION SELECT judul FROM buku WHERE harga > 110000"]}
+  explanation="UNION menggabungkan hasil dua query SELECT terpisah menjadi satu daftar, menghilangkan duplikat otomatis (meski di sini tidak ada duplikat karena kedua rentang harga tidak tumpang tindih)."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u5l4-ex3"
+  title="Perbedaan UNION dan UNION ALL"
+  description="Apa perbedaan utama antara UNION dan UNION ALL?"
+  type="multiple-choice"
+  options={[
+    "UNION ALL hanya bisa dipakai untuk 2 query, UNION untuk lebih dari 2",
+    "UNION menghilangkan baris duplikat secara otomatis, UNION ALL menyimpan semuanya (lebih cepat)",
+    "UNION hanya bekerja pada kolom angka, UNION ALL pada kolom teks",
+    "Tidak ada perbedaan, keduanya identik"
+  ]}
+  correctIndex={1}
+  hints={["ALL berarti 'semua', termasuk yang duplikat"]}
+  explanation="UNION menghapus baris duplikat dari hasil gabungan (butuh pemeriksaan tambahan), sedangkan UNION ALL menyimpan semua baris apa adanya, termasuk duplikat, sehingga lebih cepat dieksekusi."
+  lang="id"
+/>
+
+## Ringkasan
+
+| Konsep | Contoh |
+|--------|--------|
+| CTE | `WITH nama AS (SELECT ...) SELECT ... FROM nama;` |
+| Banyak CTE | `WITH a AS (...), b AS (...) SELECT ...` |
+| UNION | Gabung + hilangkan duplikat |
+| UNION ALL | Gabung + simpan duplikat (lebih cepat) |
+
+Saatnya menerapkan seluruh teknik Unit 5 dalam **Proyek Mini: Analisis Data**.

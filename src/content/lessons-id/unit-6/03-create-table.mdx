@@ -1,0 +1,141 @@
+---
+title: "Membuat Tabel dengan CREATE TABLE"
+unit: 6
+lesson: 3
+description: "Merancang dan membuat tabel baru dari nol dengan CREATE TABLE dan tipe data dasar"
+objectives:
+  - "Membuat tabel baru dengan CREATE TABLE dan mendefinisikan kolomnya"
+  - "Mengenal tipe data dasar SQLite: INTEGER, TEXT, REAL"
+  - "Mengisi tabel yang baru dibuat dengan INSERT"
+estimatedTime: 30
+prerequisites: ["unit-6/02-delete"]
+difficulty: "intermediate"
+tags: ["create-table", "ddl", "tipe-data"]
+---
+
+# Membuat Tabel dengan CREATE TABLE
+
+Sejauh ini kita selalu bekerja dengan tabel yang **sudah disiapkan** untuk kita. Sekarang saatnya belajar sisi lain SQL: merancang tabel sendiri dari nol. Playground di lesson ini **kosong** — tidak ada tabel apapun sampai kamu membuatnya sendiri!
+
+## CREATE TABLE Dasar
+
+```sql
+CREATE TABLE siswa (
+  id INTEGER PRIMARY KEY,
+  nama TEXT NOT NULL,
+  nilai INTEGER
+);
+```
+
+- **`CREATE TABLE siswa`** — nama tabel baru
+- Setiap baris di dalam kurung mendefinisikan satu kolom: **nama kolom**, lalu **tipe data**-nya
+- `PRIMARY KEY` dan `NOT NULL` adalah *constraint* (aturan) — dibahas lebih detail di lesson berikutnya
+
+Setelah dibuat, tabel `siswa` masih **kosong** — `CREATE TABLE` hanya mendefinisikan struktur, belum mengisi data.
+
+## Tipe Data Dasar SQLite
+
+| Tipe | Untuk Menyimpan | Contoh |
+|------|-------------------|--------|
+| `INTEGER` | Bilangan bulat | `17`, `0`, `-5` |
+| `REAL` | Bilangan desimal | `3.14`, `72500.5` |
+| `TEXT` | Teks/string | `'Budi'`, `'Fiksi'` |
+
+```sql
+CREATE TABLE produk (
+  id INTEGER PRIMARY KEY,
+  nama TEXT NOT NULL,
+  harga REAL NOT NULL,
+  stok INTEGER
+);
+```
+
+:::note
+SQLite sebenarnya memakai sistem tipe yang lebih fleksibel ("type affinity") dibanding RDBMS lain seperti PostgreSQL/MySQL — ia tidak selalu memaksakan tipe data seketat itu. Tapi tetap deklarasikan tipe data dengan benar, karena RDBMS lain jauh lebih ketat, dan ini kebiasaan baik yang membuat skemamu jelas dibaca siapapun.
+:::
+
+## Mengisi Tabel Baru dengan INSERT
+
+Setelah struktur tabel ada, kamu bisa langsung `INSERT` seperti biasa:
+
+```sql
+CREATE TABLE siswa (
+  id INTEGER PRIMARY KEY,
+  nama TEXT NOT NULL,
+  nilai INTEGER
+);
+
+INSERT INTO siswa (id, nama, nilai) VALUES
+  (1, 'Dewi', 88),
+  (2, 'Farhan', 92);
+
+SELECT * FROM siswa;
+```
+
+## Latihan
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u6l3-ex1"
+  title="Buat Tabel Catatan"
+  description="Buat tabel bernama catatan dengan kolom id (INTEGER PRIMARY KEY) dan isi (TEXT NOT NULL). Lalu tambahkan satu baris: id 1, isi 'Belajar SQL hari ini!'. Tampilkan isinya."
+  type="code-output"
+  schema=""
+  starterCode="CREATE TABLE catatan (
+  id INTEGER PRIMARY KEY,
+  isi TEXT
+);
+
+SELECT * FROM catatan;"
+  expectedQuery="CREATE TABLE catatan (id INTEGER PRIMARY KEY, isi TEXT NOT NULL); INSERT INTO catatan (id, isi) VALUES (1, 'Belajar SQL hari ini!'); SELECT * FROM catatan;"
+  hints={["Tambahkan NOT NULL pada kolom isi", "Jangan lupa INSERT setelah CREATE TABLE"]}
+  explanation="CREATE TABLE mendefinisikan struktur, lalu INSERT mengisi datanya — keduanya bisa dijalankan berurutan dalam satu playground."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u6l3-ex2"
+  title="Buat Tabel Produk dengan REAL"
+  description="Buat tabel bernama produk dengan kolom id (INTEGER PRIMARY KEY), nama (TEXT NOT NULL), dan harga (REAL). Tambahkan satu baris: id 1, nama 'Pensil', harga 2500.5. Tampilkan isinya."
+  type="code-output"
+  schema=""
+  starterCode="CREATE TABLE produk (
+  id INTEGER PRIMARY KEY,
+  nama TEXT NOT NULL
+);
+
+SELECT * FROM produk;"
+  expectedQuery="CREATE TABLE produk (id INTEGER PRIMARY KEY, nama TEXT NOT NULL, harga REAL); INSERT INTO produk (id, nama, harga) VALUES (1, 'Pensil', 2500.5); SELECT * FROM produk;"
+  hints={["Tambahkan kolom harga bertipe REAL", "Jangan lupa INSERT satu baris data"]}
+  explanation="Kolom harga REAL bisa menyimpan bilangan desimal seperti 2500.5, berbeda dengan INTEGER yang hanya bilangan bulat."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u6l3-ex3"
+  title="Fungsi CREATE TABLE"
+  description="Apa yang dilakukan CREATE TABLE?"
+  type="multiple-choice"
+  options={[
+    "Mengisi data ke tabel yang sudah ada",
+    "Mendefinisikan struktur tabel baru (nama kolom dan tipe datanya) — tabel yang dihasilkan masih kosong",
+    "Menghapus tabel yang sudah ada",
+    "Mengubah tipe data kolom yang sudah ada"
+  ]}
+  correctIndex={1}
+  hints={["CREATE TABLE adalah DDL, bukan DML — ia soal STRUKTUR, bukan ISI"]}
+  explanation="CREATE TABLE hanya mendefinisikan struktur/skema tabel baru — kolom apa saja dan tipe datanya. Tabel yang baru dibuat masih kosong sampai kamu mengisinya dengan INSERT."
+  lang="id"
+/>
+
+## Ringkasan
+
+| Konsep | Contoh |
+|--------|--------|
+| Buat tabel | `CREATE TABLE nama (kolom tipe, ...);` |
+| Tipe data | `INTEGER`, `REAL`, `TEXT` |
+| Tabel baru | Selalu kosong sampai di-`INSERT` |
+| DDL vs DML | `CREATE TABLE` = DDL (struktur), `INSERT`/`UPDATE`/`DELETE` = DML (data) |
+
+Selanjutnya: memperketat aturan data dengan **constraint** — `PRIMARY KEY`, `FOREIGN KEY`, `NOT NULL`, `UNIQUE`, `DEFAULT`, dan `CHECK`.

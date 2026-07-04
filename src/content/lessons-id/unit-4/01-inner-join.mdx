@@ -1,0 +1,127 @@
+---
+title: "INNER JOIN"
+unit: 4
+lesson: 1
+description: "Menggabungkan dua tabel dengan INNER JOIN berdasarkan kolom yang berhubungan"
+objectives:
+  - "Menulis query INNER JOIN antara dua tabel"
+  - "Memahami INNER JOIN hanya mengembalikan baris yang punya pasangan cocok"
+  - "Menggabungkan INNER JOIN dengan WHERE dan ORDER BY"
+estimatedTime: 30
+prerequisites: ["unit-4/00-apa-itu-join"]
+difficulty: "intermediate"
+tags: ["inner-join", "join"]
+database: "perpustakaan"
+---
+
+# INNER JOIN
+
+`INNER JOIN` menggabungkan baris dari dua tabel berdasarkan kolom yang berhubungan — hanya baris yang punya **pasangan cocok di kedua tabel** yang muncul di hasil.
+
+## Anatomi INNER JOIN
+
+```sql
+SELECT anggota.nama, peminjaman.tanggal_pinjam
+FROM anggota
+INNER JOIN peminjaman ON anggota.id = peminjaman.anggota_id;
+```
+
+- **`FROM anggota`** — tabel kiri
+- **`INNER JOIN peminjaman`** — tabel kanan yang digabungkan
+- **`ON anggota.id = peminjaman.anggota_id`** — syarat penggabungan: baris dianggap "berpasangan" jika `id` di `anggota` sama dengan `anggota_id` di `peminjaman`
+
+Hasilnya sekarang menunjukkan **nama** peminjam, bukan cuma `anggota_id` yang tidak bermakna.
+
+## Notasi `tabel.kolom`
+
+Karena kedua tabel digabung, SQLite perlu tahu kolom mana milik tabel mana — terutama kalau ada nama kolom yang sama di kedua tabel (seperti `id`). Notasi `nama_tabel.nama_kolom` menghilangkan ambiguitas ini.
+
+```sql
+SELECT anggota.nama, buku.judul, peminjaman.tanggal_pinjam
+FROM peminjaman
+INNER JOIN anggota ON peminjaman.anggota_id = anggota.id
+INNER JOIN buku ON peminjaman.buku_id = buku.id;
+```
+
+Query ini menggabungkan **tiga tabel sekaligus** — kita akan bahas lebih detail di lesson JOIN Banyak Tabel.
+
+## INNER JOIN Hanya Mengambil yang Cocok
+
+Kalau ada anggota yang belum pernah meminjam buku (seperti Gilang di data kita), anggota itu **tidak akan muncul** di hasil `INNER JOIN` dengan `peminjaman` — karena tidak ada baris `peminjaman` yang cocok dengannya.
+
+<img src="/images/inner-vs-left-join.svg" alt="INNER JOIN hanya mengambil baris yang cocok di kedua tabel" width="100%" />
+
+## INNER JOIN dengan WHERE dan ORDER BY
+
+`WHERE` dan `ORDER BY` tetap bekerja seperti biasa setelah JOIN:
+
+```sql
+SELECT anggota.nama, buku.judul, peminjaman.tanggal_pinjam
+FROM peminjaman
+INNER JOIN anggota ON peminjaman.anggota_id = anggota.id
+INNER JOIN buku ON peminjaman.buku_id = buku.id
+WHERE anggota.kelas = '10A'
+ORDER BY peminjaman.tanggal_pinjam ASC;
+```
+
+:::note
+Kata `INNER` sebenarnya opsional — menulis `JOIN` saja (tanpa `INNER`) di SQLite berarti persis sama dengan `INNER JOIN`. Tapi menulis `INNER JOIN` secara eksplisit membuat maksudmu lebih jelas dibanding jenis JOIN lain (`LEFT JOIN`, dst).
+:::
+
+## Latihan
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u4l1-ex1"
+  title="Nama Peminjam dan Tanggal Pinjam"
+  description="Tampilkan nama anggota dan tanggal_pinjam untuk semua transaksi peminjaman, dengan menggabungkan tabel anggota dan peminjaman."
+  type="code-output"
+  database="perpustakaan"
+  starterCode="SELECT * FROM peminjaman;"
+  expectedQuery="SELECT anggota.nama, peminjaman.tanggal_pinjam FROM anggota INNER JOIN peminjaman ON anggota.id = peminjaman.anggota_id;"
+  hints={["Gunakan INNER JOIN ... ON anggota.id = peminjaman.anggota_id"]}
+  explanation="INNER JOIN menghubungkan setiap baris peminjaman dengan anggota yang sesuai lewat kondisi ON."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u4l1-ex2"
+  title="Judul Buku yang Sedang Dipinjam Kelas 10A"
+  description="Tampilkan nama anggota dan judul buku untuk peminjaman oleh anggota kelas '10A', gabungkan tabel anggota, peminjaman, dan buku."
+  type="code-output"
+  database="perpustakaan"
+  starterCode="SELECT anggota.nama, buku.judul FROM peminjaman INNER JOIN anggota ON peminjaman.anggota_id = anggota.id INNER JOIN buku ON peminjaman.buku_id = buku.id;"
+  expectedQuery="SELECT anggota.nama, buku.judul FROM peminjaman INNER JOIN anggota ON peminjaman.anggota_id = anggota.id INNER JOIN buku ON peminjaman.buku_id = buku.id WHERE anggota.kelas = '10A';"
+  hints={["Tambahkan WHERE anggota.kelas = '10A'"]}
+  explanation="WHERE tetap bekerja setelah JOIN, menyaring hasil gabungan berdasarkan kolom dari tabel manapun yang terlibat."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u4l1-ex3"
+  title="Perilaku INNER JOIN"
+  description="Jika seorang anggota belum pernah meminjam buku apapun, apakah anggota itu akan muncul di hasil INNER JOIN antara anggota dan peminjaman?"
+  type="multiple-choice"
+  options={[
+    "Ya, selalu muncul dengan kolom peminjaman kosong",
+    "Tidak — INNER JOIN hanya menampilkan baris yang punya pasangan cocok di kedua tabel",
+    "Hanya muncul jika anggota tersebut kelas 10A",
+    "Query akan menghasilkan error"
+  ]}
+  correctIndex={1}
+  hints={["INNER JOIN butuh pasangan yang cocok di KEDUA tabel"]}
+  explanation="INNER JOIN hanya mengembalikan baris yang punya pasangan cocok di kedua tabel. Anggota tanpa peminjaman tidak akan muncul — untuk itu kita butuh LEFT JOIN, dibahas di lesson berikutnya."
+  lang="id"
+/>
+
+## Ringkasan
+
+| Konsep | Contoh |
+|--------|--------|
+| INNER JOIN dua tabel | `FROM a INNER JOIN b ON a.id = b.a_id` |
+| Notasi kolom eksplisit | `tabel.kolom` |
+| Hanya baris berpasangan | Anggota tanpa peminjaman tidak muncul |
+| JOIN + WHERE + ORDER BY | Bekerja seperti biasa setelah JOIN |
+
+Selanjutnya: menampilkan baris **meski tidak ada pasangannya** dengan **LEFT JOIN**.

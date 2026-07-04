@@ -1,0 +1,132 @@
+---
+title: "Counting Rows with COUNT"
+unit: 3
+lesson: 0
+description: "Counting rows or non-empty values with the COUNT aggregate function"
+objectives:
+  - "Count the number of rows with COUNT(*)"
+  - "Understand the difference between COUNT(*), COUNT(column), and COUNT(DISTINCT column)"
+  - "Combine COUNT with WHERE"
+estimatedTime: 20
+prerequisites: ["unit-2/05-proyek-mini-filter-lanjutan"]
+difficulty: "beginner"
+tags: ["count", "aggregate-function"]
+database: "toko_buku"
+translationStatus: "complete"
+---
+
+# Counting Rows with COUNT
+
+Every query we've written so far returns raw data **row by row**. But sometimes you just need one summary number — "how many books do we have?". This is where **aggregate functions** come in: functions that summarize many rows into a single value.
+
+`COUNT` is the simplest aggregate function: it counts the number of rows.
+
+## COUNT(*) — Counting All Rows
+
+```sql
+SELECT COUNT(*) FROM buku;
+```
+
+Output:
+```
+COUNT(*)
+--------
+12
+```
+
+Just one row, one number — totally different from `SELECT * FROM buku;`, which returns 12 rows of data.
+
+## COUNT with WHERE
+
+`COUNT(*)` can be combined with `WHERE` as usual — filter first, then count:
+
+```sql
+-- How many Fiction category books are there?
+SELECT COUNT(*) FROM buku WHERE kategori = 'Fiksi';
+```
+
+## COUNT(column) vs COUNT(*)
+
+`COUNT(column_name)` counts rows where that column is **not NULL**. Since the `buku` table has no NULL columns, `COUNT(*)` and `COUNT(judul)` produce the same number here — but if a column can be empty (like `email` in the earlier NULL lesson), the two can differ.
+
+```sql
+-- Same result on the buku table (no NULL columns there)
+SELECT COUNT(*) FROM buku;
+SELECT COUNT(judul) FROM buku;
+```
+
+## COUNT(DISTINCT column) — Counting Unique Values
+
+```sql
+-- How many DIFFERENT categories are there?
+SELECT COUNT(DISTINCT kategori) FROM buku;
+```
+
+This counts the number of unique values, not the number of rows — similar to `SELECT DISTINCT kategori FROM buku;` but producing just the number directly.
+
+## Aliasing the COUNT Result
+
+```sql
+SELECT COUNT(*) AS jumlah_buku FROM buku;
+```
+
+Without an alias, the result column's name shows up as `COUNT(*)` as-is — not very readable for other applications. Always give it a clear alias.
+
+:::tip
+`COUNT(*)` counts rows regardless of any column's contents — even if every column in a row is NULL, that row is still counted. This differs from `COUNT(column)`, which ignores NULL rows for that specific column.
+:::
+
+## Exercise
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u3l0-ex1"
+  title="Number of Technology Books"
+  description="Count how many books are in category 'Teknologi', aliased as jumlah."
+  type="code-output"
+  starterCode="SELECT COUNT(*) FROM buku;"
+  expectedQuery="SELECT COUNT(*) AS jumlah FROM buku WHERE kategori = 'Teknologi';"
+  hints={["Add WHERE kategori = 'Teknologi'", "Alias it with AS jumlah"]}
+  explanation="WHERE first filters rows to the Teknologi category, then COUNT(*) counts how many remain."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u3l0-ex2"
+  title="Number of Unique Categories"
+  description="Count how many DIFFERENT (unique) categories exist in the buku table, aliased as total_kategori."
+  type="code-output"
+  starterCode="SELECT COUNT(kategori) FROM buku;"
+  expectedQuery="SELECT COUNT(DISTINCT kategori) AS total_kategori FROM buku;"
+  hints={["Use COUNT(DISTINCT kategori), not plain COUNT(kategori)"]}
+  explanation="COUNT(DISTINCT kategori) counts unique category values (5 categories), different from COUNT(kategori) which counts all non-NULL rows (12)."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u3l0-ex3"
+  title="COUNT(*) vs COUNT(column)"
+  description="When can COUNT(*) and COUNT(column_name) produce DIFFERENT numbers?"
+  type="multiple-choice"
+  options={[
+    "Never, they're always the same",
+    "When that column has some NULL values — COUNT(column) ignores NULL rows, COUNT(*) doesn't",
+    "When the table has more than 100 rows",
+    "COUNT(column) is always bigger than COUNT(*)"
+  ]}
+  correctIndex={1}
+  hints={["Think about how each one treats NULL"]}
+  explanation="COUNT(*) counts ALL rows, while COUNT(column_name) only counts rows where that column isn't NULL. They're equal only when that column has no NULL values at all."
+  lang="en"
+/>
+
+## Summary
+
+| Function | Counts |
+|----------|--------|
+| `COUNT(*)` | All rows, regardless of column contents |
+| `COUNT(column)` | Rows where that column isn't NULL |
+| `COUNT(DISTINCT column)` | The number of unique values in that column |
+
+Next: summing and averaging numbers with **SUM** and **AVG**.

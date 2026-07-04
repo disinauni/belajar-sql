@@ -1,0 +1,121 @@
+---
+title: "Subquery di WHERE"
+unit: 5
+lesson: 0
+description: "Menulis query SELECT di dalam kondisi WHERE query lain"
+objectives:
+  - "Menulis subquery di dalam klausa WHERE"
+  - "Membandingkan nilai baris dengan hasil agregat dari subquery"
+  - "Memahami subquery dievaluasi lebih dulu sebelum query luar"
+estimatedTime: 25
+prerequisites: ["unit-4/06-proyek-mini-sistem-perpustakaan"]
+difficulty: "intermediate"
+tags: ["subquery", "where"]
+database: "toko_buku"
+---
+
+# Subquery di WHERE
+
+Bayangkan pertanyaan ini: **"buku mana saja yang harganya di atas rata-rata harga SEMUA buku?"**. Kamu butuh dua langkah: (1) hitung rata-rata semua buku, (2) bandingkan tiap buku dengan angka itu. **Subquery** memungkinkan kamu melakukan keduanya dalam **satu** query.
+
+## Subquery Dasar di WHERE
+
+```sql
+SELECT judul, harga
+FROM buku
+WHERE harga > (SELECT AVG(harga) FROM buku);
+```
+
+<img src="/images/subquery-nesting.svg" alt="Subquery dievaluasi lebih dulu, hasilnya dipakai query luar" width="100%" />
+
+Bagian `(SELECT AVG(harga) FROM buku)` adalah **subquery** — query lengkap yang ditulis di dalam tanda kurung, menjadi bagian dari kondisi `WHERE` query utama (disebut **query luar**).
+
+## Urutan Evaluasi
+
+SQLite mengevaluasi subquery **lebih dulu**, baru memakai hasilnya untuk mengevaluasi query luar:
+
+1. Jalankan `SELECT AVG(harga) FROM buku` → hasilnya satu angka, misalnya `82916.67`
+2. Substitusi angka itu ke query luar: `WHERE harga > 82916.67`
+3. Jalankan query luar dengan kondisi yang sudah "diisi" itu
+
+## Subquery vs Menghitung Manual
+
+Tanpa subquery, kamu harus menjalankan dua query terpisah dan menyalin angkanya secara manual:
+
+```sql
+-- Langkah 1: cari tahu rata-ratanya (misalnya hasilnya 82916.67)
+SELECT AVG(harga) FROM buku;
+
+-- Langkah 2: salin angka itu manual ke query kedua
+SELECT judul FROM buku WHERE harga > 82916.67;
+```
+
+Subquery menggabungkan kedua langkah ini jadi satu query yang selalu akurat — kalau data berubah, subquery otomatis menghitung ulang, tidak seperti angka yang disalin manual.
+
+## Subquery dengan Operator Lain
+
+Subquery yang menghasilkan **satu nilai** (disebut *scalar subquery*) bisa dipakai dengan operator perbandingan apapun:
+
+```sql
+-- Buku termurah (bandingkan dengan hasil MIN dari subquery)
+SELECT judul, harga FROM buku WHERE harga = (SELECT MIN(harga) FROM buku);
+```
+
+:::warning
+Subquery yang dipakai dengan `=`, `>`, `<`, dst harus mengembalikan **tepat satu baris, satu kolom**. Kalau subquery mengembalikan lebih dari satu baris, SQLite akan error. Untuk subquery yang mengembalikan banyak baris, gunakan `IN` (dibahas di lesson berikutnya).
+:::
+
+## Latihan
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u5l0-ex1"
+  title="Buku di Bawah Rata-Rata"
+  description="Tampilkan judul dan harga buku dengan harga LEBIH RENDAH dari rata-rata harga semua buku."
+  type="code-output"
+  starterCode="SELECT judul, harga FROM buku WHERE harga > (SELECT AVG(harga) FROM buku);"
+  expectedQuery="SELECT judul, harga FROM buku WHERE harga < (SELECT AVG(harga) FROM buku);"
+  hints={["Ganti operator > menjadi <"]}
+  explanation="Subquery (SELECT AVG(harga) FROM buku) menghitung rata-rata sekali, lalu dipakai untuk membandingkan setiap baris."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u5l0-ex2"
+  title="Buku Termahal (via Subquery)"
+  description="Tampilkan judul dan harga untuk buku dengan harga PERSIS SAMA dengan harga termahal (gunakan subquery MAX, bukan ORDER BY)."
+  type="code-output"
+  starterCode="SELECT judul, harga FROM buku WHERE harga = (SELECT MIN(harga) FROM buku);"
+  expectedQuery="SELECT judul, harga FROM buku WHERE harga = (SELECT MAX(harga) FROM buku);"
+  hints={["Ganti MIN menjadi MAX di dalam subquery"]}
+  explanation="Subquery (SELECT MAX(harga) FROM buku) menghasilkan satu angka (harga termahal), lalu dibandingkan dengan operator =."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u5l0-ex3"
+  title="Urutan Evaluasi Subquery"
+  description="Dalam SELECT judul FROM buku WHERE harga > (SELECT AVG(harga) FROM buku), bagian mana yang dievaluasi LEBIH DULU?"
+  type="multiple-choice"
+  options={[
+    "Query luar (SELECT judul FROM buku WHERE ...) dievaluasi lebih dulu",
+    "Subquery (SELECT AVG(harga) FROM buku) dievaluasi lebih dulu, hasilnya dipakai query luar",
+    "Keduanya dievaluasi bersamaan tanpa urutan",
+    "Urutannya acak setiap kali query dijalankan"
+  ]}
+  correctIndex={1}
+  hints={["Query luar butuh angka rata-rata untuk bisa membandingkan — dari mana angka itu didapat?"]}
+  explanation="Subquery harus selesai dievaluasi dulu untuk menghasilkan nilai (misalnya rata-rata), baru nilai itu dipakai sebagai bagian kondisi WHERE di query luar."
+  lang="id"
+/>
+
+## Ringkasan
+
+| Konsep | Contoh |
+|--------|--------|
+| Subquery di WHERE | `WHERE harga > (SELECT AVG(harga) FROM buku)` |
+| Scalar subquery | Subquery yang menghasilkan satu baris, satu kolom |
+| Urutan evaluasi | Subquery dulu, baru query luar |
+
+Selanjutnya: menaruh subquery di klausa **SELECT** dan **FROM**, bukan cuma di WHERE.

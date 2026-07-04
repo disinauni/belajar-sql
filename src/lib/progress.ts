@@ -181,10 +181,14 @@ function updateStreak(progress: UserProgress): void {
 // ============================================================
 
 // Actual lesson counts per unit — must stay in sync with content files.
-// Units 2-6 are roadmap-only (no content yet), so they stay at 0 until built.
 const UNIT_LESSON_COUNTS: Record<string, number> = {
   'unit-0': 3,
   'unit-1': 8,
+  'unit-2': 6,
+  'unit-3': 7,
+  'unit-4': 7,
+  'unit-5': 6,
+  'unit-6': 7,
 }
 
 export function checkAndUnlockBadges(progress: UserProgress): BadgeId[] {

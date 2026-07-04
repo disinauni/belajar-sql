@@ -1,0 +1,136 @@
+---
+title: "Self JOIN"
+unit: 4
+lesson: 4
+description: "Menggabungkan tabel dengan dirinya sendiri untuk data yang merujuk ke baris lain di tabel yang sama"
+objectives:
+  - "Memahami kapan sebuah tabel perlu di-JOIN dengan dirinya sendiri"
+  - "Menulis Self JOIN memakai dua alias berbeda untuk tabel yang sama"
+  - "Membedakan Self JOIN dari JOIN antar tabel berbeda"
+estimatedTime: 25
+prerequisites: ["unit-4/03-join-banyak-tabel"]
+difficulty: "intermediate"
+tags: ["self-join", "join"]
+---
+
+# Self JOIN
+
+Semua JOIN yang kita pelajari sejauh ini menggabungkan **dua tabel berbeda** (`anggota` dengan `peminjaman`, dst). Tapi kadang satu tabel punya kolom yang merujuk ke **baris lain di tabel yang sama** — kasus klasik: struktur organisasi pegawai dan atasannya.
+
+## Skema Contoh: Pegawai & Atasan
+
+Lesson ini memakai tabel baru khusus untuk topik ini:
+
+```sql
+CREATE TABLE pegawai (
+  id INTEGER PRIMARY KEY,
+  nama TEXT NOT NULL,
+  atasan_id INTEGER REFERENCES pegawai(id)
+);
+```
+
+| id | nama | atasan_id |
+|----|------|-----------|
+| 1 | Andi (Direktur) | *(NULL — tidak punya atasan)* |
+| 2 | Budi (Manajer) | 1 |
+| 3 | Citra (Manajer) | 1 |
+| 4 | Dedi (Staf) | 2 |
+| 5 | Eka (Staf) | 2 |
+| 6 | Fira (Staf) | 3 |
+
+Kolom `atasan_id` merujuk ke `id` di tabel **yang sama** — Budi (id 2) punya atasan dengan id 1, yaitu Andi.
+
+## Kenapa Butuh Self JOIN
+
+Tanpa JOIN, kamu hanya bisa melihat angka: "pegawai id 2 punya atasan id 1" — tidak bermakna. Untuk menampilkan **nama atasan**, kamu perlu menggabungkan tabel `pegawai` dengan dirinya sendiri.
+
+## Self JOIN dengan Dua Alias
+
+Karena tabelnya sama, kamu **wajib** memberi alias berbeda untuk membedakan "peran" masing-masing salinan tabel:
+
+```sql
+SELECT e.nama AS pegawai, m.nama AS atasan
+FROM pegawai AS e
+LEFT JOIN pegawai AS m ON e.atasan_id = m.id;
+```
+
+- `e` (employee) — salinan tabel untuk peran "pegawai"
+- `m` (manager) — salinan tabel untuk peran "atasan"
+- `ON e.atasan_id = m.id` — hubungkan atasan_id si pegawai dengan id di salinan "atasan"
+
+`LEFT JOIN` dipakai (bukan `INNER JOIN`) supaya Andi (yang `atasan_id`-nya NULL, tidak punya atasan) tetap muncul di hasil.
+
+:::note
+Tanpa alias, `SELECT pegawai.nama FROM pegawai JOIN pegawai ON ...` akan membingungkan SQLite — ia tidak tahu `pegawai.nama` yang mana yang kamu maksud, karena ada dua salinan tabel `pegawai` dalam query yang sama. Alias `AS e` dan `AS m` menghilangkan ambiguitas ini.
+:::
+
+## Mencari Semua Bawahan Seorang Atasan
+
+```sql
+-- Semua staf yang atasannya adalah Budi
+SELECT e.nama AS bawahan
+FROM pegawai AS e
+INNER JOIN pegawai AS m ON e.atasan_id = m.id
+WHERE m.nama = 'Budi (Manajer)';
+```
+
+:::tip
+Self JOIN selalu memakai pola yang sama: satu tabel, dua alias, satu `ON` yang menghubungkan kolom "anak" dengan kolom "induk" di baris lain pada tabel yang sama.
+:::
+
+## Latihan
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u4l4-ex1"
+  title="Pegawai dan Nama Atasannya"
+  description="Tampilkan nama pegawai (alias pegawai) dan nama atasannya (alias atasan) untuk semua pegawai."
+  type="code-output"
+  schema={`CREATE TABLE pegawai (id INTEGER PRIMARY KEY, nama TEXT NOT NULL, atasan_id INTEGER REFERENCES pegawai(id)); INSERT INTO pegawai (id, nama, atasan_id) VALUES (1,'Andi (Direktur)',NULL),(2,'Budi (Manajer)',1),(3,'Citra (Manajer)',1),(4,'Dedi (Staf)',2),(5,'Eka (Staf)',2),(6,'Fira (Staf)',3);`}
+  starterCode="SELECT nama FROM pegawai;"
+  expectedQuery="SELECT e.nama AS pegawai, m.nama AS atasan FROM pegawai AS e LEFT JOIN pegawai AS m ON e.atasan_id = m.id;"
+  hints={["Buat dua alias untuk tabel pegawai: e dan m", "LEFT JOIN supaya Andi (tanpa atasan) tetap muncul"]}
+  explanation="Self JOIN dengan alias e (pegawai) dan m (atasan/manager) menghubungkan atasan_id milik e dengan id milik m."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u4l4-ex2"
+  title="Bawahan Langsung Budi"
+  description="Tampilkan nama semua pegawai yang atasan langsungnya adalah 'Budi (Manajer)'."
+  type="code-output"
+  schema={`CREATE TABLE pegawai (id INTEGER PRIMARY KEY, nama TEXT NOT NULL, atasan_id INTEGER REFERENCES pegawai(id)); INSERT INTO pegawai (id, nama, atasan_id) VALUES (1,'Andi (Direktur)',NULL),(2,'Budi (Manajer)',1),(3,'Citra (Manajer)',1),(4,'Dedi (Staf)',2),(5,'Eka (Staf)',2),(6,'Fira (Staf)',3);`}
+  starterCode="SELECT e.nama AS pegawai, m.nama AS atasan FROM pegawai AS e INNER JOIN pegawai AS m ON e.atasan_id = m.id;"
+  expectedQuery="SELECT e.nama AS pegawai FROM pegawai AS e INNER JOIN pegawai AS m ON e.atasan_id = m.id WHERE m.nama = 'Budi (Manajer)';"
+  hints={["Tambahkan WHERE m.nama = 'Budi (Manajer)'", "m adalah alias untuk 'atasan'"]}
+  explanation="WHERE m.nama = 'Budi (Manajer)' menyaring hasil Self JOIN hanya untuk baris di mana 'atasan' (alias m) adalah Budi."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u4l4-ex3"
+  title="Kenapa Alias Wajib di Self JOIN"
+  description="Kenapa Self JOIN mengharuskan kita memberi alias berbeda pada tabel yang sama?"
+  type="multiple-choice"
+  options={[
+    "Karena SQLite tidak mengizinkan JOIN tanpa alias sama sekali",
+    "Karena tanpa alias, SQLite tidak bisa membedakan dua peran berbeda dari tabel yang sama dalam satu query",
+    "Alias hanya untuk mempercantik tampilan, tidak wajib secara teknis",
+    "Karena Self JOIN selalu memakai LEFT JOIN"
+  ]}
+  correctIndex={1}
+  hints={["Tanpa alias, 'pegawai.nama' yang mana yang dimaksud jika ada dua salinan tabel?"]}
+  explanation="Karena tabel yang sama muncul dua kali dalam satu query (untuk dua 'peran' berbeda), alias wajib dipakai agar SQLite dan pembaca query tahu kolom mana merujuk ke peran yang mana."
+  lang="id"
+/>
+
+## Ringkasan
+
+| Konsep | Contoh |
+|--------|--------|
+| Self JOIN | `FROM pegawai AS e JOIN pegawai AS m ON e.atasan_id = m.id` |
+| Kapan dipakai | Data yang merujuk ke baris lain di tabel yang sama |
+| Alias wajib | Membedakan dua "peran" dari tabel yang sama |
+
+Selanjutnya: alias dan kondisi `ON` yang lebih lanjut untuk JOIN.

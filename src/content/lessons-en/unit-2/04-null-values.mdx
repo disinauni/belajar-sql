@@ -1,0 +1,125 @@
+---
+title: "Handling NULL"
+unit: 2
+lesson: 4
+description: "Understanding what NULL means and checking for it with IS NULL / IS NOT NULL"
+objectives:
+  - "Explain why NULL isn't zero or an empty string"
+  - "Filter rows with IS NULL and IS NOT NULL"
+  - "Provide a fallback value for NULL with COALESCE"
+estimatedTime: 20
+prerequisites: ["unit-2/03-between"]
+difficulty: "beginner"
+tags: ["null", "is-null", "coalesce"]
+translationStatus: "complete"
+---
+
+# Handling NULL
+
+The `buku` table we've used since Unit 1 happens to have no empty columns at all. But in the real world, unfilled data is common — e.g. a customer who hasn't provided an email yet. This lesson uses a new sample table: `pelanggan` (customers) `(id, nama, email)`.
+
+| id | nama | email |
+|----|------|-------|
+| 1 | Dewi | dewi@email.com |
+| 2 | Farhan | *(NULL)* |
+| 3 | Citra | citra@email.com |
+| 4 | Budi | *(NULL)* |
+| 5 | Eka | eka@email.com |
+
+## NULL Is Not Zero, Not an Empty String
+
+`NULL` means **"no value at all"** — different from the number 0 or empty text `''`. Farhan and Budi haven't filled in their email; their email column isn't `""` or `"0"`, it's genuinely empty.
+
+```sql
+-- Logically WRONG — this will NEVER find NULL rows!
+SELECT * FROM pelanggan WHERE email = NULL;
+```
+
+:::warning
+`= NULL` **never evaluates to true**, even for a row whose email really is NULL! Ordinary comparison operators (`=`, `<>`) can't be used with NULL — SQL has dedicated operators: `IS NULL` and `IS NOT NULL`.
+:::
+
+## IS NULL & IS NOT NULL
+
+```sql
+-- Customers who HAVEN'T filled in their email
+SELECT nama FROM pelanggan WHERE email IS NULL;
+```
+
+```sql
+-- Customers who HAVE filled in their email
+SELECT nama, email FROM pelanggan WHERE email IS NOT NULL;
+```
+
+## COALESCE — A Fallback Value for NULL
+
+The `COALESCE()` function returns the first non-NULL value from its argument list — useful for displaying placeholder text:
+
+```sql
+SELECT nama, COALESCE(email, '(belum diisi)') AS email
+FROM pelanggan;
+```
+
+Rows with a NULL email will show "(belum diisi)" ("not filled in yet"), while other rows still show their actual email.
+
+:::tip
+NULL is also "contagious" in calculations: `harga * NULL` results in NULL, not 0. If you sum a column containing NULL with `SUM()`, SQLite automatically ignores that NULL row (covered further in Unit 3).
+:::
+
+## Exercise
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u2l4-ex1"
+  title="Customers Missing an Email"
+  description="Show the name of customers who haven't filled in the email column."
+  type="code-output"
+  schema={`CREATE TABLE pelanggan (id INTEGER PRIMARY KEY, nama TEXT NOT NULL, email TEXT); INSERT INTO pelanggan (id, nama, email) VALUES (1,'Dewi','dewi@email.com'),(2,'Farhan',NULL),(3,'Citra','citra@email.com'),(4,'Budi',NULL),(5,'Eka','eka@email.com');`}
+  starterCode="SELECT nama FROM pelanggan;"
+  expectedQuery="SELECT nama FROM pelanggan WHERE email IS NULL;"
+  hints={["Use IS NULL, not = NULL"]}
+  explanation="WHERE email IS NULL is the only correct way to find rows with a NULL value."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u2l4-ex2"
+  title="Customers With an Email"
+  description="Show the name and email of customers who HAVE filled in their email."
+  type="code-output"
+  schema={`CREATE TABLE pelanggan (id INTEGER PRIMARY KEY, nama TEXT NOT NULL, email TEXT); INSERT INTO pelanggan (id, nama, email) VALUES (1,'Dewi','dewi@email.com'),(2,'Farhan',NULL),(3,'Citra','citra@email.com'),(4,'Budi',NULL),(5,'Eka','eka@email.com');`}
+  starterCode="SELECT nama, email FROM pelanggan;"
+  expectedQuery="SELECT nama, email FROM pelanggan WHERE email IS NOT NULL;"
+  hints={["Use IS NOT NULL"]}
+  explanation="IS NOT NULL filters rows whose column is filled in (not NULL)."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u2l4-ex3"
+  title="Why = NULL Doesn't Work"
+  description="Why does WHERE email = NULL never find any rows, even when some rows have a NULL email?"
+  type="multiple-choice"
+  options={[
+    "Because NULL is treated as equal to an empty string",
+    "Because the = operator can't compare against 'no value' — you must use IS NULL",
+    "Because the email column must be typed INTEGER",
+    "This actually works fine like any other operator"
+  ]}
+  correctIndex={1}
+  hints={["NULL isn't a value that can be compared with =, since it means 'no value'"]}
+  explanation="NULL represents the absence of a value, so it can't be compared with an ordinary equality operator. SQL provides IS NULL/IS NOT NULL specifically for this."
+  lang="en"
+/>
+
+## Summary
+
+| Concept | Example |
+|---------|---------|
+| Check empty | `WHERE email IS NULL` |
+| Check filled | `WHERE email IS NOT NULL` |
+| Fallback value | `COALESCE(email, '(belum diisi)')` |
+| Common trap | `WHERE email = NULL` — **never works** |
+
+You've mastered all the advanced filtering techniques! Time to combine them all in this unit's mini project.

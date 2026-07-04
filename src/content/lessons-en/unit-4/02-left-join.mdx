@@ -1,0 +1,134 @@
+---
+title: "LEFT JOIN"
+unit: 4
+lesson: 2
+description: "Showing every row from the left table even without a right-table match, with LEFT JOIN"
+objectives:
+  - "Write a LEFT JOIN query between two tables"
+  - "Understand that LEFT JOIN fills NULL when there's no match"
+  - "Find 'unmatched' rows with LEFT JOIN + WHERE ... IS NULL"
+estimatedTime: 30
+prerequisites: ["unit-4/01-inner-join"]
+difficulty: "intermediate"
+tags: ["left-join", "join"]
+database: "perpustakaan"
+translationStatus: "complete"
+---
+
+# LEFT JOIN
+
+The `INNER JOIN` from the previous lesson "hides" members who've never borrowed a book — they have no match, so they don't appear. But what if your question is actually **"which members have never borrowed?"** — you need `LEFT JOIN`.
+
+## Basic LEFT JOIN
+
+```sql
+SELECT anggota.nama, peminjaman.tanggal_pinjam
+FROM anggota
+LEFT JOIN peminjaman ON anggota.id = peminjaman.anggota_id;
+```
+
+`LEFT JOIN` returns **every row from the left table** (`anggota`), even if there's no match in the right table (`peminjaman`). For members without a loan, the `peminjaman` columns will be filled with `NULL`.
+
+<img src="/images/inner-vs-left-join.svg" alt="LEFT JOIN includes every left-table row, INNER JOIN only matches" width="100%" />
+
+:::note
+"Left" refers to the table written in `FROM`, and "right" to the table written after `LEFT JOIN`. `FROM anggota LEFT JOIN peminjaman` means anggota is the left table.
+:::
+
+## Finding "Unmatched" Rows
+
+The `LEFT JOIN` + `WHERE ... IS NULL` combination is a classic pattern for finding left-table rows with **no match at all**:
+
+```sql
+-- Members who have never borrowed any book
+SELECT anggota.nama
+FROM anggota
+LEFT JOIN peminjaman ON anggota.id = peminjaman.anggota_id
+WHERE peminjaman.id IS NULL;
+```
+
+If `peminjaman.id` (which should always be filled in if there's a match) comes out `NULL`, that indicates this `anggota` row has **no match at all** in `peminjaman`.
+
+## Books That Have Never Been Borrowed
+
+The same pattern can be flipped to find books that have never been borrowed:
+
+```sql
+SELECT buku.judul
+FROM buku
+LEFT JOIN peminjaman ON buku.id = peminjaman.buku_id
+WHERE peminjaman.id IS NULL;
+```
+
+## Books Currently Out (Not Yet Returned)
+
+Remember the nullable `tanggal_kembali` column from an earlier lesson? This combination finds loans still active:
+
+```sql
+SELECT anggota.nama, buku.judul
+FROM peminjaman
+INNER JOIN anggota ON peminjaman.anggota_id = anggota.id
+INNER JOIN buku ON peminjaman.buku_id = buku.id
+WHERE peminjaman.tanggal_kembali IS NULL;
+```
+
+:::tip
+Notice: `tanggal_kembali IS NULL` here is a different context from `peminjaman.id IS NULL` in the "find unmatched" pattern. The former checks the column's actual value (not yet returned), while the latter checks "absence of a JOIN match" (a column that should always exist, but is NULL because LEFT JOIN found no match).
+:::
+
+## Exercise
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u4l2-ex1"
+  title="Every Member, Including Non-Borrowers"
+  description="Show every member's name and their tanggal_pinjam (if any) — members who've never borrowed should still appear."
+  type="code-output"
+  database="perpustakaan"
+  starterCode="SELECT anggota.nama, peminjaman.tanggal_pinjam FROM anggota INNER JOIN peminjaman ON anggota.id = peminjaman.anggota_id;"
+  expectedQuery="SELECT anggota.nama, peminjaman.tanggal_pinjam FROM anggota LEFT JOIN peminjaman ON anggota.id = peminjaman.anggota_id;"
+  hints={["Change INNER JOIN to LEFT JOIN"]}
+  explanation="LEFT JOIN includes every member, including those without a peminjaman row (their tanggal_pinjam column will be NULL)."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u4l2-ex2"
+  title="Members Who've Never Borrowed"
+  description="Show the names of members who have never borrowed any book."
+  type="code-output"
+  database="perpustakaan"
+  starterCode="SELECT anggota.nama FROM anggota LEFT JOIN peminjaman ON anggota.id = peminjaman.anggota_id;"
+  expectedQuery="SELECT anggota.nama FROM anggota LEFT JOIN peminjaman ON anggota.id = peminjaman.anggota_id WHERE peminjaman.id IS NULL;"
+  hints={["Add WHERE peminjaman.id IS NULL"]}
+  explanation="WHERE peminjaman.id IS NULL filters down to only member rows with absolutely no match in peminjaman."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u4l2-ex3"
+  title="Why LEFT JOIN for This Case"
+  description="Why do we need LEFT JOIN (not INNER JOIN) to find members who've never borrowed a book?"
+  type="multiple-choice"
+  options={[
+    "Because LEFT JOIN executes faster",
+    "Because INNER JOIN would hide members without a loan (no match = not shown), while LEFT JOIN still shows them with NULL",
+    "Because the anggota table must always be on the left",
+    "Actually INNER JOIN works too, the result would be the same"
+  ]}
+  correctIndex={1}
+  hints={["Recall INNER JOIN's basic behavior from the previous lesson"]}
+  explanation="INNER JOIN only shows rows with a match in both tables — members without a loan would disappear from the result. LEFT JOIN keeps every left-table row, filling NULL when there's no match, so it can be detected with IS NULL."
+  lang="en"
+/>
+
+## Summary
+
+| Concept | Example |
+|---------|---------|
+| Basic LEFT JOIN | `FROM a LEFT JOIN b ON a.id = b.a_id` |
+| Every left row included | No match → right-side columns become NULL |
+| Find unmatched rows | `LEFT JOIN ... WHERE b.id IS NULL` |
+
+Next: joining **more than two tables at once**.

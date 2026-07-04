@@ -1,0 +1,126 @@
+---
+title: "EXISTS & NOT EXISTS"
+unit: 5
+lesson: 3
+description: "Checking for the existence of related rows with the correlated subquery operator EXISTS"
+objectives:
+  - "Write a correlated subquery with EXISTS"
+  - "Understand that EXISTS only cares whether a row exists, not its contents"
+  - "Compare EXISTS with IN for the same case"
+estimatedTime: 25
+prerequisites: ["unit-5/02-in-subquery"]
+difficulty: "intermediate"
+tags: ["exists", "subquery", "correlated-subquery"]
+database: "perpustakaan"
+translationStatus: "complete"
+---
+
+# EXISTS & NOT EXISTS
+
+`EXISTS` is an operator that checks whether a subquery returns **at least one row** — it doesn't care about the row's contents, only whether it **exists or not**.
+
+## Correlated Subqueries
+
+Every subquery we've written so far stands alone — it can run independently of the outer query. `EXISTS` is usually paired with a **correlated subquery**: a subquery that references a column from the outer query within its condition.
+
+```sql
+SELECT nama
+FROM anggota AS a
+WHERE EXISTS (
+  SELECT 1 FROM peminjaman AS p WHERE p.anggota_id = a.id
+);
+```
+
+Notice `p.anggota_id = a.id` — this subquery references `a.id` from the outer table (`anggota AS a`). This subquery is **re-evaluated for every row** in the outer table: "does a peminjaman row exist with anggota_id equal to THIS member's id?"
+
+:::note
+`SELECT 1` inside an `EXISTS` subquery is a common convention — the number `1` there doesn't matter, since `EXISTS` only checks **whether a row exists**, not its value. You could just as well write `SELECT *` or `SELECT anggota_id`, the result is the same.
+:::
+
+## NOT EXISTS
+
+```sql
+-- Members who have never borrowed (no matching peminjaman row)
+SELECT nama
+FROM anggota AS a
+WHERE NOT EXISTS (
+  SELECT 1 FROM peminjaman AS p WHERE p.anggota_id = a.id
+);
+```
+
+## EXISTS vs IN — When Do Results Differ?
+
+For a simple case like this, `EXISTS` and `IN` produce the same result:
+
+```sql
+-- With IN (from the previous lesson)
+SELECT nama FROM anggota WHERE id IN (SELECT anggota_id FROM peminjaman);
+
+-- With EXISTS (equivalent)
+SELECT nama FROM anggota AS a
+WHERE EXISTS (SELECT 1 FROM peminjaman AS p WHERE p.anggota_id = a.id);
+```
+
+But `NOT EXISTS` is **safer** than `NOT IN` when the subquery could potentially contain `NULL` — `NOT EXISTS` doesn't have the NULL trap that `NOT IN` has. Because of this, many developers make `EXISTS`/`NOT EXISTS` their safer default habit.
+
+:::tip
+Rule of thumb: if you only need to know "does ANY related data exist", use `EXISTS`/`NOT EXISTS`. If you need to match against a concrete list of values, `IN` still works fine — as long as the column is guaranteed not to be NULL.
+:::
+
+## Exercise
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u5l3-ex1"
+  title="Members With an Active Loan"
+  description="Show the names of members who HAVE at least one still-active loan (tanggal_kembali NULL), using EXISTS."
+  type="code-output"
+  database="perpustakaan"
+  starterCode="SELECT nama FROM anggota AS a WHERE EXISTS (SELECT 1 FROM peminjaman AS p WHERE p.anggota_id = a.id);"
+  expectedQuery="SELECT nama FROM anggota AS a WHERE EXISTS (SELECT 1 FROM peminjaman AS p WHERE p.anggota_id = a.id AND p.tanggal_kembali IS NULL);"
+  hints={["Add AND p.tanggal_kembali IS NULL inside the EXISTS subquery"]}
+  explanation="A correlated subquery can have extra conditions just like a regular WHERE clause — here we check both the anggota_id match AND the not-yet-returned status."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u5l3-ex2"
+  title="Members Without an Active Loan"
+  description="Show the names of members who do NOT have any active loan at all (everything returned, or never borrowed), using NOT EXISTS."
+  type="code-output"
+  database="perpustakaan"
+  starterCode="SELECT nama FROM anggota AS a WHERE EXISTS (SELECT 1 FROM peminjaman AS p WHERE p.anggota_id = a.id AND p.tanggal_kembali IS NULL);"
+  expectedQuery="SELECT nama FROM anggota AS a WHERE NOT EXISTS (SELECT 1 FROM peminjaman AS p WHERE p.anggota_id = a.id AND p.tanggal_kembali IS NULL);"
+  hints={["Change EXISTS to NOT EXISTS"]}
+  explanation="NOT EXISTS inverts the logic: members who have NO matching active loan row at all."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u5l3-ex3"
+  title="What EXISTS Checks"
+  description="What does the EXISTS operator actually check?"
+  type="multiple-choice"
+  options={[
+    "The value of the subquery's first column",
+    "Whether the subquery returns at least one row — its contents are irrelevant",
+    "Whether the subquery returns exactly one row",
+    "Whether the subquery produces an error"
+  ]}
+  correctIndex={1}
+  hints={["That's why SELECT 1 is often used — the column's content doesn't matter"]}
+  explanation="EXISTS only checks the PRESENCE of a subquery result row (at least one, or none at all) — the row's actual contents are irrelevant."
+  lang="en"
+/>
+
+## Summary
+
+| Concept | Example |
+|---------|---------|
+| EXISTS | `WHERE EXISTS (SELECT 1 FROM p WHERE p.x = a.id)` |
+| NOT EXISTS | `WHERE NOT EXISTS (...)` |
+| Correlated subquery | A subquery referencing a column from the outer query |
+| Safer than | `NOT IN` (no NULL trap) |
+
+Next: naming a subquery with a **CTE (WITH)**, and combining two queries' results with **UNION**.

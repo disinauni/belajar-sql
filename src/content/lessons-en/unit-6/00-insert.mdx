@@ -1,0 +1,130 @@
+---
+title: "Adding Data with INSERT"
+unit: 6
+lesson: 0
+description: "Adding new rows to a table with the INSERT statement"
+objectives:
+  - "Add a single row of data with INSERT INTO ... VALUES"
+  - "Add multiple rows at once in a single INSERT statement"
+  - "Understand that INSERT without an explicit column list is risky"
+estimatedTime: 20
+prerequisites: ["unit-5/05-proyek-mini-analisis-data"]
+difficulty: "intermediate"
+tags: ["insert", "dml"]
+database: "toko_buku"
+translationStatus: "complete"
+---
+
+# Adding Data with INSERT
+
+Until now we've only **read** data with `SELECT`. Starting this unit, we learn to **change** data — beginning with `INSERT`, the statement for adding new rows.
+
+:::note
+Every `INSERT`/`UPDATE`/`DELETE` statement you try in this playground only changes the running database copy **in your own browser**. Click the **Reset** button any time to restore the data to its original state.
+:::
+
+## Basic INSERT
+
+```sql
+INSERT INTO buku (id, judul, penulis, kategori, harga, stok, tahun_terbit)
+VALUES (13, 'Bumi', 'Tere Liye', 'Fiksi', 70000, 5, 2014);
+```
+
+- **`INSERT INTO buku`** — the target table
+- **`(id, judul, penulis, kategori, harga, stok, tahun_terbit)`** — the list of columns to fill, in a specific order
+- **`VALUES (...)`** — the corresponding values, in the **exact same** order as the column list
+
+After running this, try `SELECT * FROM buku WHERE id = 13;` to see the new row.
+
+## Why the Column List Matters
+
+```sql
+-- Risky: relies on the table's original column order, easy to get wrong if the schema changes
+INSERT INTO buku VALUES (14, 'Rentang Waktu', 'Fiksi', 'Fiksi', 62000, 8, 2010);
+```
+
+:::warning
+`INSERT` without an explicit column list assumes you know **exactly** the table's original column order — if the order is wrong (like the example above: `penulis` and `kategori` swapped), data goes into the wrong column **without any error**! Always write the column list explicitly, even if it's longer.
+:::
+
+## Adding Multiple Rows at Once
+
+```sql
+INSERT INTO buku (id, judul, penulis, kategori, harga, stok, tahun_terbit) VALUES
+  (13, 'Bumi', 'Tere Liye', 'Fiksi', 70000, 5, 2014),
+  (14, 'Bulan', 'Tere Liye', 'Fiksi', 72000, 3, 2015);
+```
+
+A single `INSERT` statement can add multiple rows by separating each parenthesized `(...)` group with a comma — much more efficient than writing `INSERT` repeatedly.
+
+## INSERT and Primary Key
+
+The `id` column in `buku` is a `PRIMARY KEY`, meaning its value must be **unique**. Trying to `INSERT` with an `id` that already exists produces an error:
+
+```sql
+-- ERROR: id 1 is already used by 'Laskar Pelangi'
+INSERT INTO buku (id, judul, penulis, kategori, harga, stok, tahun_terbit)
+VALUES (1, 'Judul Lain', 'Penulis Lain', 'Fiksi', 50000, 1, 2020);
+```
+
+## Exercise
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u6l0-ex1"
+  title="Add One New Book"
+  description="Add a new book: id 13, title 'Rentang Waktu', author 'Tere Liye', category 'Fiksi', price 62000, stock 8, published 2010. Then show all its columns to verify."
+  type="code-output"
+  starterCode="INSERT INTO buku (id, judul, penulis, kategori, harga, stok, tahun_terbit)
+VALUES (13, 'Bumi', 'Tere Liye', 'Fiksi', 70000, 5, 2014);
+
+SELECT * FROM buku WHERE id = 13;"
+  expectedQuery="INSERT INTO buku (id, judul, penulis, kategori, harga, stok, tahun_terbit) VALUES (13, 'Rentang Waktu', 'Tere Liye', 'Fiksi', 62000, 8, 2010); SELECT * FROM buku WHERE id = 13;"
+  hints={["Adjust all the VALUES to match the requested data", "The second (SELECT) query verifies the result"]}
+  explanation="INSERT adds a new row with id 13, then SELECT verifies the data was stored correctly."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u6l0-ex2"
+  title="Add Two Books at Once"
+  description="Add two new books in a SINGLE INSERT statement: (13, 'Bumi', 'Tere Liye', 'Fiksi', 70000, 5, 2014) and (14, 'Bulan', 'Tere Liye', 'Fiksi', 72000, 3, 2015). Then show both."
+  type="code-output"
+  starterCode="INSERT INTO buku (id, judul, penulis, kategori, harga, stok, tahun_terbit)
+VALUES (13, 'Bumi', 'Tere Liye', 'Fiksi', 70000, 5, 2014);
+
+SELECT * FROM buku WHERE id IN (13, 14);"
+  expectedQuery="INSERT INTO buku (id, judul, penulis, kategori, harga, stok, tahun_terbit) VALUES (13, 'Bumi', 'Tere Liye', 'Fiksi', 70000, 5, 2014), (14, 'Bulan', 'Tere Liye', 'Fiksi', 72000, 3, 2015); SELECT * FROM buku WHERE id IN (13, 14);"
+  hints={["Separate the two rows of data with a comma in one VALUES", "(13, ...), (14, ...)"]}
+  explanation="A single INSERT statement can add multiple rows by separating each value tuple with a comma."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u6l0-ex3"
+  title="Why an Explicit Column List Matters"
+  description="Why should you always write an explicit column list in INSERT INTO table (column1, column2, ...), instead of relying on the default order?"
+  type="multiple-choice"
+  options={[
+    "Because INSERT won't work without a column list",
+    "Because without an explicit column list, data can go into the wrong column with no error if the assumed order is wrong",
+    "The column list only affects query speed",
+    "Because SQLite requires alphabetical column order"
+  ]}
+  correctIndex={1}
+  hints={["Think about the risk when someone changes a table's column order in the future"]}
+  explanation="Without an explicit column list, INSERT relies on the table's original column order, which can change or be misremembered — data can end up in the wrong column with no error warning at all."
+  lang="en"
+/>
+
+## Summary
+
+| Concept | Example |
+|---------|---------|
+| INSERT one row | `INSERT INTO buku (columns...) VALUES (values...);` |
+| INSERT multiple rows | `VALUES (...), (...), (...);` |
+| Safe practice | Always write an explicit column list |
+| Primary Key constraint | `id` values must be unique, no duplicates |
+
+Next: modifying existing data with **UPDATE**.

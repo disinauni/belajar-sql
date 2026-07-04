@@ -52,13 +52,13 @@ Project ini adalah adaptasi dari [**Belajar Python**](https://github.com/zedfar/
 |------|-------|:-------:|--------|
 | 0 | Persiapan | 3 | ✅ Tersedia |
 | 1 | SELECT Dasar | 8 | ✅ Tersedia |
-| 2 | Filtering & Operator | — | 🚧 Segera Hadir |
-| 3 | Agregasi & GROUP BY | — | 🚧 Segera Hadir |
-| 4 | JOIN | — | 🚧 Segera Hadir |
-| 5 | Subquery & CTE | — | 🚧 Segera Hadir |
-| 6 | Modifikasi Data & Skema | — | 🚧 Segera Hadir |
+| 2 | Filtering & Operator | 6 | ✅ Tersedia |
+| 3 | Agregasi & GROUP BY | 7 | ✅ Tersedia |
+| 4 | JOIN | 7 | ✅ Tersedia |
+| 5 | Subquery & CTE | 6 | ✅ Tersedia |
+| 6 | Modifikasi Data & Skema | 7 | ✅ Tersedia |
 
-**11 lessons tersedia** (Unit 0-1) · ~4 jam belajar · roadmap 7 unit penuh
+**44 lessons tersedia** (Unit 0-6, kurikulum lengkap) · ~20-25 jam belajar · 1 proyek mini per unit
 
 ---
 
@@ -161,7 +161,7 @@ belajar-sql/
 Kontribusi sangat welcome! Beberapa cara untuk berkontribusi:
 
 - 🐛 **Laporkan bug** — Buka issue di GitHub
-- ✍️ **Tulis lesson** — Unit 2-6 masih roadmap kosong (lihat `src/lib/curriculum.ts`), tambah konten di `src/content/lessons-id/`
+- ✍️ **Tulis lesson** — kurikulum Unit 0-6 sudah lengkap; tambah unit baru atau perdalam materi yang ada di `src/content/lessons-id/` (lihat `src/lib/curriculum.ts` untuk struktur kurikulum)
 - 🌐 **Terjemahan** — Bantu terjemahkan lesson ke English di `src/content/lessons-en/`
 - 💡 **Saran fitur** — Diskusikan di Issues
 

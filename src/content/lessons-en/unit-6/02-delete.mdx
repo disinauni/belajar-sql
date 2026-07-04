@@ -1,0 +1,128 @@
+---
+title: "Removing Data with DELETE"
+unit: 6
+lesson: 2
+description: "Removing rows from a table with the DELETE statement, and why WHERE matters"
+objectives:
+  - "Remove specific rows with DELETE FROM ... WHERE"
+  - "Understand that DELETE without WHERE empties the entire table"
+  - "Distinguish DELETE (removing rows) from DROP TABLE (removing the table)"
+estimatedTime: 20
+prerequisites: ["unit-6/01-update"]
+difficulty: "intermediate"
+tags: ["delete", "dml"]
+database: "toko_buku"
+translationStatus: "complete"
+---
+
+# Removing Data with DELETE
+
+`DELETE` removes rows from a table — the last DML statement after `INSERT` and `UPDATE`.
+
+## Basic DELETE
+
+```sql
+DELETE FROM buku WHERE id = 6;
+```
+
+The row with `id = 6` will be permanently gone from the currently-running database. Try `SELECT * FROM buku;` afterward — that row no longer exists.
+
+## DELETE by Condition
+
+```sql
+-- Remove all books with 0 stock
+DELETE FROM buku WHERE stok = 0;
+```
+
+```sql
+-- Remove Finance category books priced under 100000
+DELETE FROM buku WHERE kategori = 'Keuangan' AND harga < 100000;
+```
+
+Every `WHERE` technique from Units 1-2 (comparison operators, `AND`/`OR`, `IN`, `BETWEEN`, etc.) applies exactly the same way to `DELETE`.
+
+## DANGER: DELETE Without WHERE
+
+```sql
+-- DANGER! This deletes ALL rows in the buku table — the table itself still exists, but empty
+DELETE FROM buku;
+```
+
+:::warning
+Just like `UPDATE`, `DELETE` **without `WHERE`** deletes **ALL rows** in the table. This is one of the most dangerous statements in SQL — always double-check your `WHERE`, and on a real database, consider running a `SELECT` with the same `WHERE` first to confirm the rows about to be deleted are really what you intend.
+:::
+
+## DELETE vs DROP TABLE
+
+It's important not to confuse these two statements:
+
+| Statement | Effect |
+|-----------|--------|
+| `DELETE FROM buku;` | Removes **all rows**, the `buku` table (its structure/schema) still exists, empty |
+| `DROP TABLE buku;` | Removes **the table itself** entirely — both structure and all data are gone |
+
+We'll cover `DROP TABLE` in more detail in the **ALTER TABLE & DROP TABLE** lesson.
+
+:::tip
+After `DELETE FROM buku;`, you can still `INSERT` new data into the `buku` table because its structure still exists. After `DROP TABLE buku;`, you'd need to `CREATE TABLE buku (...)` again from scratch before you can use it.
+:::
+
+## Exercise
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u6l2-ex1"
+  title="Delete a Specific Book"
+  description="Delete the book with id 11 ('Pulang'). Then show all books to verify the count dropped to 11."
+  type="code-output"
+  starterCode="DELETE FROM buku WHERE id = 6;
+
+SELECT * FROM buku;"
+  expectedQuery="DELETE FROM buku WHERE id = 11; SELECT * FROM buku;"
+  hints={["Change the id to 11"]}
+  explanation="DELETE FROM buku WHERE id = 11 removes exactly one row, leaving the other 11."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u6l2-ex2"
+  title="Delete Out-of-Stock Books"
+  description="Delete all books with stock = 0. Then show the remaining books."
+  type="code-output"
+  starterCode="DELETE FROM buku WHERE kategori = 'Keuangan';
+
+SELECT * FROM buku;"
+  expectedQuery="DELETE FROM buku WHERE stok = 0; SELECT * FROM buku;"
+  hints={["Change the WHERE condition to stok = 0"]}
+  explanation="DELETE FROM buku WHERE stok = 0 removes any row whose stock is exactly zero."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u6l2-ex3"
+  title="DELETE vs DROP TABLE"
+  description="After running DELETE FROM buku; (without WHERE), what happens to the buku TABLE itself?"
+  type="multiple-choice"
+  options={[
+    "The buku table gets deleted entirely, same as DROP TABLE",
+    "The buku table still exists (structure intact), only its contents (all rows) become empty",
+    "The buku table gets renamed automatically",
+    "This statement will always fail because there's no WHERE"
+  ]}
+  correctIndex={1}
+  hints={["DELETE operates on ROWS, not on the table's structure"]}
+  explanation="DELETE FROM buku; (without WHERE) removes all rows but the buku table itself (its schema) still exists, empty with no data — different from DROP TABLE, which removes the table itself."
+  lang="en"
+/>
+
+## Summary
+
+| Concept | Example |
+|---------|---------|
+| Basic DELETE | `DELETE FROM buku WHERE id = 6;` |
+| DELETE with a condition | Every `WHERE` technique from earlier units applies |
+| DANGER | `DELETE` without `WHERE` removes ALL rows |
+| Different from DROP TABLE | `DELETE` removes rows, `DROP TABLE` removes the table |
+
+You've now mastered `INSERT`, `UPDATE`, `DELETE` — the three main DML statements! Next we move to DDL: designing your own table from scratch with **CREATE TABLE**.

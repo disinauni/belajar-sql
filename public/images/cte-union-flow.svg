@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 220" width="680" height="220" font-family="'Segoe UI', system-ui, sans-serif">
+  <defs>
+    <style>
+      :root {
+        --bg: #f8fafc; --border: #e2e8f0; --card-bg: #ffffff; --card-border: #e2e8f0;
+        --value-text: #1e293b; --text-sub: #64748b; --shadow: rgba(0,0,0,0.07);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #0f172a; --border: #1e293b; --card-bg: #1e293b; --card-border: #334155;
+          --value-text: #f1f5f9; --text-sub: #94a3b8; --shadow: rgba(0,0,0,0.4);
+        }
+      }
+    </style>
+    <filter id="cu-shadow"><feDropShadow dx="0" dy="2" stdDeviation="5" flood-color="var(--shadow)"/></filter>
+  </defs>
+
+  <rect width="680" height="220" rx="14" fill="var(--bg)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="340" y="24" text-anchor="middle" fill="var(--text-sub)" font-size="11" font-weight="600" letter-spacing="0.5">CTE (WITH) &amp; UNION</text>
+
+  <!-- CTE -->
+  <text x="170" y="48" text-anchor="middle" fill="var(--text-sub)" font-size="11" font-weight="700">CTE: beri nama subquery</text>
+  <g filter="url(#cu-shadow)">
+    <rect x="40" y="58" width="260" height="130" rx="10" fill="var(--card-bg)" stroke="#8b5cf6" stroke-width="1.5"/>
+  </g>
+  <text x="170" y="80" text-anchor="middle" fill="#7c3aed" font-size="10" font-weight="700" font-family="'JetBrains Mono', monospace">WITH buku_mahal AS (</text>
+  <text x="170" y="98" text-anchor="middle" fill="var(--value-text)" font-size="10" font-family="'JetBrains Mono', monospace">  SELECT * FROM buku</text>
+  <text x="170" y="114" text-anchor="middle" fill="var(--value-text)" font-size="10" font-family="'JetBrains Mono', monospace">  WHERE harga &gt; 90000</text>
+  <text x="170" y="130" text-anchor="middle" fill="#7c3aed" font-size="10" font-family="'JetBrains Mono', monospace">)</text>
+  <text x="170" y="152" text-anchor="middle" fill="var(--value-text)" font-size="10" font-family="'JetBrains Mono', monospace">SELECT * FROM buku_mahal</text>
+  <text x="170" y="172" text-anchor="middle" fill="var(--text-sub)" font-size="9">dipakai seperti tabel biasa</text>
+
+  <!-- UNION -->
+  <text x="510" y="48" text-anchor="middle" fill="var(--text-sub)" font-size="11" font-weight="700">UNION: gabung dua hasil</text>
+  <g font-family="'JetBrains Mono', monospace" font-size="10">
+    <rect x="400" y="58" width="220" height="34" rx="6" fill="#3b82f6" fill-opacity="0.15" stroke="#3b82f6"/>
+    <text x="410" y="79" fill="var(--value-text)">SELECT judul ... harga&lt;60000</text>
+    <rect x="400" y="100" width="220" height="34" rx="6" fill="#10b981" fill-opacity="0.15" stroke="#10b981"/>
+    <text x="410" y="121" fill="var(--value-text)">SELECT judul ... harga&gt;110000</text>
+  </g>
+  <text x="510" y="150" text-anchor="middle" fill="var(--text-sub)" font-size="14">&#8595; UNION &#8595;</text>
+  <rect x="400" y="160" width="220" height="30" rx="6" fill="#f59e0b" fill-opacity="0.2" stroke="#f59e0b" stroke-width="1.5"/>
+  <text x="510" y="180" text-anchor="middle" fill="var(--value-text)" font-size="10" font-family="'JetBrains Mono', monospace">1 daftar gabungan, tanpa duplikat</text>
+</svg>

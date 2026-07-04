@@ -1,0 +1,135 @@
+---
+title: "Menggabungkan Semua Klausa"
+unit: 3
+lesson: 5
+description: "Urutan penulisan lengkap SELECT, FROM, WHERE, GROUP BY, HAVING, ORDER BY, dan LIMIT"
+objectives:
+  - "Menulis query dengan seluruh klausa SELECT dalam urutan yang benar"
+  - "Memahami urutan evaluasi logis dari FROM hingga LIMIT"
+  - "Menyusun laporan agregat multi-klausa yang realistis"
+estimatedTime: 25
+prerequisites: ["unit-3/04-having"]
+difficulty: "beginner"
+tags: ["review", "urutan-klausa"]
+database: "toko_buku"
+---
+
+# Menggabungkan Semua Klausa
+
+Sekarang kamu sudah mengenal semua klausa utama `SELECT`. Saatnya melihat urutan penulisan lengkapnya sekaligus — dan memahami urutan **evaluasi** SQLite di baliknya, yang ternyata berbeda.
+
+## Urutan Penulisan Lengkap
+
+```sql
+SELECT kolom, FUNGSI_AGREGAT(kolom) AS alias
+FROM tabel
+WHERE kondisi_baris
+GROUP BY kolom_grouping
+HAVING kondisi_agregat
+ORDER BY kolom ASC/DESC
+LIMIT n;
+```
+
+Setiap klausa bersifat opsional kecuali `SELECT` dan `FROM` — tapi kalau dipakai, urutan penulisannya **wajib** seperti di atas.
+
+## Urutan Evaluasi Logis (Berbeda dari Urutan Penulisan!)
+
+<img src="/images/aggregate-functions.svg" alt="Ringkasan fungsi agregat COUNT SUM AVG MIN MAX" width="100%" />
+
+SQLite sebenarnya memproses klausa dengan urutan **logis** berikut, dari dalam ke luar:
+
+1. **FROM** — tentukan tabel sumber
+2. **WHERE** — saring baris mentah
+3. **GROUP BY** — kelompokkan baris yang tersisa
+4. **HAVING** — saring hasil kelompok
+5. **SELECT** — pilih/hitung kolom yang ditampilkan
+6. **ORDER BY** — urutkan hasil akhir
+7. **LIMIT** — batasi jumlah baris hasil akhir
+
+Ini menjelaskan kenapa `WHERE` tidak bisa memakai `COUNT(*)` (belum dihitung saat `WHERE` berjalan) tapi `HAVING` bisa (dihitung setelah `GROUP BY`).
+
+## Contoh Lengkap
+
+```sql
+SELECT kategori, COUNT(*) AS jumlah, ROUND(AVG(harga), 0) AS rata_rata
+FROM buku
+WHERE stok > 0
+GROUP BY kategori
+HAVING COUNT(*) >= 2
+ORDER BY rata_rata DESC
+LIMIT 3;
+```
+
+Membaca query ini selangkah demi selangkah:
+1. Ambil semua baris dari `buku`
+2. Saring hanya yang `stok > 0`
+3. Kelompokkan berdasarkan `kategori`
+4. Hitung `COUNT(*)` dan `AVG(harga)` per kelompok
+5. Saring: hanya kelompok dengan jumlah buku >= 2
+6. Urutkan dari rata-rata harga tertinggi
+7. Ambil 3 teratas saja
+
+:::tip
+Kalau bingung urutan klausa mana dulu, ingat singkatan **F-W-G-H-O-L**: **F**ROM, **W**HERE, **G**ROUP BY, **H**AVING, **O**RDER BY, **L**IMIT.
+:::
+
+## Latihan
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u3l5-ex1"
+  title="Laporan Kategori Lengkap"
+  description="Tampilkan kategori, jumlah buku (alias jumlah), dan rata-rata harga (alias rata_rata, dibulatkan), untuk kategori dengan lebih dari 1 buku, diurutkan dari rata-rata harga tertinggi."
+  type="code-output"
+  strictOrder
+  starterCode="SELECT kategori, COUNT(*) AS jumlah, ROUND(AVG(harga), 0) AS rata_rata FROM buku GROUP BY kategori;"
+  expectedQuery="SELECT kategori, COUNT(*) AS jumlah, ROUND(AVG(harga), 0) AS rata_rata FROM buku GROUP BY kategori HAVING COUNT(*) > 1 ORDER BY rata_rata DESC;"
+  hints={["Tambahkan HAVING COUNT(*) > 1 sebelum ORDER BY", "Urutan: GROUP BY, lalu HAVING, lalu ORDER BY"]}
+  explanation="Urutan klausa yang benar: GROUP BY dulu untuk mengelompokkan, HAVING untuk menyaring hasil kelompok, baru ORDER BY untuk mengurutkan hasil akhir."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u3l5-ex2"
+  title="Top 2 Kategori Bernilai Stok Tertinggi"
+  description="Tampilkan kategori dan total nilai stok (harga*stok dijumlahkan, alias total_nilai), urutkan dari tertinggi, ambil 2 teratas saja."
+  type="code-output"
+  strictOrder
+  starterCode="SELECT kategori, SUM(harga * stok) AS total_nilai FROM buku GROUP BY kategori;"
+  expectedQuery="SELECT kategori, SUM(harga * stok) AS total_nilai FROM buku GROUP BY kategori ORDER BY total_nilai DESC LIMIT 2;"
+  hints={["Tambahkan ORDER BY total_nilai DESC LIMIT 2 di akhir"]}
+  explanation="ORDER BY ... DESC LIMIT 2 selalu ditulis PALING AKHIR, setelah GROUP BY (dan HAVING jika ada)."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u3l5-ex3"
+  title="Urutan Klausa Lengkap"
+  description="Manakah urutan PENULISAN klausa SELECT yang benar?"
+  type="multiple-choice"
+  options={[
+    "SELECT, FROM, GROUP BY, WHERE, HAVING, ORDER BY, LIMIT",
+    "SELECT, FROM, WHERE, GROUP BY, HAVING, ORDER BY, LIMIT",
+    "SELECT, FROM, HAVING, WHERE, GROUP BY, ORDER BY, LIMIT",
+    "SELECT, FROM, ORDER BY, WHERE, GROUP BY, HAVING, LIMIT"
+  ]}
+  correctIndex={1}
+  hints={["Ingat singkatan F-W-G-H-O-L"]}
+  explanation="Urutan penulisan yang benar adalah SELECT, FROM, WHERE, GROUP BY, HAVING, ORDER BY, LIMIT — WHERE menyaring baris sebelum dikelompokkan, HAVING menyaring setelahnya."
+  lang="id"
+/>
+
+## Ringkasan
+
+| Klausa | Fungsi | Kapan dievaluasi |
+|--------|--------|-------------------|
+| `FROM` | Tabel sumber | 1 |
+| `WHERE` | Saring baris mentah | 2 |
+| `GROUP BY` | Kelompokkan baris | 3 |
+| `HAVING` | Saring hasil kelompok | 4 |
+| `SELECT` | Pilih/hitung kolom | 5 |
+| `ORDER BY` | Urutkan hasil | 6 |
+| `LIMIT` | Batasi jumlah baris | 7 |
+
+Saatnya menerapkan semua ini dalam **Proyek Mini: Laporan Penjualan Toko Buku**.

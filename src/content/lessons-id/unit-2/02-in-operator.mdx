@@ -1,0 +1,111 @@
+---
+title: "Operator IN"
+unit: 2
+lesson: 2
+description: "Memeriksa apakah nilai kolom ada di dalam sebuah daftar dengan IN dan NOT IN"
+objectives:
+  - "Menyaring baris berdasarkan daftar nilai dengan IN"
+  - "Membalik pencarian dengan NOT IN"
+  - "Memahami IN sebagai penyingkat dari rangkaian OR"
+estimatedTime: 20
+prerequisites: ["unit-2/01-like-wildcard"]
+difficulty: "beginner"
+tags: ["in", "not-in"]
+database: "toko_buku"
+---
+
+# Operator IN
+
+Bayangkan kamu ingin buku dengan kategori 'Fiksi', 'Non-Fiksi', **atau** 'Teknologi'. Dengan `OR` kamu harus menulis tiga kondisi berulang. `IN` menyingkatnya jadi satu daftar.
+
+## IN — Penyingkat Rangkaian OR
+
+```sql
+-- Sama dengan: kategori = 'Fiksi' OR kategori = 'Non-Fiksi' OR kategori = 'Teknologi'
+SELECT judul, kategori
+FROM buku
+WHERE kategori IN ('Fiksi', 'Non-Fiksi', 'Teknologi');
+```
+
+Jauh lebih ringkas dan mudah dibaca dibanding merangkai `OR` berulang.
+
+## NOT IN — Kebalikannya
+
+```sql
+-- Semua buku KECUALI kategori Fiksi dan Non-Fiksi
+SELECT judul, kategori
+FROM buku
+WHERE kategori NOT IN ('Fiksi', 'Non-Fiksi');
+```
+
+## IN dengan Angka
+
+`IN` juga bekerja pada kolom angka, tidak hanya teks:
+
+```sql
+SELECT judul, tahun_terbit
+FROM buku
+WHERE tahun_terbit IN (2018, 2023);
+```
+
+:::tip
+`IN` paling terasa manfaatnya ketika daftar nilainya 3 atau lebih. Untuk 1-2 nilai saja, `WHERE x = a OR x = b` masih cukup ringkas — pilih mana yang lebih mudah dibaca.
+:::
+
+:::warning
+Hati-hati dengan `NOT IN` dan `NULL` — jika daftar di dalam `NOT IN` mengandung nilai `NULL` (misalnya dari hasil subquery di Unit 5 nanti), seluruh hasil `NOT IN` bisa jadi kosong secara tak terduga. Ini adalah jebakan SQL yang terkenal, kita akan bahas lebih dalam saat belajar subquery.
+:::
+
+## Latihan
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u2l2-ex1"
+  title="Tiga Kategori Sekaligus"
+  description="Tampilkan judul dan kategori untuk buku dengan kategori 'Fiksi', 'Teknologi', atau 'Keuangan'."
+  type="code-output"
+  starterCode="SELECT judul, kategori FROM buku;"
+  expectedQuery="SELECT judul, kategori FROM buku WHERE kategori IN ('Fiksi', 'Teknologi', 'Keuangan');"
+  hints={["Gunakan IN diikuti daftar nilai dalam kurung, dipisah koma"]}
+  explanation="IN ('Fiksi', 'Teknologi', 'Keuangan') menyaring baris yang kategorinya salah satu dari ketiga nilai itu."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u2l2-ex2"
+  title="Kecuali Dua Kategori"
+  description="Tampilkan judul dan kategori untuk semua buku KECUALI kategori 'Pengembangan Diri' dan 'Keuangan'."
+  type="code-output"
+  starterCode="SELECT judul, kategori FROM buku;"
+  expectedQuery="SELECT judul, kategori FROM buku WHERE kategori NOT IN ('Pengembangan Diri', 'Keuangan');"
+  hints={["Gunakan NOT IN untuk membalik daftar"]}
+  explanation="NOT IN ('Pengembangan Diri', 'Keuangan') menampilkan semua baris yang kategorinya bukan salah satu dari kedua nilai itu."
+  lang="id"
+/>
+
+<Exercise client:load
+  id="u2l2-ex3"
+  title="IN Setara dengan Apa?"
+  description="WHERE kategori IN ('A', 'B', 'C') setara dengan rangkaian operator apa?"
+  type="multiple-choice"
+  options={[
+    "kategori = 'A' AND kategori = 'B' AND kategori = 'C'",
+    "kategori = 'A' OR kategori = 'B' OR kategori = 'C'",
+    "kategori <> 'A' AND kategori <> 'B'",
+    "kategori LIKE 'A%' OR kategori LIKE 'B%'"
+  ]}
+  correctIndex={1}
+  hints={["Satu baris tidak mungkin sama dengan tiga nilai berbeda sekaligus, jadi bukan AND"]}
+  explanation="IN adalah penyingkat untuk rangkaian OR — baris cocok jika nilainya sama dengan SALAH SATU dari daftar."
+  lang="id"
+/>
+
+## Ringkasan
+
+| Operator | Arti | Contoh |
+|----------|------|--------|
+| `IN (...)` | Cocok dengan salah satu nilai di daftar | `kategori IN ('Fiksi', 'Teknologi')` |
+| `NOT IN (...)` | Tidak cocok dengan semua nilai di daftar | `kategori NOT IN ('Fiksi')` |
+
+Selanjutnya: menyaring rentang nilai dengan **BETWEEN**.

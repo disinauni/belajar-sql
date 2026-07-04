@@ -1,0 +1,102 @@
+---
+title: "Mini Project: Advanced Filters"
+unit: 2
+lesson: 5
+description: "Combining AND/OR/NOT, LIKE, IN, BETWEEN, and NULL in realistic filtering scenarios"
+objectives:
+  - "Compose complex WHERE conditions using multiple operators at once"
+  - "Choose the most appropriate operator for each scenario"
+  - "Review every filtering technique from Unit 2"
+estimatedTime: 30
+prerequisites: ["unit-2/04-null-values"]
+difficulty: "beginner"
+tags: ["project", "review"]
+database: "toko_buku"
+translationStatus: "complete"
+---
+
+# Mini Project: Advanced Filters
+
+Congratulations on reaching the end of Unit 2! You now have a full filtering toolkit: `AND`/`OR`/`NOT`, `LIKE`, `IN`, `BETWEEN`, and `IS NULL`. Let's combine them all to answer more realistic bookstore admin questions.
+
+## Choosing the Right Operator
+
+| Need | Operator |
+|------|----------|
+| Several conditions must all be true | `AND` |
+| Any one of several conditions is enough | `OR` |
+| Searching for a text pattern/fragment | `LIKE '%...%'` |
+| Matches any value from a list | `IN (...)` |
+| Value within a specific range | `BETWEEN ... AND ...` |
+| Column empty/filled | `IS NULL` / `IS NOT NULL` |
+
+## Case Study
+
+**"Fiction or Non-Fiction books, priced between 60000 and 100000, whose title doesn't contain the word 'Cinta'"**
+
+```sql
+SELECT judul, kategori, harga
+FROM buku
+WHERE kategori IN ('Fiksi', 'Non-Fiksi')
+  AND harga BETWEEN 60000 AND 100000
+  AND judul NOT LIKE '%Cinta%';
+```
+
+Notice how `IN` replaces repeated `OR`, and `BETWEEN` replaces two `>=`/`<=` conditions, keeping the query concise even while combining many requirements.
+
+## Project Exercises
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u2l5-ex1"
+  title="Category & Price Range Combo"
+  description="Show the title, category, and price for books in category 'Teknologi' or 'Keuangan', priced between 50000 and 100000."
+  type="code-output"
+  starterCode="SELECT judul, kategori, harga FROM buku;"
+  expectedQuery="SELECT judul, kategori, harga FROM buku WHERE kategori IN ('Teknologi', 'Keuangan') AND harga BETWEEN 50000 AND 100000;"
+  hints={["Combine IN for category and BETWEEN for price with AND", "Remember the parentheses on IN"]}
+  explanation="IN (...) filters two categories at once, combined with AND and BETWEEN for the price range."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u2l5-ex2"
+  title="Excluding a Word, Stock Available"
+  description="Show the title, author, and stock for books whose title does NOT contain the word 'Pulang', and with stock greater than 0."
+  type="code-output"
+  starterCode="SELECT judul, penulis, stok FROM buku;"
+  expectedQuery="SELECT judul, penulis, stok FROM buku WHERE judul NOT LIKE '%Pulang%' AND stok > 0;"
+  hints={["Use NOT LIKE to exclude a specific word", "Combine with AND stok > 0"]}
+  explanation="NOT LIKE '%Pulang%' excludes titles containing that word, combined with AND on the stock condition."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u2l5-ex3"
+  title="Picking the Most Appropriate Operator"
+  description="You want to find books written by 'Andrea Hirata', 'Tere Liye', or 'Eka Kurniawan'. Which operator is most concise and appropriate?"
+  type="multiple-choice"
+  options={[
+    "LIKE with three separate wildcards",
+    "IN with a list of three author names",
+    "BETWEEN the first and last author names alphabetically",
+    "IS NULL on the author column"
+  ]}
+  correctIndex={1}
+  hints={["This is a classic case: matching any one of several already-known specific values"]}
+  explanation="IN is the most appropriate choice for matching any one of several already-known specific values."
+  lang="en"
+/>
+
+## Unit 2 Summary
+
+| Concept | Operator |
+|---------|----------|
+| Combined logic | `AND`, `OR`, `NOT` |
+| Text patterns | `LIKE`, wildcards `%` `_` |
+| Value lists | `IN`, `NOT IN` |
+| Value ranges | `BETWEEN ... AND ...` |
+| Empty values | `IS NULL`, `IS NOT NULL`, `COALESCE` |
+
+In **Unit 3 (Aggregation & GROUP BY)**, we'll learn to summarize many rows into a single number — total sales, average price, book count per category — with `COUNT`, `SUM`, `AVG`, and `GROUP BY`.

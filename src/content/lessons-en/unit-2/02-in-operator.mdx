@@ -1,0 +1,112 @@
+---
+title: "The IN Operator"
+unit: 2
+lesson: 2
+description: "Checking whether a column's value is in a list with IN and NOT IN"
+objectives:
+  - "Filter rows against a list of values with IN"
+  - "Invert the search with NOT IN"
+  - "Understand IN as a shorthand for a chain of OR"
+estimatedTime: 20
+prerequisites: ["unit-2/01-like-wildcard"]
+difficulty: "beginner"
+tags: ["in", "not-in"]
+database: "toko_buku"
+translationStatus: "complete"
+---
+
+# The IN Operator
+
+Imagine you want books with category 'Fiksi', 'Non-Fiksi', **or** 'Teknologi'. With `OR` you'd have to repeat three conditions. `IN` shortens that into a single list.
+
+## IN — Shorthand for a Chain of OR
+
+```sql
+-- Same as: kategori = 'Fiksi' OR kategori = 'Non-Fiksi' OR kategori = 'Teknologi'
+SELECT judul, kategori
+FROM buku
+WHERE kategori IN ('Fiksi', 'Non-Fiksi', 'Teknologi');
+```
+
+Much more concise and readable than chaining repeated `OR`.
+
+## NOT IN — The Opposite
+
+```sql
+-- All books EXCEPT Fiksi and Non-Fiksi categories
+SELECT judul, kategori
+FROM buku
+WHERE kategori NOT IN ('Fiksi', 'Non-Fiksi');
+```
+
+## IN with Numbers
+
+`IN` also works on numeric columns, not just text:
+
+```sql
+SELECT judul, tahun_terbit
+FROM buku
+WHERE tahun_terbit IN (2018, 2023);
+```
+
+:::tip
+`IN` is most useful once the list has 3 or more values. For just 1-2 values, `WHERE x = a OR x = b` is still concise enough — pick whichever reads more clearly.
+:::
+
+:::warning
+Be careful with `NOT IN` and `NULL` — if the list inside `NOT IN` contains a `NULL` value (e.g. from a subquery result in Unit 5), the entire `NOT IN` result can unexpectedly become empty. This is a well-known SQL pitfall we'll cover in more depth when we get to subqueries.
+:::
+
+## Exercise
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u2l2-ex1"
+  title="Three Categories at Once"
+  description="Show the title and category for books in category 'Fiksi', 'Teknologi', or 'Keuangan'."
+  type="code-output"
+  starterCode="SELECT judul, kategori FROM buku;"
+  expectedQuery="SELECT judul, kategori FROM buku WHERE kategori IN ('Fiksi', 'Teknologi', 'Keuangan');"
+  hints={["Use IN followed by a comma-separated list in parentheses"]}
+  explanation="IN ('Fiksi', 'Teknologi', 'Keuangan') filters rows whose category is one of those three values."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u2l2-ex2"
+  title="Excluding Two Categories"
+  description="Show the title and category for all books EXCEPT category 'Pengembangan Diri' and 'Keuangan'."
+  type="code-output"
+  starterCode="SELECT judul, kategori FROM buku;"
+  expectedQuery="SELECT judul, kategori FROM buku WHERE kategori NOT IN ('Pengembangan Diri', 'Keuangan');"
+  hints={["Use NOT IN to invert the list"]}
+  explanation="NOT IN ('Pengembangan Diri', 'Keuangan') shows every row whose category isn't one of those two values."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u2l2-ex3"
+  title="What IN Is Equivalent To"
+  description="WHERE kategori IN ('A', 'B', 'C') is equivalent to which chain of operators?"
+  type="multiple-choice"
+  options={[
+    "kategori = 'A' AND kategori = 'B' AND kategori = 'C'",
+    "kategori = 'A' OR kategori = 'B' OR kategori = 'C'",
+    "kategori <> 'A' AND kategori <> 'B'",
+    "kategori LIKE 'A%' OR kategori LIKE 'B%'"
+  ]}
+  correctIndex={1}
+  hints={["A single row can't equal three different values at once, so it's not AND"]}
+  explanation="IN is shorthand for a chain of OR — a row matches if its value equals ANY ONE of the list values."
+  lang="en"
+/>
+
+## Summary
+
+| Operator | Meaning | Example |
+|----------|---------|---------|
+| `IN (...)` | Matches any value in the list | `kategori IN ('Fiksi', 'Teknologi')` |
+| `NOT IN (...)` | Matches none of the values in the list | `kategori NOT IN ('Fiksi')` |
+
+Next: filtering a range of values with **BETWEEN**.

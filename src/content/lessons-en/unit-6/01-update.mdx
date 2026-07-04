@@ -1,0 +1,130 @@
+---
+title: "Modifying Data with UPDATE"
+unit: 6
+lesson: 1
+description: "Changing column values on existing rows with the UPDATE statement"
+objectives:
+  - "Modify one or more columns with UPDATE ... SET"
+  - "Understand why UPDATE without WHERE is extremely dangerous"
+  - "Update multiple rows at once based on a condition"
+estimatedTime: 25
+prerequisites: ["unit-6/00-insert"]
+difficulty: "intermediate"
+tags: ["update", "dml"]
+database: "toko_buku"
+translationStatus: "complete"
+---
+
+# Modifying Data with UPDATE
+
+`UPDATE` changes column values on rows that **already exist** in a table — unlike `INSERT`, which adds new rows.
+
+## Basic UPDATE
+
+```sql
+UPDATE buku
+SET stok = 15
+WHERE id = 1;
+```
+
+- **`UPDATE buku`** — the table to modify
+- **`SET stok = 15`** — which column to change, and its new value
+- **`WHERE id = 1`** — which row(s) are affected by this change
+
+Try `SELECT * FROM buku WHERE id = 1;` after running the `UPDATE` above to see the change.
+
+## Changing Multiple Columns at Once
+
+```sql
+UPDATE buku
+SET harga = 75000, stok = 20
+WHERE id = 1;
+```
+
+Separate each `column = value` with a comma inside a single `SET`.
+
+## DANGER: UPDATE Without WHERE
+
+```sql
+-- DANGER! This sets stock to 0 for ALL rows in the table, not just one book
+UPDATE buku SET stok = 0;
+```
+
+:::warning
+`UPDATE` **without `WHERE`** changes **ALL rows** in the table, not just one. This is one of the most destructive mistakes in SQL — in the real world (not this playground), it can mean permanently losing production data. Always double-check your `WHERE` clause before running an `UPDATE`, especially on a real database.
+:::
+
+:::tip
+Safe habit: before running an `UPDATE`, first run a `SELECT` with the same `WHERE` to see **exactly which rows** will be affected. If the `SELECT` result matches your expectation, only then change `SELECT *` into `UPDATE ... SET ...`.
+:::
+
+## UPDATE Affecting Multiple Rows by Condition
+
+```sql
+-- Raise the price by 10% for all Fiction category books
+UPDATE buku
+SET harga = harga * 1.1
+WHERE kategori = 'Fiksi';
+```
+
+Notice `harga = harga * 1.1` — the new value can be computed from the same column's **old** value, not just a fixed value.
+
+## Exercise
+
+import { Exercise } from '@/components/learn/Exercise'
+
+<Exercise client:load
+  id="u6l1-ex1"
+  title="Update One Book's Stock"
+  description="Change the stock of the book with id 6 ('Negeri 5 Menara', stock 0) to 25. Then show that row to verify."
+  type="code-output"
+  starterCode="UPDATE buku SET stok = 10 WHERE id = 6;
+
+SELECT * FROM buku WHERE id = 6;"
+  expectedQuery="UPDATE buku SET stok = 25 WHERE id = 6; SELECT * FROM buku WHERE id = 6;"
+  hints={["Change the stock value to 25"]}
+  explanation="UPDATE ... SET stok = 25 WHERE id = 6 only changes the row with id 6, leaving other rows untouched."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u6l1-ex2"
+  title="10% Discount on Technology Category"
+  description="Lower the price by 10% for all 'Teknologi' category books (multiply price by 0.9). Then show the title and new price for that category."
+  type="code-output"
+  starterCode="UPDATE buku SET harga = harga * 1.1 WHERE kategori = 'Fiksi';
+
+SELECT judul, harga FROM buku WHERE kategori = 'Fiksi';"
+  expectedQuery="UPDATE buku SET harga = harga * 0.9 WHERE kategori = 'Teknologi'; SELECT judul, harga FROM buku WHERE kategori = 'Teknologi';"
+  hints={["Use a 0.9 multiplier for a 10% decrease", "Change the category to 'Teknologi'"]}
+  explanation="harga = harga * 0.9 computes a new value from the old price, applied to every row matching WHERE kategori = 'Teknologi'."
+  lang="en"
+/>
+
+<Exercise client:load
+  id="u6l1-ex3"
+  title="The Risk of UPDATE Without WHERE"
+  description="What happens if you run UPDATE buku SET stok = 0; WITHOUT a WHERE clause?"
+  type="multiple-choice"
+  options={[
+    "Only the first row changes",
+    "Nothing changes because the query will error",
+    "ALL rows in the buku table will have their stock set to 0",
+    "SQLite will ask for confirmation before running"
+  ]}
+  correctIndex={2}
+  hints={["WHERE is the only way to limit which rows an UPDATE affects"]}
+  explanation="Without WHERE, UPDATE changes ALL rows in the table — one of the most dangerous mistakes to make accidentally in SQL."
+  lang="en"
+/>
+
+## Summary
+
+| Concept | Example |
+|---------|---------|
+| Basic UPDATE | `UPDATE buku SET stok = 15 WHERE id = 1;` |
+| Multiple columns | `SET harga = 75000, stok = 20` |
+| Compute from old value | `SET harga = harga * 1.1` |
+| DANGER | `UPDATE` without `WHERE` changes ALL rows |
+
+Next: removing rows with **DELETE** — where being careful with `WHERE` matters just as much.
