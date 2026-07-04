@@ -18,10 +18,21 @@ Semua perubahan penting pada proyek belajar-sql dicatat di file ini. Format meng
 - `package.json`: field `engines.node: "22.x"` agar Vercel memakai versi Node yang sama dengan environment development (Volta)
 - `CHANGELOG.md` untuk mencatat riwayat perubahan proyek
 
+- `.github/workflows/ci.yml`: CI on push/PR ke `main` — typecheck, unit test (vitest), build, dan E2E test (Playwright) sebelum deploy; tanpa secrets Judge0 karena sql.js berjalan 100% client-side
+- `public/og-default.png`: versi PNG dari `og-default.svg` untuk kompatibilitas social preview (Facebook/X/WhatsApp/LinkedIn tidak merender SVG untuk `og:image`)
+
 ### Changed
 - `src/lib/curriculum.ts`: Unit 2-6 diubah dari `isAvailable: false, lessons: []` menjadi kurikulum penuh dengan `projectTitle` nyata per unit
 - `src/lib/progress.ts`: `UNIT_LESSON_COUNTS` diperluas mencakup unit-2 s/d unit-6 agar badge "Unit N Selesai" berfungsi benar
 - `README.md`: tabel kurikulum diperbarui — semua 7 unit kini ✅ Tersedia (44 lesson total)
+- `src/layouts/BaseLayout.astro`, `src/components/common/SEOHead.astro`: `og:image`/`twitter:image` kini menunjuk ke `og-default.png`, bukan `.svg`
+- `playwright.config.ts`: di CI, e2e test menjalankan `astro preview` (build produksi) alih-alih `astro dev`, dan `workers: 1` untuk menghindari flaky test akibat kontensi pada satu server dev
+
+### Fixed
+- `src/components/learn/Exercise.tsx`: pengecekan truthy `schema ? {...} : {}` sebelumnya menggugurkan `schema=""` (dipakai lesson Unit 6 dengan database kosong), membuat `SqlPlayground` diam-diam jatuh ke database default `toko_buku` — diganti jadi `schema !== undefined`
+- 16 file lesson Unit 4/5 (ID+EN) lupa menyertakan prop `database="perpustakaan"` langsung pada komponen `<Exercise>` (hanya ada di frontmatter, yang tidak fungsional) — menyebabkan error `no such table` saat exercise dijalankan
+- `src/lib/sql-engine.ts`: `runQuery` salah menampilkan pesan "N baris terpengaruh" (stale, dari `getRowsModified()`) untuk `SELECT` yang hasilnya 0 baris — sekarang dideteksi lewat `isSelectLikeStatement` agar tidak disamakan dengan statement DML/DDL
+- `src/__tests__/e2e/smoke.test.ts`: locator `h1` yang tidak di-scope bentrok dengan elemen `<h1>` di shadow DOM Astro dev toolbar (strict-mode violation) — diperbaiki jadi `main h1`
 
 ## [0.1.0-beta.1] - 2026-07-04
 
