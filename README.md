@@ -7,7 +7,7 @@
   <p>Platform pembelajaran SQL gratis, interaktif, dan bilingual untuk siswa SMP & SMA Indonesia.</p>
 
   [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
-  [![Version](https://img.shields.io/badge/version-v0.1.0--beta.1-orange)](#)
+  [![Version](https://img.shields.io/badge/version-v0.1.0--beta.1-orange)](./CHANGELOG.md)
   [![Astro](https://img.shields.io/badge/Astro-v7-FF5D01?logo=astro&logoColor=white)](https://astro.build)
   [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
   [![Tailwind CSS](https://img.shields.io/badge/Tailwind-v4-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
@@ -211,6 +211,33 @@ import { Exercise } from '@/components/learn/Exercise'
 ```
 
 Tipe exercise yang tersedia: `multiple-choice`, `fill-blank`, `code-output`, `free-code`. Untuk `code-output`, `expectedQuery` dijalankan langsung terhadap database yang sama (row-set comparison, order-insensitive secara default — tambahkan prop `strictOrder` untuk lesson yang membahas `ORDER BY`).
+
+---
+
+## Deployment
+
+Project ini fully static (tidak ada server/SSR — semua eksekusi query berjalan client-side lewat sql.js), jadi bisa di-deploy ke hosting statis apapun.
+
+### Vercel
+
+Sudah tersedia `vercel.json` siap pakai — tinggal import repository ini di [Vercel Dashboard](https://vercel.com/new), framework preset `Astro` akan terdeteksi otomatis:
+
+```bash
+# Atau lewat CLI
+npx vercel
+```
+
+`vercel.json` mengatur:
+- `buildCommand`/`outputDirectory` eksplisit (`npm run build` → `dist/`)
+- `Content-Type: application/wasm` untuk `/wasm/*` (binary sql.js)
+- Cache-Control immutable untuk aset build (`/_astro/*`, `/images/*`)
+- Security headers (CSP, X-Frame-Options, dll) — CSP `script-src` menyertakan `wasm-unsafe-eval` agar WebAssembly (sql.js) bisa di-instantiate
+
+Tidak ada environment variable yang perlu diset — tidak ada API key atau secret apapun.
+
+### Hosting statis lain
+
+Build lokal (`npm run build`) menghasilkan folder `dist/` siap upload ke Netlify, Cloudflare Pages, GitHub Pages, atau static host manapun. Pastikan server meng-serve `/wasm/*.wasm` dengan `Content-Type: application/wasm` (kebanyakan static host modern sudah otomatis).
 
 ---
 
