@@ -33,6 +33,8 @@ Semua perubahan penting pada proyek belajar-sql dicatat di file ini. Format meng
 - 16 file lesson Unit 4/5 (ID+EN) lupa menyertakan prop `database="perpustakaan"` langsung pada komponen `<Exercise>` (hanya ada di frontmatter, yang tidak fungsional) — menyebabkan error `no such table` saat exercise dijalankan
 - `src/lib/sql-engine.ts`: `runQuery` salah menampilkan pesan "N baris terpengaruh" (stale, dari `getRowsModified()`) untuk `SELECT` yang hasilnya 0 baris — sekarang dideteksi lewat `isSelectLikeStatement` agar tidak disamakan dengan statement DML/DDL
 - `src/__tests__/e2e/smoke.test.ts`: locator `h1` yang tidak di-scope bentrok dengan elemen `<h1>` di shadow DOM Astro dev toolbar (strict-mode violation) — diperbaiki jadi `main h1`
+- `npm audit`: `undici` (transitif lewat `jsdom`, devDependency-only) di-patch lewat `npm audit fix` non-forced (6 → 1 high severity). Sisa 1 finding butuh `jsdom` 30.x (major bump), dibiarkan karena cuma dipakai environment test `vitest`, tidak pernah jalan di production.
+- **Vercel production build berisiko gagal** ("no longer installed by default now that Sätteri is the default Markdown processor") — `@astrojs/markdown-remark` cuma ke-resolve transitif (via `@astrojs/mdx` dan `astro` di versi berbeda, tidak ter-hoist ke top-level) padahal `astro.config.mjs` butuh itu untuk config `markdown.remarkPlugins`. Dipasang sebagai dependency langsung sebelum sempat benar-benar gagal di production (ditemukan proaktif setelah belajar-python mengalaminya).
 
 ## [0.1.0-beta.1] - 2026-07-04
 
