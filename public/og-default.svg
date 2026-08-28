@@ -1,23 +1,118 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
   <defs>
-    <linearGradient id="og-bg" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#0f172a"/>
-      <stop offset="100%" stop-color="#1e293b"/>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f172a"/>
+      <stop offset="100%" style="stop-color:#1e293b"/>
     </linearGradient>
-    <linearGradient id="og-logo" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#1d4ed8"/>
-      <stop offset="100%" stop-color="#4f46e5"/>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#1d4ed8"/>
+      <stop offset="100%" style="stop-color:#4f46e5"/>
+    </linearGradient>
+    <linearGradient id="glow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1d4ed8;stop-opacity:0.15"/>
+      <stop offset="100%" style="stop-color:#4f46e5;stop-opacity:0.05"/>
     </linearGradient>
   </defs>
-  <rect width="1200" height="630" fill="url(#og-bg)"/>
-  <g transform="translate(64,64)">
-    <rect width="56" height="56" rx="14" fill="url(#og-logo)"/>
-    <ellipse cx="28" cy="18" rx="15" ry="5" fill="none" stroke="white" stroke-width="3"/>
-    <path d="M13 18 V38 C13 41 19.7 43.5 28 43.5 C36.3 43.5 43 41 43 38 V18" fill="none" stroke="white" stroke-width="3" stroke-linecap="round"/>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- Decorative grid lines -->
+  <g stroke="#1e40af" stroke-width="1" opacity="0.15">
+    <line x1="0" y1="105" x2="1200" y2="105"/>
+    <line x1="0" y1="210" x2="1200" y2="210"/>
+    <line x1="0" y1="315" x2="1200" y2="315"/>
+    <line x1="0" y1="420" x2="1200" y2="420"/>
+    <line x1="0" y1="525" x2="1200" y2="525"/>
+    <line x1="200" y1="0" x2="200" y2="630"/>
+    <line x1="400" y1="0" x2="400" y2="630"/>
+    <line x1="600" y1="0" x2="600" y2="630"/>
+    <line x1="800" y1="0" x2="800" y2="630"/>
+    <line x1="1000" y1="0" x2="1000" y2="630"/>
   </g>
-  <text x="150" y="105" font-family="'Segoe UI', system-ui, sans-serif" font-size="24" fill="#94a3b8">belajar-sql.disinauni.my.id</text>
-  <text x="64" y="280" font-family="'Segoe UI', system-ui, sans-serif" font-size="64" font-weight="700" fill="#f1f5f9">Belajar SQL</text>
-  <text x="64" y="340" font-family="'Segoe UI', system-ui, sans-serif" font-size="28" fill="#93c5fd" letter-spacing="1">PLATFORM PEMBELAJARAN SQL</text>
-  <text x="64" y="400" font-family="'Segoe UI', system-ui, sans-serif" font-size="26" fill="#94a3b8">Gratis, interaktif, dan bilingual untuk siswa SMP &amp; SMA Indonesia</text>
-  <text x="64" y="560" font-family="'Segoe UI', system-ui, sans-serif" font-size="20" fill="#475569">Gratis · Bilingual · Tanpa install · Playground SQL langsung di browser</text>
+
+  <!-- Glow blob top-right -->
+  <ellipse cx="1050" cy="150" rx="320" ry="220" fill="url(#glow)"/>
+
+  <!-- Glow blob bottom-left -->
+  <ellipse cx="150" cy="520" rx="240" ry="160" fill="url(#glow)"/>
+
+  <!-- Code editor mockup (right side) -->
+  <rect x="660" y="120" width="480" height="340" rx="12" fill="#1e293b" opacity="0.9"/>
+  <rect x="660" y="120" width="480" height="36" rx="12" fill="#0f172a"/>
+  <rect x="660" y="144" width="480" height="12" fill="#0f172a"/>
+  <!-- Window dots -->
+  <circle cx="690" cy="138" r="6" fill="#ef4444" opacity="0.8"/>
+  <circle cx="712" cy="138" r="6" fill="#f59e0b" opacity="0.8"/>
+  <circle cx="734" cy="138" r="6" fill="#22c55e" opacity="0.8"/>
+  <!-- Filename -->
+  <text x="760" y="143" font-family="monospace" font-size="13" fill="#64748b">query.sql</text>
+
+  <!-- Code lines -->
+  <text x="680" y="186" font-family="monospace" font-size="14" fill="#64748b">1</text>
+  <text x="706" y="186" font-family="monospace" font-size="14" fill="#c792ea">SELECT </text>
+  <text x="782" y="186" font-family="monospace" font-size="14" fill="#89ddff">judul, harga</text>
+
+  <text x="680" y="210" font-family="monospace" font-size="14" fill="#64748b">2</text>
+  <text x="706" y="210" font-family="monospace" font-size="14" fill="#c792ea">FROM </text>
+  <text x="763" y="210" font-family="monospace" font-size="14" fill="#89ddff">buku</text>
+
+  <text x="680" y="234" font-family="monospace" font-size="14" fill="#64748b">3</text>
+  <text x="706" y="234" font-family="monospace" font-size="14" fill="#c792ea">WHERE </text>
+  <text x="770" y="234" font-family="monospace" font-size="14" fill="#89ddff">harga</text>
+  <text x="826" y="234" font-family="monospace" font-size="14" fill="#94a3b8"> &lt; </text>
+  <text x="846" y="234" font-family="monospace" font-size="14" fill="#f78c6c">50000</text>
+  <text x="898" y="234" font-family="monospace" font-size="14" fill="#89ddff">;</text>
+
+  <!-- Output panel: query result as a mini table -->
+  <rect x="660" y="340" width="480" height="120" rx="0" fill="#0a0f1a" opacity="0.8"/>
+  <rect x="660" y="340" width="480" height="1" fill="#334155"/>
+  <text x="680" y="360" font-family="monospace" font-size="12" fill="#475569">Hasil Query</text>
+
+  <text x="680" y="384" font-family="monospace" font-size="14" fill="#e2e8f0">judul</text>
+  <text x="900" y="384" font-family="monospace" font-size="14" fill="#e2e8f0">harga</text>
+  <line x1="680" y1="392" x2="1120" y2="392" stroke="#334155" stroke-width="1"/>
+
+  <text x="680" y="412" font-family="monospace" font-size="14" fill="#94a3b8">Laskar Pelangi</text>
+  <text x="900" y="412" font-family="monospace" font-size="14" fill="#4ade80">45000</text>
+
+  <text x="680" y="434" font-family="monospace" font-size="14" fill="#94a3b8">Bumi Manusia</text>
+  <text x="900" y="434" font-family="monospace" font-size="14" fill="#4ade80">38000</text>
+
+  <!-- Rounded corner fix for output -->
+  <rect x="660" y="448" width="480" height="12" rx="0" ry="0" fill="#0a0f1a" opacity="0.8"/>
+  <rect x="660" y="448" width="480" height="12" rx="12" fill="#1e293b" opacity="0.9"/>
+
+  <!-- Left side: branding -->
+  <!-- Logo / icon -->
+  <rect x="80" y="160" width="72" height="72" rx="16" fill="url(#accent)" opacity="0.9"/>
+  <g transform="translate(80,160) scale(2.25)">
+    <ellipse cx="16" cy="10" rx="8" ry="3" fill="none" stroke="white" stroke-width="2"/>
+    <path d="M8 10 V22 C8 23.7 11.6 25 16 25 C20.4 25 24 23.7 24 22 V10" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"/>
+    <path d="M8 16 C8 17.7 11.6 19 16 19 C20.4 19 24 17.7 24 16" fill="none" stroke="#93c5fd" stroke-width="2" stroke-linecap="round"/>
+  </g>
+
+  <!-- Title -->
+  <text x="80" y="290" font-family="system-ui, -apple-system, sans-serif" font-weight="700" font-size="56" fill="white">Belajar</text>
+  <text x="80" y="354" font-family="system-ui, -apple-system, sans-serif" font-weight="700" font-size="56" fill="url(#accent)">SQL</text>
+
+  <!-- Tagline -->
+  <text x="80" y="400" font-family="system-ui, -apple-system, sans-serif" font-size="22" fill="#94a3b8">Platform belajar SQL gratis &amp; interaktif</text>
+  <text x="80" y="430" font-family="system-ui, -apple-system, sans-serif" font-size="22" fill="#64748b">untuk siswa Indonesia</text>
+
+  <!-- Feature pills -->
+  <rect x="80" y="470" width="120" height="32" rx="16" fill="#1e3a5f" stroke="#3b82f6" stroke-width="1"/>
+  <text x="140" y="491" font-family="system-ui, sans-serif" font-size="14" fill="#93c5fd" text-anchor="middle">✓ Gratis</text>
+
+  <rect x="212" y="470" width="148" height="32" rx="16" fill="#1e3a5f" stroke="#3b82f6" stroke-width="1"/>
+  <text x="286" y="491" font-family="system-ui, sans-serif" font-size="14" fill="#93c5fd" text-anchor="middle">✓ Interaktif</text>
+
+  <rect x="372" y="470" width="148" height="32" rx="16" fill="#1e3a5f" stroke="#3b82f6" stroke-width="1"/>
+  <text x="446" y="491" font-family="system-ui, sans-serif" font-size="14" fill="#93c5fd" text-anchor="middle">✓ Bilingual</text>
+
+  <!-- Bottom accent bar -->
+  <rect x="0" y="610" width="1200" height="4" fill="url(#accent)"/>
+
+  <!-- URL -->
+  <text x="80" y="598" font-family="monospace" font-size="16" fill="#475569">belajar-sql.disinauni.my.id</text>
 </svg>
