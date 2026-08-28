@@ -7,6 +7,7 @@
   <p>Platform pembelajaran SQL gratis, interaktif, dan bilingual untuk siswa SMP & SMA Indonesia.</p>
 
   [![CI](https://github.com/disinauni/belajar-sql/actions/workflows/ci.yml/badge.svg)](https://github.com/disinauni/belajar-sql/actions/workflows/ci.yml)
+  [![Deploy](https://img.shields.io/badge/Live-belajar--sql.varnimyr.my.id-black?logo=vercel)](https://belajar-sql.varnimyr.my.id)
   [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
   [![Version](https://img.shields.io/badge/version-v0.1.0--beta.1-orange)](./CHANGELOG.md)
   [![Astro](https://img.shields.io/badge/Astro-v7-FF5D01?logo=astro&logoColor=white)](https://astro.build)
@@ -217,6 +218,8 @@ Tipe exercise yang tersedia: `multiple-choice`, `fill-blank`, `code-output`, `fr
 ---
 
 ## Deployment
+
+Live di **[belajar-sql.varnimyr.my.id](https://belajar-sql.varnimyr.my.id)**.
 
 Project ini fully static (tidak ada server/SSR — semua eksekusi query berjalan client-side lewat sql.js), jadi bisa di-deploy ke hosting statis apapun.
 
