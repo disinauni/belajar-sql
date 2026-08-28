@@ -4,6 +4,14 @@ Semua perubahan penting pada proyek belajar-sql dicatat di file ini. Format meng
 
 ## [Unreleased]
 
+### Changed
+- Migrasi organisasi GitHub dari akun personal `zedfar` ke org [`disinauni`](https://github.com/disinauni) (`github.com/disinauni/belajar-sql`), termasuk migrasi domain production dari `varnimyr.my.id` ke `disinauni.my.id`.
+- og-image diseragamkan dari template lama (badge kecil + teks judul/tagline polos, tanpa mockup) ke template terbaru sekeluarga (grid dekoratif, mockup jendela kode `query.sql`), dengan sentuhan khas: panel hasil menampilkan mini tabel hasil query (kolom `judul`/`harga`) alih-alih output satu baris seperti bahasa lain — lebih pas karena SQL secara alami menghasilkan data tabular.
+- README diseragamkan strukturnya dengan keluarga situs belajar-* lainnya: badge Tests/E2E ditambahkan (83 unit test + 18 e2e test, dari hasil run aktual), paragraf keanggotaan [ekosistem disinauni](https://disinauni.my.id).
+
+### Fixed
+- Situs ini ternyata sudah live di `belajar-sql.disinauni.my.id` sejak awal, tapi URL-nya tidak pernah tercatat di `package.json` (`homepage`) maupun README (section Deployment sebelumnya berupa panduan cara deploy, bukan pernyataan sudah live) — ketahuan saat pengecekan HTTP langsung ke domainnya, sudah didokumentasikan.
+
 ### Added
 - **Kurikulum lengkap Unit 2-6** (33 lesson baru × ID/EN = 66 file MDX), melengkapi roadmap yang sebelumnya kosong:
   - **Unit 2 — Filtering & Operator** (6 lesson): `AND`/`OR`/`NOT`, `LIKE` & wildcard, `IN`, `BETWEEN`, `NULL`/`COALESCE`, proyek mini filter lanjutan
