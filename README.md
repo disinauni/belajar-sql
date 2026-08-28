@@ -6,7 +6,7 @@
 
   <p>Platform pembelajaran SQL gratis, interaktif, dan bilingual untuk siswa SMP & SMA Indonesia.</p>
 
-  [![CI](https://github.com/zedfar/belajar-sql/actions/workflows/ci.yml/badge.svg)](https://github.com/zedfar/belajar-sql/actions/workflows/ci.yml)
+  [![CI](https://github.com/disinauni/belajar-sql/actions/workflows/ci.yml/badge.svg)](https://github.com/disinauni/belajar-sql/actions/workflows/ci.yml)
   [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
   [![Version](https://img.shields.io/badge/version-v0.1.0--beta.1-orange)](./CHANGELOG.md)
   [![Astro](https://img.shields.io/badge/Astro-v7-FF5D01?logo=astro&logoColor=white)](https://astro.build)
@@ -27,7 +27,7 @@
 - Siapapun yang ingin memahami database relasional dalam Bahasa Indonesia
 - Persiapan dasar sebelum belajar backend development / data analysis
 
-Project ini adalah adaptasi dari [**Belajar Python**](https://github.com/zedfar/belajar-python) — arsitektur, struktur konten, dan pendekatan pembelajarannya sama, hanya materinya diganti dari Python ke SQL, dan engine eksekusi kode diganti total dari Judge0 (server proxy) menjadi **sql.js** (SQLite via WebAssembly, 100% client-side).
+Project ini adalah adaptasi dari [**Belajar Python**](https://github.com/disinauni/belajar-python) — arsitektur, struktur konten, dan pendekatan pembelajarannya sama, hanya materinya diganti dari Python ke SQL, dan engine eksekusi kode diganti total dari Judge0 (server proxy) menjadi **sql.js** (SQLite via WebAssembly, 100% client-side).
 
 ---
 
@@ -92,7 +92,7 @@ Project ini adalah adaptasi dari [**Belajar Python**](https://github.com/zedfar/
 
 ```bash
 # Clone repository
-git clone https://github.com/zedfar/belajar-sql.git
+git clone https://github.com/disinauni/belajar-sql.git
 cd belajar-sql
 
 # Install dependencies (otomatis meng-copy sql-wasm.wasm ke public/wasm/)

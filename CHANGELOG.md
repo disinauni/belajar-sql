@@ -38,7 +38,7 @@ Semua perubahan penting pada proyek belajar-sql dicatat di file ini. Format meng
 
 ## [0.1.0-beta.1] - 2026-07-04
 
-Rilis awal — adaptasi arsitektur dari [belajar-python](https://github.com/zedfar/belajar-python) ke kurikulum SQL, dengan perubahan mendasar pada engine eksekusi kode.
+Rilis awal — adaptasi arsitektur dari [belajar-python](https://github.com/disinauni/belajar-python) ke kurikulum SQL, dengan perubahan mendasar pada engine eksekusi kode.
 
 ### Added
 - Scaffold Astro v7 + React islands + TypeScript (strict) + Tailwind v4, mengikuti struktur belajar-python (layouts, komponen ui/layout/learn/common, i18n, routing `[lang]/learn/[unit]/[lesson]`)
