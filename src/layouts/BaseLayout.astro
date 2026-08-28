@@ -8,7 +8,7 @@ interface Props {
   ogImage?: string
 }
 const { title, description, lang, ogImage } = Astro.props
-const siteUrl = import.meta.env.PUBLIC_SITE_URL || 'https://belajar-sql.varnimyr.my.id'
+const siteUrl = import.meta.env.PUBLIC_SITE_URL || 'https://belajar-sql.disinauni.my.id'
 const fullTitle = `${title} | Belajar SQL`
 const desc = description || (lang === 'id'
   ? 'Website pembelajaran SQL untuk siswa SMP dan SMA Indonesia.'

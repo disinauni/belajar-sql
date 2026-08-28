@@ -50,7 +50,7 @@ const copyButtonTransformer = {
 }
 
 export default defineConfig({
-  site: 'https://belajar-sql.varnimyr.my.id',
+  site: 'https://belajar-sql.disinauni.my.id',
 
   vite: {
     plugins: [tailwindcss()],

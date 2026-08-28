@@ -32,7 +32,7 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          PUBLIC_SITE_URL: https://belajar-sql.varnimyr.my.id
+          PUBLIC_SITE_URL: https://belajar-sql.disinauni.my.id
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
@@ -40,7 +40,7 @@ jobs:
       - name: E2E tests
         run: npm run test:e2e
         env:
-          PUBLIC_SITE_URL: https://belajar-sql.varnimyr.my.id
+          PUBLIC_SITE_URL: https://belajar-sql.disinauni.my.id
 
       - name: Upload E2E report on failure
         if: failure()

@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://belajar-sql.varnimyr.my.id/sitemap-index.xml
+Sitemap: https://belajar-sql.disinauni.my.id/sitemap-index.xml
