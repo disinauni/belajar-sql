@@ -6,13 +6,15 @@
 
   <p>Platform pembelajaran SQL gratis, interaktif, dan bilingual untuk siswa SMP & SMA Indonesia.</p>
 
-  [![CI](https://github.com/disinauni/belajar-sql/actions/workflows/ci.yml/badge.svg)](https://github.com/disinauni/belajar-sql/actions/workflows/ci.yml)
-  [![Deploy](https://img.shields.io/badge/Live-belajar--sql.disinauni.my.id-black?logo=vercel)](https://belajar-sql.disinauni.my.id)
   [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
   [![Version](https://img.shields.io/badge/version-v0.1.0--beta.1-orange)](./CHANGELOG.md)
+  [![CI](https://github.com/disinauni/belajar-sql/actions/workflows/ci.yml/badge.svg)](https://github.com/disinauni/belajar-sql/actions/workflows/ci.yml)
+  [![Deploy](https://img.shields.io/badge/Live-belajar--sql.disinauni.my.id-black?logo=vercel)](https://belajar-sql.disinauni.my.id)
   [![Astro](https://img.shields.io/badge/Astro-v7-FF5D01?logo=astro&logoColor=white)](https://astro.build)
   [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
   [![Tailwind CSS](https://img.shields.io/badge/Tailwind-v4-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
+  [![Tests](https://img.shields.io/badge/unit%20tests-83%20passing-brightgreen?logo=vitest)](./src/__tests__)
+  [![E2E](https://img.shields.io/badge/e2e-18%20passing-brightgreen?logo=playwright)](./src/__tests__/e2e)
   [![sql.js](https://img.shields.io/badge/sql.js-SQLite%2FWASM-003B57?logo=sqlite&logoColor=white)](https://sql.js.org)
 
 </div>
@@ -29,6 +31,8 @@
 - Persiapan dasar sebelum belajar backend development / data analysis
 
 Project ini adalah adaptasi dari [**Belajar Python**](https://github.com/disinauni/belajar-python) — arsitektur, struktur konten, dan pendekatan pembelajarannya sama, hanya materinya diganti dari Python ke SQL, dan engine eksekusi kode diganti total dari Judge0 (server proxy) menjadi **sql.js** (SQLite via WebAssembly, 100% client-side).
+
+Bagian dari [ekosistem disinauni](https://disinauni.my.id) bersama [Belajar C++](https://github.com/disinauni/belajar-cpp), Belajar Python, [Belajar Golang](https://github.com/disinauni/belajar-golang), dan [Belajar Rust](https://github.com/disinauni/belajar-rust).
 
 ---
 
@@ -253,5 +257,5 @@ Dirilis di bawah [MIT License](./LICENSE). Bebas digunakan, dimodifikasi, dan di
 ---
 
 <div align="center">
-  <sub>Dibuat dengan ❤️ untuk pelajar Indonesia</sub>
+  <sub>Dibuat dengan ❤️ untuk pelajar Indonesia &middot; <a href="https://belajar-sql.disinauni.my.id">belajar-sql.disinauni.my.id</a> &middot; bagian dari <a href="https://disinauni.my.id">disinauni</a></sub>
 </div>
